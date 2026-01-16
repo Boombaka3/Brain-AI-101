@@ -54,11 +54,15 @@ function BiologyDiagram({
   }
 
   // Calculate fill opacity
-  const maxDisplayA = Math.max(neuronAThreshold, neuronATotalInput, 1)
-  const fillOpacityA = Math.min(1, Math.max(0, (neuronATotalInput / maxDisplayA) * 0.8))
+  const fillRatioA = Math.min(1, Math.max(0, neuronATotalInput / Math.max(neuronAThreshold, 1)))
+  const fillRatioB = Math.min(1, Math.max(0, neuronBInput / Math.max(neuronBThreshold, 1)))
 
-  const maxDisplayB = Math.max(neuronBThreshold, neuronBInput, 1)
-  const fillOpacityB = Math.min(1, Math.max(0, (neuronBInput / maxDisplayB) * 0.8))
+  const somaDiameterA = neuronASomaRadius * 2
+  const somaDiameterB = neuronBSomaRadius * 2
+  const fillHeightA = somaDiameterA * fillRatioA
+  const fillHeightB = somaDiameterB * fillRatioB
+  const fillTopYA = neuronACenterY + neuronASomaRadius - fillHeightA
+  const fillTopYB = neuronBCenterY + neuronBSomaRadius - fillHeightB
 
   // Animate axon pulse when firing
   useEffect(() => {
@@ -100,6 +104,14 @@ function BiologyDiagram({
         style={{ display: 'block' }}
       >
         <g transform={`translate(${stagePaddingX}, ${stagePaddingY})`}>
+          <defs>
+            <clipPath id="somaClipA">
+              <circle cx={neuronACenterX} cy={neuronACenterY} r={neuronASomaRadius} />
+            </clipPath>
+            <clipPath id="somaClipB">
+              <circle cx={neuronBCenterX} cy={neuronBCenterY} r={neuronBSomaRadius} />
+            </clipPath>
+          </defs>
           {/* ===== INPUTS (straight converging lines) ===== */}
           {inputYPositions.map((inputY, index) => {
             const endX = neuronACenterX - neuronASomaRadius
@@ -133,17 +145,33 @@ function BiologyDiagram({
               strokeWidth="3"
             />
 
-            {/* Summation fill overlay - animated with Framer Motion */}
-            {fillOpacityA > 0 && (
-              <motion.circle
-                cx={neuronACenterX}
-                cy={neuronACenterY}
-                r={neuronAThresholdRadius * (fillOpacityA / 0.8)}
-                fill="#26C97F"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: fillOpacityA }}
-                transition={{ duration: 0.3 }}
-              />
+            {/* Summation fill gauge */}
+            {fillRatioA > 0 && (
+              <>
+                <motion.rect
+                  x={neuronACenterX - neuronASomaRadius}
+                  y={fillTopYA}
+                  width={somaDiameterA}
+                  height={fillHeightA}
+                  fill="#26C97F"
+                  clipPath="url(#somaClipA)"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                />
+                <motion.line
+                  x1={neuronACenterX - neuronASomaRadius}
+                  x2={neuronACenterX + neuronASomaRadius}
+                  y1={fillTopYA}
+                  y2={fillTopYA}
+                  stroke="#1A7F52"
+                  strokeWidth="2"
+                  clipPath="url(#somaClipA)"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                />
+              </>
             )}
 
             {/* Threshold ring */}
@@ -212,17 +240,33 @@ function BiologyDiagram({
               opacity={neuronBFires ? 1 : 0.6}
             />
 
-            {/* Summation fill overlay */}
-            {neuronAFires && fillOpacityB > 0 && (
-              <motion.circle
-                cx={neuronBCenterX}
-                cy={neuronBCenterY}
-                r={neuronBThresholdRadius * (fillOpacityB / 0.8)}
-                fill="#26C97F"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: fillOpacityB }}
-                transition={{ duration: 0.3 }}
-              />
+            {/* Summation fill gauge */}
+            {fillRatioB > 0 && (
+              <>
+                <motion.rect
+                  x={neuronBCenterX - neuronBSomaRadius}
+                  y={fillTopYB}
+                  width={somaDiameterB}
+                  height={fillHeightB}
+                  fill="#26C97F"
+                  clipPath="url(#somaClipB)"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                />
+                <motion.line
+                  x1={neuronBCenterX - neuronBSomaRadius}
+                  x2={neuronBCenterX + neuronBSomaRadius}
+                  y1={fillTopYB}
+                  y2={fillTopYB}
+                  stroke="#1A7F52"
+                  strokeWidth="2"
+                  clipPath="url(#somaClipB)"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                />
+              </>
             )}
 
             {/* Threshold ring */}
