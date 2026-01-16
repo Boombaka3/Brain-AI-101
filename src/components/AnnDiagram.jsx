@@ -281,7 +281,6 @@ function AnnDiagram({
               fill="#57FFB0"
               stroke="#0F3B2B"
               strokeWidth="3"
-              opacity={neuronBFires ? 1 : 0.6}
             />
 
             {/* Summation fill gauge */}
