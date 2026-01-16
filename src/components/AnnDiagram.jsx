@@ -18,7 +18,6 @@ function AnnDiagram({
   isSimpleMode = true
 }) {
   const [connectionPulse, setConnectionPulse] = useState(0)
-  const [outputPulse, setOutputPulse] = useState(0)
 
   const svgWidth = isMobile && typeof window !== 'undefined' ? Math.min(window.innerWidth - 48, 760) : 760
   const svgHeight = 260
@@ -95,31 +94,6 @@ function AnnDiagram({
     requestAnimationFrame(animate)
   }, [neuronAFires])
 
-  // Animate output pulse when Neuron B fires
-  useEffect(() => {
-    if (!neuronBFires) {
-      setOutputPulse(0)
-      return
-    }
-
-    setOutputPulse(0)
-    const duration = 600
-    const startTime = Date.now()
-
-    const animate = () => {
-      const elapsed = Date.now() - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      setOutputPulse(progress)
-
-      if (progress < 1) {
-        requestAnimationFrame(animate)
-      } else {
-        setTimeout(() => setOutputPulse(0), 200)
-      }
-    }
-
-    requestAnimationFrame(animate)
-  }, [neuronBFires])
 
   return (
     <div style={{
@@ -382,45 +356,6 @@ function AnnDiagram({
             )}
           </g>
 
-          {/* ===== OUTPUT ===== */}
-          <g>
-            {/* Output line */}
-            <line
-              x1={neuronBCenterX + neuronRadius}
-              y1={centerY}
-              x2={outputX}
-              y2={centerY}
-              stroke="#57A5FF"
-              strokeWidth="3"
-              opacity={neuronBFires ? 1 : 0.3}
-            />
-
-            {/* Pulse dot - animated with Framer Motion */}
-            {neuronBFires && outputPulse > 0 && (
-              <motion.circle
-                cx={neuronBCenterX + neuronRadius + outputPulse * (outputX - neuronBCenterX - neuronRadius)}
-                cy={centerY}
-                r="6"
-                fill="#26C97F"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
-              />
-            )}
-
-            {/* Output indicator: "1" if firing */}
-            {neuronBFires && outputPulse > 0.8 && !isSimpleMode && (
-              <text
-                x={outputX + 15}
-                y={centerY + 4}
-                fontSize="12px"
-                fill="#1A2D34"
-                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              >
-                1
-              </text>
-            )}
-          </g>
         </g>
       </svg>
     </div>
