@@ -77,9 +77,12 @@ function BiologyDiagram({
   const thresholdRingOpacityA = neuronAFires ? 1 : 0.6
   const thresholdRingOpacityB = neuronBFires ? 1 : 0.6
 
+  const showDetailed = !isSimpleMode
   const labelColor = '#51606A'
-  const labelSize = isSimpleMode ? 12 : 10
+  const labelSize = isSimpleMode ? 13 : 10
   const labelWeight = 500
+  const hintColor = '#6B7280'
+  const hintSize = 10
 
   // Animate axon pulse when firing
   useEffect(() => {
@@ -228,19 +231,6 @@ function BiologyDiagram({
               </text>
             )}
 
-            {/* Neuron A label */}
-            {!isSimpleMode && (
-              <text
-                x={neuronACenterX}
-                y={neuronACenterY - neuronASomaRadius - 12}
-                fontSize="12px"
-                fill="#1A2D34"
-                textAnchor="middle"
-                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              >
-                Neuron A
-              </text>
-            )}
           </g>
 
           {/* ===== AXON ===== */}
@@ -340,19 +330,6 @@ function BiologyDiagram({
               </text>
             )}
 
-            {/* Neuron B label */}
-            {!isSimpleMode && (
-              <text
-                x={neuronBCenterX}
-                y={neuronBCenterY - neuronBSomaRadius - 12}
-                fontSize="12px"
-                fill="#1A2D34"
-                textAnchor="middle"
-                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              >
-                Neuron B
-              </text>
-            )}
           </g>
 
           {/* ===== LABELS ===== */}
@@ -370,17 +347,19 @@ function BiologyDiagram({
                 dendrites
               </text>
             )}
-            <text
-              x={neuronACenterX}
-              y={neuronACenterY + neuronASomaRadius + 16}
-              fontSize={labelSize}
-              fontWeight={labelWeight}
-              fill={labelColor}
-              textAnchor="middle"
-              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-            >
-              soma
-            </text>
+            {showDetailed && (
+              <text
+                x={neuronACenterX}
+                y={neuronACenterY + neuronASomaRadius + 16}
+                fontSize={labelSize}
+                fontWeight={labelWeight}
+                fill={labelColor}
+                textAnchor="middle"
+                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              >
+                soma
+              </text>
+            )}
             <text
               x={(axonStartX + axonEndX) / 2}
               y={axonY - 12}
@@ -392,17 +371,43 @@ function BiologyDiagram({
             >
               axon
             </text>
-            <text
-              x={neuronACenterX + neuronAThresholdRadius + 12}
-              y={neuronACenterY - neuronAThresholdRadius + 4}
-              fontSize={labelSize}
-              fontWeight={labelWeight}
-              fill={labelColor}
-              textAnchor="start"
-              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-            >
-              threshold
-            </text>
+            {showDetailed && (
+              <text
+                x={neuronACenterX + neuronAThresholdRadius + 12}
+                y={neuronACenterY - neuronAThresholdRadius + 4}
+                fontSize={labelSize}
+                fontWeight={labelWeight}
+                fill={labelColor}
+                textAnchor="start"
+                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              >
+                threshold
+              </text>
+            )}
+            {showDetailed && (
+              <>
+                <text
+                  x={neuronACenterX + neuronASomaRadius + 10}
+                  y={neuronACenterY + 6}
+                  fontSize={hintSize}
+                  fill={hintColor}
+                  textAnchor="start"
+                  fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+                >
+                  {neuronATotalInput}/{neuronAThreshold}
+                </text>
+                <text
+                  x={neuronBCenterX + neuronBSomaRadius + 10}
+                  y={neuronBCenterY + 6}
+                  fontSize={hintSize}
+                  fill={hintColor}
+                  textAnchor="start"
+                  fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+                >
+                  {neuronBInput}/{neuronBThreshold}
+                </text>
+              </>
+            )}
           </g>
         </g>
       </svg>

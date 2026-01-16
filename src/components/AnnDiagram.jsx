@@ -71,9 +71,12 @@ function AnnDiagram({
   const inputMarkerRadius = 4
   const inputMarkerOffset = 10
 
+  const showDetailed = !isSimpleMode
   const labelColor = '#51606A'
-  const labelSize = isSimpleMode ? 12 : 10
+  const labelSize = isSimpleMode ? 13 : 10
   const labelWeight = 500
+  const hintColor = '#6B7280'
+  const hintSize = 10
 
   // Animate connection pulse from A to B when firing
   useEffect(() => {
@@ -237,19 +240,6 @@ function AnnDiagram({
               </text>
             )}
 
-            {/* Neuron A label */}
-            {!isSimpleMode && (
-              <text
-                x={neuronACenterX}
-                y={centerY - neuronRadius - 12}
-                fontSize="12px"
-                fill="#1A2D34"
-                textAnchor="middle"
-                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              >
-                Neuron A
-              </text>
-            )}
           </g>
 
           {/* ===== CONNECTION A → B ===== */}
@@ -349,19 +339,6 @@ function AnnDiagram({
               </text>
             )}
 
-            {/* Neuron B label */}
-            {!isSimpleMode && (
-              <text
-                x={neuronBCenterX}
-                y={centerY - neuronRadius - 12}
-                fontSize="12px"
-                fill="#1A2D34"
-                textAnchor="middle"
-                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              >
-                Neuron B
-              </text>
-            )}
           </g>
 
           {/* ===== LABELS ===== */}
@@ -379,17 +356,19 @@ function AnnDiagram({
                 inputs
               </text>
             )}
-            <text
-              x={neuronACenterX}
-              y={centerY + neuronRadius + 16}
-              fontSize={labelSize}
-              fontWeight={labelWeight}
-              fill={labelColor}
-              textAnchor="middle"
-              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-            >
-              Σ
-            </text>
+            {showDetailed && (
+              <text
+                x={neuronACenterX}
+                y={centerY + neuronRadius + 16}
+                fontSize={labelSize}
+                fontWeight={labelWeight}
+                fill={labelColor}
+                textAnchor="middle"
+                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              >
+                Σ
+              </text>
+            )}
             <text
               x={(axonStartX + axonEndX) / 2}
               y={centerY - 12}
@@ -401,17 +380,43 @@ function AnnDiagram({
             >
               output
             </text>
-            <text
-              x={neuronACenterX + neuronThresholdRadius + 12}
-              y={centerY - neuronThresholdRadius + 4}
-              fontSize={labelSize}
-              fontWeight={labelWeight}
-              fill={labelColor}
-              textAnchor="start"
-              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-            >
-              threshold
-            </text>
+            {showDetailed && (
+              <text
+                x={neuronACenterX + neuronThresholdRadius + 12}
+                y={centerY - neuronThresholdRadius + 4}
+                fontSize={labelSize}
+                fontWeight={labelWeight}
+                fill={labelColor}
+                textAnchor="start"
+                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              >
+                threshold
+              </text>
+            )}
+            {showDetailed && (
+              <>
+                <text
+                  x={neuronACenterX + neuronRadius + 10}
+                  y={centerY + 6}
+                  fontSize={hintSize}
+                  fill={hintColor}
+                  textAnchor="start"
+                  fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+                >
+                  {neuronATotalInput}/{neuronAThreshold}
+                </text>
+                <text
+                  x={neuronBCenterX + neuronRadius + 10}
+                  y={centerY + 6}
+                  fontSize={hintSize}
+                  fill={hintColor}
+                  textAnchor="start"
+                  fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+                >
+                  {neuronBInput}/{neuronBThreshold}
+                </text>
+              </>
+            )}
           </g>
 
         </g>
