@@ -64,6 +64,12 @@ function BiologyDiagram({
   const fillTopYA = neuronACenterY + neuronASomaRadius - fillHeightA
   const fillTopYB = neuronBCenterY + neuronBSomaRadius - fillHeightB
 
+  const thresholdRingStroke = '#D9792E'
+  const thresholdRingDash = '5 4'
+  const thresholdRingWidth = 2.5
+  const thresholdRingOpacityA = neuronAFires ? 1 : 0.6
+  const thresholdRingOpacityB = neuronBFires ? 1 : 0.6
+
   // Animate axon pulse when firing
   useEffect(() => {
     if (!neuronAFires) {
@@ -180,9 +186,11 @@ function BiologyDiagram({
               cy={neuronACenterY}
               r={neuronAThresholdRadius}
               fill="none"
-              stroke="#FF9E45"
-              strokeWidth="2"
-              strokeDasharray="4 4"
+              stroke={thresholdRingStroke}
+              strokeWidth={thresholdRingWidth}
+              strokeDasharray={thresholdRingDash}
+              strokeLinecap="round"
+              opacity={thresholdRingOpacityA}
             />
 
             {/* Neuron A label */}
@@ -275,9 +283,11 @@ function BiologyDiagram({
               cy={neuronBCenterY}
               r={neuronBThresholdRadius}
               fill="none"
-              stroke="#FF9E45"
-              strokeWidth="2"
-              strokeDasharray="4 4"
+              stroke={thresholdRingStroke}
+              strokeWidth={thresholdRingWidth}
+              strokeDasharray={thresholdRingDash}
+              strokeLinecap="round"
+              opacity={thresholdRingOpacityB}
             />
 
             {/* Neuron B label */}

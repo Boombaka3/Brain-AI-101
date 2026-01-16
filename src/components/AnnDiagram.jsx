@@ -57,6 +57,12 @@ function AnnDiagram({
   const fillTopYA = centerY + neuronRadius - fillHeightA
   const fillTopYB = centerY + neuronRadius - fillHeightB
 
+  const thresholdRingStroke = '#D9792E'
+  const thresholdRingDash = '5 4'
+  const thresholdRingWidth = 2.5
+  const thresholdRingOpacityA = neuronAFires ? 1 : 0.6
+  const thresholdRingOpacityB = neuronBFires ? 1 : 0.6
+
   // Animate connection pulse from A to B when firing
   useEffect(() => {
     if (!neuronAFires) {
@@ -215,9 +221,11 @@ function AnnDiagram({
               cy={centerY}
               r={neuronThresholdRadius}
               fill="none"
-              stroke="#FF9E45"
-              strokeWidth="2"
-              strokeDasharray="4 4"
+              stroke={thresholdRingStroke}
+              strokeWidth={thresholdRingWidth}
+              strokeDasharray={thresholdRingDash}
+              strokeLinecap="round"
+              opacity={thresholdRingOpacityA}
             />
 
             {/* Σ symbol (summation) */}
@@ -325,9 +333,11 @@ function AnnDiagram({
               cy={centerY}
               r={neuronThresholdRadius}
               fill="none"
-              stroke="#FF9E45"
-              strokeWidth="2"
-              strokeDasharray="4 4"
+              stroke={thresholdRingStroke}
+              strokeWidth={thresholdRingWidth}
+              strokeDasharray={thresholdRingDash}
+              strokeLinecap="round"
+              opacity={thresholdRingOpacityB}
             />
 
             {/* Σ symbol */}
