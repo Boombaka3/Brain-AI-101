@@ -31,12 +31,15 @@ function AnnDiagram({
   const inputStartX = 40
   const neuronACenterX = stageWidth * 0.34
   const neuronBCenterX = stageWidth * 0.66
-  const outputX = stageWidth - 40
   const centerY = stageHeight / 2
   
   // Dimensions (matching biology exactly)
   const neuronRadius = 50
   const neuronThresholdRadius = neuronRadius * 0.75
+
+  const axonStartX = neuronACenterX + neuronRadius
+  const axonEndX = neuronBCenterX - neuronRadius
+  const axonLength = axonEndX - axonStartX
   
   // Input positions (straight lines, matching biology)
   const inputYPositions = inputs.map((_, i) => {
@@ -138,6 +141,7 @@ function AnnDiagram({
                   y2={endY}
                   stroke={inputStroke}
                   strokeWidth={inputStrokeWidth}
+                  strokeLinecap="round"
                 />
                 <circle
                   cx={endX - inputMarkerOffset}
@@ -252,19 +256,20 @@ function AnnDiagram({
           <g>
             {/* Connection line */}
             <line
-              x1={neuronACenterX + neuronRadius}
+              x1={axonStartX}
               y1={centerY}
-              x2={neuronBCenterX - neuronRadius}
+              x2={axonEndX}
               y2={centerY}
               stroke="#57A5FF"
               strokeWidth="3"
+              strokeLinecap="round"
               opacity={neuronAFires ? 1 : 0.3}
             />
 
             {/* Pulse dot - animated with Framer Motion */}
             {neuronAFires && connectionPulse > 0 && (
               <motion.circle
-                cx={neuronACenterX + neuronRadius + connectionPulse * (neuronBCenterX - neuronACenterX - neuronRadius * 2)}
+                cx={axonStartX + connectionPulse * axonLength}
                 cy={centerY}
                 r="6"
                 fill="#26C97F"
@@ -386,12 +391,12 @@ function AnnDiagram({
               Σ
             </text>
             <text
-              x={outputX}
+              x={(axonStartX + axonEndX) / 2}
               y={centerY - 12}
               fontSize={labelSize}
               fontWeight={labelWeight}
               fill={labelColor}
-              textAnchor="start"
+              textAnchor="middle"
               fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
             >
               output

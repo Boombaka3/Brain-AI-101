@@ -146,6 +146,7 @@ function BiologyDiagram({
                   y2={endY}
                   stroke={inputStroke}
                   strokeWidth={inputStrokeWidth}
+                  strokeLinecap="round"
                 />
                 <circle
                   cx={endX - inputMarkerOffset}
@@ -212,6 +213,21 @@ function BiologyDiagram({
               opacity={thresholdRingOpacityA}
             />
 
+            {/* Summation indicator */}
+            {!isSimpleMode && (
+              <text
+                x={neuronACenterX}
+                y={neuronACenterY + 5}
+                fontSize="18px"
+                fontWeight="600"
+                fill="#1A2D34"
+                textAnchor="middle"
+                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              >
+                Σ
+              </text>
+            )}
+
             {/* Neuron A label */}
             {!isSimpleMode && (
               <text
@@ -237,6 +253,7 @@ function BiologyDiagram({
               y2={axonY}
               stroke="#57A5FF"
               strokeWidth="3"
+              strokeLinecap="round"
               opacity={neuronAFires ? 1 : 0.3}
             />
 
@@ -307,6 +324,21 @@ function BiologyDiagram({
               strokeLinecap="round"
               opacity={thresholdRingOpacityB}
             />
+
+            {/* Summation indicator */}
+            {!isSimpleMode && (
+              <text
+                x={neuronBCenterX}
+                y={neuronBCenterY + 5}
+                fontSize="18px"
+                fontWeight="600"
+                fill="#1A2D34"
+                textAnchor="middle"
+                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              >
+                Σ
+              </text>
+            )}
 
             {/* Neuron B label */}
             {!isSimpleMode && (
