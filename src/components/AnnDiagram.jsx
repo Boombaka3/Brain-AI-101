@@ -63,6 +63,12 @@ function AnnDiagram({
   const thresholdRingOpacityA = neuronAFires ? 1 : 0.6
   const thresholdRingOpacityB = neuronBFires ? 1 : 0.6
 
+  const inputMax = Math.max(...inputs, 1)
+  const inputStroke = '#57A5FF'
+  const inputStrokeWidth = 3
+  const inputMarkerRadius = 4
+  const inputMarkerOffset = 10
+
   // Animate connection pulse from A to B when firing
   useEffect(() => {
     if (!neuronAFires) {
@@ -140,9 +146,9 @@ function AnnDiagram({
           {/* ===== INPUTS (straight converging lines) ===== */}
           {inputs.map((input, index) => {
             const inputY = inputYPositions[index]
-            const inputActive = input > 0
             const endX = neuronACenterX - neuronRadius
             const endY = centerY - 16 + index * 8
+            const inputOpacity = Math.min(1, Math.max(0.15, input / inputMax))
 
             return (
               <g key={index}>
@@ -152,9 +158,15 @@ function AnnDiagram({
                   y1={inputY}
                   x2={endX}
                   y2={endY}
-                  stroke="#57A5FF"
-                  strokeWidth="3"
-                  opacity={inputActive ? 1 : 0.3}
+                  stroke={inputStroke}
+                  strokeWidth={inputStrokeWidth}
+                />
+                <circle
+                  cx={endX - inputMarkerOffset}
+                  cy={endY}
+                  r={inputMarkerRadius}
+                  fill={inputStroke}
+                  opacity={inputOpacity}
                 />
 
                 {/* Input label */}

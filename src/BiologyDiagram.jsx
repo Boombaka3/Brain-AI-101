@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
  * BiologyDiagram - Unified biological neuron visualization with Framer Motion
  */
 function BiologyDiagram({
+  inputs = [],
   neuronATotalInput,
   neuronAThreshold,
   neuronAFires,
@@ -44,9 +45,15 @@ function BiologyDiagram({
 
   // Input positions (straight lines, matching ANN)
   const inputStartX = 40
-  const numInputs = 4
+  const numInputs = inputs.length > 0 ? inputs.length : 4
+  const inputValues = inputs.length > 0 ? inputs : Array.from({ length: numInputs }, () => 0)
+  const inputMax = Math.max(...inputValues, 1)
   const inputYPositions = []
   const spacing = 30
+  const inputStroke = '#57A5FF'
+  const inputStrokeWidth = 3
+  const inputMarkerRadius = 4
+  const inputMarkerOffset = 10
   const totalHeight = (numInputs - 1) * spacing
   const startY = neuronACenterY - totalHeight / 2
   for (let i = 0; i < numInputs; i++) {
@@ -122,6 +129,8 @@ function BiologyDiagram({
           {inputYPositions.map((inputY, index) => {
             const endX = neuronACenterX - neuronASomaRadius
             const endY = neuronACenterY - 16 + index * 8
+            const inputValue = inputValues[index] ?? 0
+            const inputOpacity = Math.min(1, Math.max(0.15, inputValue / inputMax))
 
             return (
               <g key={index}>
@@ -131,9 +140,15 @@ function BiologyDiagram({
                   y1={inputY}
                   x2={endX}
                   y2={endY}
-                  stroke="#57A5FF"
-                  strokeWidth="3"
-                  opacity={neuronATotalInput > 0 ? 1 : 0.3}
+                  stroke={inputStroke}
+                  strokeWidth={inputStrokeWidth}
+                />
+                <circle
+                  cx={endX - inputMarkerOffset}
+                  cy={endY}
+                  r={inputMarkerRadius}
+                  fill={inputStroke}
+                  opacity={inputOpacity}
                 />
               </g>
             )
