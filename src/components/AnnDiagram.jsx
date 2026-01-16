@@ -68,6 +68,10 @@ function AnnDiagram({
   const inputMarkerRadius = 4
   const inputMarkerOffset = 10
 
+  const labelColor = '#51606A'
+  const labelSize = isSimpleMode ? 12 : 10
+  const labelWeight = 500
+
   // Animate connection pulse from A to B when firing
   useEffect(() => {
     if (!neuronAFires) {
@@ -353,6 +357,56 @@ function AnnDiagram({
                 Neuron B
               </text>
             )}
+          </g>
+
+          {/* ===== LABELS ===== */}
+          <g id="labels">
+            {inputYPositions.length > 0 && (
+              <text
+                x={inputStartX + 8}
+                y={inputYPositions[0] - 10}
+                fontSize={labelSize}
+                fontWeight={labelWeight}
+                fill={labelColor}
+                textAnchor="start"
+                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              >
+                inputs
+              </text>
+            )}
+            <text
+              x={neuronACenterX}
+              y={centerY + neuronRadius + 16}
+              fontSize={labelSize}
+              fontWeight={labelWeight}
+              fill={labelColor}
+              textAnchor="middle"
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+            >
+              Σ
+            </text>
+            <text
+              x={outputX}
+              y={centerY - 12}
+              fontSize={labelSize}
+              fontWeight={labelWeight}
+              fill={labelColor}
+              textAnchor="start"
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+            >
+              output
+            </text>
+            <text
+              x={neuronACenterX + neuronThresholdRadius + 12}
+              y={centerY - neuronThresholdRadius + 4}
+              fontSize={labelSize}
+              fontWeight={labelWeight}
+              fill={labelColor}
+              textAnchor="start"
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+            >
+              threshold
+            </text>
           </g>
 
         </g>

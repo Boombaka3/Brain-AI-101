@@ -77,6 +77,10 @@ function BiologyDiagram({
   const thresholdRingOpacityA = neuronAFires ? 1 : 0.6
   const thresholdRingOpacityB = neuronBFires ? 1 : 0.6
 
+  const labelColor = '#51606A'
+  const labelSize = isSimpleMode ? 12 : 10
+  const labelWeight = 500
+
   // Animate axon pulse when firing
   useEffect(() => {
     if (!neuronAFires) {
@@ -317,6 +321,56 @@ function BiologyDiagram({
                 Neuron B
               </text>
             )}
+          </g>
+
+          {/* ===== LABELS ===== */}
+          <g id="labels">
+            {inputYPositions.length > 0 && (
+              <text
+                x={inputStartX + 8}
+                y={inputYPositions[0] - 10}
+                fontSize={labelSize}
+                fontWeight={labelWeight}
+                fill={labelColor}
+                textAnchor="start"
+                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              >
+                dendrites
+              </text>
+            )}
+            <text
+              x={neuronACenterX}
+              y={neuronACenterY + neuronASomaRadius + 16}
+              fontSize={labelSize}
+              fontWeight={labelWeight}
+              fill={labelColor}
+              textAnchor="middle"
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+            >
+              soma
+            </text>
+            <text
+              x={(axonStartX + axonEndX) / 2}
+              y={axonY - 12}
+              fontSize={labelSize}
+              fontWeight={labelWeight}
+              fill={labelColor}
+              textAnchor="middle"
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+            >
+              axon
+            </text>
+            <text
+              x={neuronACenterX + neuronAThresholdRadius + 12}
+              y={neuronACenterY - neuronAThresholdRadius + 4}
+              fontSize={labelSize}
+              fontWeight={labelWeight}
+              fill={labelColor}
+              textAnchor="start"
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+            >
+              threshold
+            </text>
           </g>
         </g>
       </svg>
