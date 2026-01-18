@@ -297,21 +297,6 @@ function BiologyDiagram({
               opacity={ringActiveA ? 1 : thresholdRingOpacityA}
             />
 
-            {/* Summation indicator */}
-            {!isSimpleMode && (
-              <text
-                x={neuronACenterX}
-                y={neuronACenterY + 5}
-                fontSize="18px"
-                fontWeight="600"
-                fill="#1A2D34"
-                textAnchor="middle"
-                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              >
-                Σ
-              </text>
-            )}
-
           </g>
 
           {/* ===== AXON ===== */}
@@ -413,21 +398,6 @@ function BiologyDiagram({
               animate={{ opacity: highlightB ? 0.8 : 0 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
             />
-
-            {/* Summation indicator */}
-            {!isSimpleMode && (
-              <text
-                x={neuronBCenterX}
-                y={neuronBCenterY + 5}
-                fontSize="18px"
-                fontWeight="600"
-                fill="#1A2D34"
-                textAnchor="middle"
-                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              >
-                Σ
-              </text>
-            )}
 
           </g>
 

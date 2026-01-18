@@ -240,7 +240,7 @@ function AnnDiagram({
                     textAnchor="middle"
                     fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
                   >
-                    x{index + 1}
+                    {['x₁', 'x₂', 'x₃', 'x₄'][index] || `x${index + 1}`}
                   </text>
                 )}
               </g>
