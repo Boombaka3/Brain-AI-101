@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import AnnDiagram from './components/AnnDiagram.jsx'
 import BiologyDiagram from './BiologyDiagram.jsx'
@@ -30,6 +30,9 @@ function Module1({ onContinue }) {
   const [isSimpleMode, setIsSimpleMode] = useState(true)
   const [attempts, setAttempts] = useState(0)
   const [bestScore, setBestScore] = useState(null)
+  const [bestScorePulse, setBestScorePulse] = useState(false)
+  const [attemptsTick, setAttemptsTick] = useState(0)
+  const previousBestScoreRef = useRef(null)
 
   // Neuron A calculations (unchanged)
   const neuronATotalInput = calculateTotal(inputs)
@@ -49,6 +52,21 @@ function Module1({ onContinue }) {
       }
     }
   }, [neuronBFires])
+
+  useEffect(() => {
+    if (attempts > 0) {
+      setAttemptsTick((tick) => tick + 1)
+    }
+  }, [attempts])
+
+  useEffect(() => {
+    const previousBest = previousBestScoreRef.current
+    if (bestScore !== null && (previousBest === null || bestScore < previousBest)) {
+      setBestScorePulse(true)
+      setTimeout(() => setBestScorePulse(false), 200)
+    }
+    previousBestScoreRef.current = bestScore
+  }, [bestScore])
 
   const handleInputChange = (index, newValue) => {
     const updated = inputs.map((value, i) => (i === index ? newValue : value))
@@ -240,12 +258,24 @@ function Module1({ onContinue }) {
               </p>
               {!isSimpleMode && bestScore !== null && (
                 <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
-                  <span style={{ fontSize: '12px', padding: '4px 8px', backgroundColor: '#22C55E', color: 'white', borderRadius: '4px' }}>
+                  <motion.span
+                    key={`best-${bestScore}`}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0, scale: bestScorePulse ? 1.05 : 1 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    style={{ fontSize: '12px', padding: '4px 8px', backgroundColor: '#22C55E', color: 'white', borderRadius: '4px' }}
+                  >
                     Best: {bestScore}
-                  </span>
-                  <span style={{ fontSize: '12px', padding: '4px 8px', backgroundColor: '#57A5FF', color: 'white', borderRadius: '4px' }}>
+                  </motion.span>
+                  <motion.span
+                    key={`attempts-${attemptsTick}`}
+                    initial={{ scale: 0.98 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                    style={{ fontSize: '12px', padding: '4px 8px', backgroundColor: '#57A5FF', color: 'white', borderRadius: '4px' }}
+                  >
                     Attempts: {attempts}
-                  </span>
+                  </motion.span>
                 </div>
               )}
             </div>

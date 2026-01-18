@@ -100,6 +100,8 @@ function BiologyDiagram({
   const labelTracking = '0.04em'
   const hintColor = '#6B7280'
   const hintSize = 10
+  const detailOpacity = showDetailed ? 1 : 0
+  const detailTransition = { duration: 0.2, ease: 'easeOut' }
 
   const inputPulseDurationBase = 1.4
   const inputPulseDurationRange = 0.6
@@ -417,20 +419,21 @@ function BiologyDiagram({
                   DENDRITES
               </text>
             )}
-            {showDetailed && (
-              <text
-                x={neuronACenterX}
-                y={neuronACenterY + neuronASomaRadius + 16}
-                fontSize={labelSize}
-                fontWeight={labelWeight}
-                fill={labelColor}
-                textAnchor="middle"
-                letterSpacing={labelTracking}
-                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              >
-                SOMA
-              </text>
-            )}
+            <motion.text
+              x={neuronACenterX}
+              y={neuronACenterY + neuronASomaRadius + 16}
+              fontSize={labelSize}
+              fontWeight={labelWeight}
+              fill={labelColor}
+              textAnchor="middle"
+              letterSpacing={labelTracking}
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              initial={false}
+              animate={{ opacity: detailOpacity }}
+              transition={detailTransition}
+            >
+              SOMA
+            </motion.text>
             <text
               x={(axonStartX + axonEndX) / 2}
               y={axonY - 12}
@@ -443,44 +446,47 @@ function BiologyDiagram({
             >
               AXON
             </text>
-            {showDetailed && (
-              <text
-                x={neuronACenterX + neuronAThresholdRadius + 12}
-                y={neuronACenterY - neuronAThresholdRadius + 4}
-                fontSize={labelSize}
-                fontWeight={labelWeight}
-                fill={labelColor}
-                textAnchor="start"
-                letterSpacing={labelTracking}
-                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              >
-                THRESHOLD
-              </text>
-            )}
-            {showDetailed && (
-              <>
-                <text
-                  x={neuronACenterX + neuronASomaRadius + 10}
-                  y={neuronACenterY + 6}
-                  fontSize={hintSize}
-                  fill={hintColor}
-                  textAnchor="start"
-                  fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-                >
-                  {neuronATotalInput}/{neuronAThreshold}
-                </text>
-                <text
-                  x={neuronBCenterX + neuronBSomaRadius + 10}
-                  y={neuronBCenterY + 6}
-                  fontSize={hintSize}
-                  fill={hintColor}
-                  textAnchor="start"
-                  fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-                >
-                  {neuronBInput}/{neuronBThreshold}
-                </text>
-              </>
-            )}
+            <motion.text
+              x={neuronACenterX + neuronAThresholdRadius + 12}
+              y={neuronACenterY - neuronAThresholdRadius + 4}
+              fontSize={labelSize}
+              fontWeight={labelWeight}
+              fill={labelColor}
+              textAnchor="start"
+              letterSpacing={labelTracking}
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              initial={false}
+              animate={{ opacity: detailOpacity }}
+              transition={detailTransition}
+            >
+              THRESHOLD
+            </motion.text>
+            <motion.text
+              x={neuronACenterX + neuronASomaRadius + 10}
+              y={neuronACenterY + 6}
+              fontSize={hintSize}
+              fill={hintColor}
+              textAnchor="start"
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              initial={false}
+              animate={{ opacity: detailOpacity }}
+              transition={detailTransition}
+            >
+              {neuronATotalInput}/{neuronAThreshold}
+            </motion.text>
+            <motion.text
+              x={neuronBCenterX + neuronBSomaRadius + 10}
+              y={neuronBCenterY + 6}
+              fontSize={hintSize}
+              fill={hintColor}
+              textAnchor="start"
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              initial={false}
+              animate={{ opacity: detailOpacity }}
+              transition={detailTransition}
+            >
+              {neuronBInput}/{neuronBThreshold}
+            </motion.text>
           </g>
         </g>
       </svg>

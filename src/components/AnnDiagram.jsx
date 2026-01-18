@@ -93,6 +93,8 @@ function AnnDiagram({
   const labelTracking = '0.04em'
   const hintColor = '#6B7280'
   const hintSize = 10
+  const detailOpacity = showDetailed ? 1 : 0
+  const detailTransition = { duration: 0.2, ease: 'easeOut' }
 
   const inputPulseDurationBase = 1.4
   const inputPulseDurationRange = 0.6
@@ -231,18 +233,19 @@ function AnnDiagram({
                 />
 
                 {/* Input label */}
-                {!isSimpleMode && (
-                  <text
-                    x={inputStartX}
-                    y={inputY - 8}
-                    fontSize="12px"
-                    fill="#1A2D34"
-                    textAnchor="middle"
-                    fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-                  >
-                    {['x₁', 'x₂', 'x₃', 'x₄'][index] || `x${index + 1}`}
-                  </text>
-                )}
+                <motion.text
+                  x={inputStartX}
+                  y={inputY - 8}
+                  fontSize="12px"
+                  fill="#1A2D34"
+                  textAnchor="middle"
+                  fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+                  initial={false}
+                  animate={{ opacity: detailOpacity }}
+                  transition={detailTransition}
+                >
+                  {['x₁', 'x₂', 'x₃', 'x₄'][index] || `x${index + 1}`}
+                </motion.text>
               </g>
             )
           })}
@@ -456,20 +459,21 @@ function AnnDiagram({
                 INPUTS
               </text>
             )}
-            {showDetailed && (
-              <text
-                x={neuronACenterX}
-                y={centerY + neuronRadius + 16}
-                fontSize={labelSize}
-                fontWeight={labelWeight}
-                fill={labelColor}
-                textAnchor="middle"
-                letterSpacing={labelTracking}
-                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              >
-                Σ
-              </text>
-            )}
+            <motion.text
+              x={neuronACenterX}
+              y={centerY + neuronRadius + 16}
+              fontSize={labelSize}
+              fontWeight={labelWeight}
+              fill={labelColor}
+              textAnchor="middle"
+              letterSpacing={labelTracking}
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              initial={false}
+              animate={{ opacity: detailOpacity }}
+              transition={detailTransition}
+            >
+              Σ
+            </motion.text>
             <text
               x={(axonStartX + axonEndX) / 2}
               y={centerY - 12}
@@ -482,44 +486,47 @@ function AnnDiagram({
             >
               OUTPUT
             </text>
-            {showDetailed && (
-              <text
-                x={neuronACenterX + neuronThresholdRadius + 12}
-                y={centerY - neuronThresholdRadius + 4}
-                fontSize={labelSize}
-                fontWeight={labelWeight}
-                fill={labelColor}
-                textAnchor="start"
-                letterSpacing={labelTracking}
-                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              >
-                THRESHOLD
-              </text>
-            )}
-            {showDetailed && (
-              <>
-                <text
-                  x={neuronACenterX + neuronRadius + 10}
-                  y={centerY + 6}
-                  fontSize={hintSize}
-                  fill={hintColor}
-                  textAnchor="start"
-                  fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-                >
-                  {neuronATotalInput}/{neuronAThreshold}
-                </text>
-                <text
-                  x={neuronBCenterX + neuronRadius + 10}
-                  y={centerY + 6}
-                  fontSize={hintSize}
-                  fill={hintColor}
-                  textAnchor="start"
-                  fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-                >
-                  {neuronBInput}/{neuronBThreshold}
-                </text>
-              </>
-            )}
+            <motion.text
+              x={neuronACenterX + neuronThresholdRadius + 12}
+              y={centerY - neuronThresholdRadius + 4}
+              fontSize={labelSize}
+              fontWeight={labelWeight}
+              fill={labelColor}
+              textAnchor="start"
+              letterSpacing={labelTracking}
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              initial={false}
+              animate={{ opacity: detailOpacity }}
+              transition={detailTransition}
+            >
+              THRESHOLD
+            </motion.text>
+            <motion.text
+              x={neuronACenterX + neuronRadius + 10}
+              y={centerY + 6}
+              fontSize={hintSize}
+              fill={hintColor}
+              textAnchor="start"
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              initial={false}
+              animate={{ opacity: detailOpacity }}
+              transition={detailTransition}
+            >
+              {neuronATotalInput}/{neuronAThreshold}
+            </motion.text>
+            <motion.text
+              x={neuronBCenterX + neuronRadius + 10}
+              y={centerY + 6}
+              fontSize={hintSize}
+              fill={hintColor}
+              textAnchor="start"
+              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              initial={false}
+              animate={{ opacity: detailOpacity }}
+              transition={detailTransition}
+            >
+              {neuronBInput}/{neuronBThreshold}
+            </motion.text>
           </g>
 
         </g>
