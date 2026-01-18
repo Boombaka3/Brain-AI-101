@@ -185,7 +185,7 @@ function Module1({ onContinue }) {
           transition={{ duration: 0.4, delay: 0.1 }}
         >
           <div style={cardStyle}>
-            <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#0F172A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#0F172A', marginBottom: '16px', fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' }}>
               {viewMode === 'biology' ? 'Biological Neuron Structure' : 'Artificial Neural Network Structure'}
             </h2>
             

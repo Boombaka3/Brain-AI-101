@@ -20,10 +20,10 @@ function BiologyDiagram({
   const svgWidth = isMobile && typeof window !== 'undefined' ? Math.min(window.innerWidth - 48, 760) : 760
   const svgHeight = 260
 
-  const stagePaddingX = 24
-  const stagePaddingY = 16
-  const stageWidth = svgWidth - stagePaddingX * 2
-  const stageHeight = svgHeight - stagePaddingY * 2
+  const stageWidth = svgWidth * 0.7
+  const stageHeight = svgHeight * 0.7
+  const stageOffsetX = (svgWidth - stageWidth) / 2
+  const stageOffsetY = (svgHeight - stageHeight) / 2
 
   // Neuron A positioning (matching ANN)
   const neuronACenterX = stageWidth * 0.34
@@ -79,8 +79,9 @@ function BiologyDiagram({
 
   const showDetailed = !isSimpleMode
   const labelColor = '#51606A'
-  const labelSize = isSimpleMode ? 13 : 10
+  const labelSize = isSimpleMode ? 12 : 11
   const labelWeight = 500
+  const labelTracking = '0.04em'
   const hintColor = '#6B7280'
   const hintSize = 10
 
@@ -112,18 +113,18 @@ function BiologyDiagram({
 
   return (
     <div style={{
-      backgroundColor: '#F8FBFD',
-      border: '1px solid #D6E4F0',
-      borderRadius: '12px',
-      padding: '16px',
-      fontFamily: 'system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif'
+      background: 'linear-gradient(180deg, #F8FBFD 0%, #F1F6FB 100%)',
+      border: '1px solid #DDE6F2',
+      borderRadius: '16px',
+      padding: '12px',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'
     }}>
       <svg
         width={svgWidth}
         height={svgHeight}
         style={{ display: 'block' }}
       >
-        <g transform={`translate(${stagePaddingX}, ${stagePaddingY})`}>
+        <g transform={`translate(${stageOffsetX}, ${stageOffsetY})`}>
           <defs>
             <clipPath id="somaClipA">
               <circle cx={neuronACenterX} cy={neuronACenterY} r={neuronASomaRadius} />
@@ -335,16 +336,17 @@ function BiologyDiagram({
           {/* ===== LABELS ===== */}
           <g id="labels">
             {inputYPositions.length > 0 && (
-              <text
+                <text
                 x={inputStartX + 8}
                 y={inputYPositions[0] - 10}
                 fontSize={labelSize}
                 fontWeight={labelWeight}
                 fill={labelColor}
                 textAnchor="start"
+                  letterSpacing={labelTracking}
                 fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
               >
-                dendrites
+                  DENDRITES
               </text>
             )}
             {showDetailed && (
@@ -355,9 +357,10 @@ function BiologyDiagram({
                 fontWeight={labelWeight}
                 fill={labelColor}
                 textAnchor="middle"
+                letterSpacing={labelTracking}
                 fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
               >
-                soma
+                SOMA
               </text>
             )}
             <text
@@ -367,9 +370,10 @@ function BiologyDiagram({
               fontWeight={labelWeight}
               fill={labelColor}
               textAnchor="middle"
+              letterSpacing={labelTracking}
               fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
             >
-              axon
+              AXON
             </text>
             {showDetailed && (
               <text
@@ -379,9 +383,10 @@ function BiologyDiagram({
                 fontWeight={labelWeight}
                 fill={labelColor}
                 textAnchor="start"
+                letterSpacing={labelTracking}
                 fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
               >
-                threshold
+                THRESHOLD
               </text>
             )}
             {showDetailed && (

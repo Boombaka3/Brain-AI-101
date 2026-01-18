@@ -22,10 +22,10 @@ function AnnDiagram({
   const svgWidth = isMobile && typeof window !== 'undefined' ? Math.min(window.innerWidth - 48, 760) : 760
   const svgHeight = 260
 
-  const stagePaddingX = 24
-  const stagePaddingY = 16
-  const stageWidth = svgWidth - stagePaddingX * 2
-  const stageHeight = svgHeight - stagePaddingY * 2
+  const stageWidth = svgWidth * 0.7
+  const stageHeight = svgHeight * 0.7
+  const stageOffsetX = (svgWidth - stageWidth) / 2
+  const stageOffsetY = (svgHeight - stageHeight) / 2
   
   // Positioning (matching biology exactly)
   const inputStartX = 40
@@ -73,8 +73,9 @@ function AnnDiagram({
 
   const showDetailed = !isSimpleMode
   const labelColor = '#51606A'
-  const labelSize = isSimpleMode ? 13 : 10
+  const labelSize = isSimpleMode ? 12 : 11
   const labelWeight = 500
+  const labelTracking = '0.04em'
   const hintColor = '#6B7280'
   const hintSize = 10
 
@@ -107,18 +108,18 @@ function AnnDiagram({
 
   return (
     <div style={{
-      backgroundColor: '#F8FBFD',
-      border: '1px solid #D6E4F0',
-      borderRadius: '12px',
-      padding: '16px',
-      fontFamily: 'system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif'
+      background: 'linear-gradient(180deg, #F8FBFD 0%, #F1F6FB 100%)',
+      border: '1px solid #DDE6F2',
+      borderRadius: '16px',
+      padding: '12px',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'
     }}>
       <svg
         width={svgWidth}
         height={svgHeight}
         style={{ display: 'block' }}
       >
-        <g transform={`translate(${stagePaddingX}, ${stagePaddingY})`}>
+        <g transform={`translate(${stageOffsetX}, ${stageOffsetY})`}>
           <defs>
             <clipPath id="somaClipA">
               <circle cx={neuronACenterX} cy={centerY} r={neuronRadius} />
@@ -351,9 +352,10 @@ function AnnDiagram({
                 fontWeight={labelWeight}
                 fill={labelColor}
                 textAnchor="start"
+                letterSpacing={labelTracking}
                 fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
               >
-                inputs
+                INPUTS
               </text>
             )}
             {showDetailed && (
@@ -364,6 +366,7 @@ function AnnDiagram({
                 fontWeight={labelWeight}
                 fill={labelColor}
                 textAnchor="middle"
+                letterSpacing={labelTracking}
                 fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
               >
                 Σ
@@ -376,9 +379,10 @@ function AnnDiagram({
               fontWeight={labelWeight}
               fill={labelColor}
               textAnchor="middle"
+              letterSpacing={labelTracking}
               fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
             >
-              output
+              OUTPUT
             </text>
             {showDetailed && (
               <text
@@ -388,9 +392,10 @@ function AnnDiagram({
                 fontWeight={labelWeight}
                 fill={labelColor}
                 textAnchor="start"
+                letterSpacing={labelTracking}
                 fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
               >
-                threshold
+                THRESHOLD
               </text>
             )}
             {showDetailed && (
