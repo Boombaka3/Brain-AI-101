@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import AnnDiagram from './components/AnnDiagram.jsx'
 import BiologyDiagram from './BiologyDiagram.jsx'
@@ -30,9 +30,6 @@ function Module1({ onContinue }) {
   const [isSimpleMode, setIsSimpleMode] = useState(true)
   const [attempts, setAttempts] = useState(0)
   const [bestScore, setBestScore] = useState(null)
-  const [bestScorePulse, setBestScorePulse] = useState(false)
-  const [attemptsTick, setAttemptsTick] = useState(0)
-  const previousBestScoreRef = useRef(null)
 
   // Neuron A calculations (unchanged)
   const neuronATotalInput = calculateTotal(inputs)
@@ -52,21 +49,6 @@ function Module1({ onContinue }) {
       }
     }
   }, [neuronBFires])
-
-  useEffect(() => {
-    if (attempts > 0) {
-      setAttemptsTick((tick) => tick + 1)
-    }
-  }, [attempts])
-
-  useEffect(() => {
-    const previousBest = previousBestScoreRef.current
-    if (bestScore !== null && (previousBest === null || bestScore < previousBest)) {
-      setBestScorePulse(true)
-      setTimeout(() => setBestScorePulse(false), 200)
-    }
-    previousBestScoreRef.current = bestScore
-  }, [bestScore])
 
   const handleInputChange = (index, newValue) => {
     const updated = inputs.map((value, i) => (i === index ? newValue : value))
@@ -101,6 +83,7 @@ function Module1({ onContinue }) {
     fontWeight: '500',
     transition: 'all 0.2s',
   }
+  const isBiologyView = viewMode === 'biology'
 
   return (
     <div style={{ backgroundColor: '#F3F6FB', minHeight: '100vh', padding: '32px 0' }}>
@@ -203,7 +186,7 @@ function Module1({ onContinue }) {
           transition={{ duration: 0.4, delay: 0.1 }}
         >
           <div style={cardStyle}>
-            <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#0F172A', marginBottom: '16px', fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#0F172A', marginBottom: '16px' }}>
               {viewMode === 'biology' ? 'Biological Neuron Structure' : 'Artificial Neural Network Structure'}
             </h2>
             
@@ -226,6 +209,7 @@ function Module1({ onContinue }) {
                     neuronBFires={neuronBFires}
                     isMobile={false}
                     isSimpleMode={isSimpleMode}
+                    view={viewMode}
                   />
                 </motion.div>
               ) : (
@@ -258,24 +242,12 @@ function Module1({ onContinue }) {
               </p>
               {!isSimpleMode && bestScore !== null && (
                 <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
-                  <motion.span
-                    key={`best-${bestScore}`}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0, scale: bestScorePulse ? 1.05 : 1 }}
-                    transition={{ duration: 0.2, ease: 'easeOut' }}
-                    style={{ fontSize: '12px', padding: '4px 8px', backgroundColor: '#22C55E', color: 'white', borderRadius: '4px' }}
-                  >
+                  <span style={{ fontSize: '12px', padding: '4px 8px', backgroundColor: '#22C55E', color: 'white', borderRadius: '4px' }}>
                     Best: {bestScore}
-                  </motion.span>
-                  <motion.span
-                    key={`attempts-${attemptsTick}`}
-                    initial={{ scale: 0.98 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.18, ease: 'easeOut' }}
-                    style={{ fontSize: '12px', padding: '4px 8px', backgroundColor: '#57A5FF', color: 'white', borderRadius: '4px' }}
-                  >
+                  </span>
+                  <span style={{ fontSize: '12px', padding: '4px 8px', backgroundColor: '#57A5FF', color: 'white', borderRadius: '4px' }}>
                     Attempts: {attempts}
-                  </motion.span>
+                  </span>
                 </div>
               )}
             </div>
@@ -404,15 +376,16 @@ function Module1({ onContinue }) {
                       backgroundColor: neuronAFires ? '#DCFFEC' : '#F8FBFD',
                       border: neuronAFires ? '3px solid #22C55E' : '2px solid #D6E4F0',
                       textAlign: 'center',
+                      opacity: isBiologyView ? 0.8 : 1,
                     }}
                   >
-                    <p style={{ fontSize: '12px', fontWeight: '600', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', margin: '0 0 8px 0' }}>
+                    <p style={{ fontSize: '12px', fontWeight: isBiologyView ? '500' : '600', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', margin: '0 0 8px 0' }}>
                       Comparison
                     </p>
-                    <p style={{ fontSize: isSimpleMode ? '36px' : '32px', fontWeight: '700', color: neuronAFires ? '#166534' : '#475569', marginBottom: '8px', margin: '0 0 8px 0' }}>
+                    <p style={{ fontSize: isSimpleMode ? '36px' : '32px', fontWeight: isBiologyView ? '600' : '700', color: neuronAFires ? '#166534' : '#475569', marginBottom: '8px', margin: '0 0 8px 0' }}>
                       {neuronATotalInput} {neuronAFires ? '≥' : '<'} {threshold}
                     </p>
-                    <p style={{ fontSize: isSimpleMode ? '16px' : '14px', color: neuronAFires ? '#15803D' : '#64748B', fontWeight: '500', margin: 0 }}>
+                    <p style={{ fontSize: isSimpleMode ? '16px' : '14px', color: neuronAFires ? '#15803D' : '#64748B', fontWeight: isBiologyView ? '400' : '500', margin: 0 }}>
                       {neuronAFires ? 'Neuron A fires!' : 'Neuron A does not fire'}
                     </p>
                   </div>

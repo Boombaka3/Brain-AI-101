@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 
 /**
@@ -13,26 +13,18 @@ function BiologyDiagram({
   neuronBThreshold,
   neuronBFires,
   isMobile = false,
-  isSimpleMode = true
+  isSimpleMode = true,
+  view = 'biology'
 }) {
-  const [ringActiveA, setRingActiveA] = useState(false)
-  const [pulseActive, setPulseActive] = useState(false)
-  const [pulseKey, setPulseKey] = useState(0)
-  const [pulseArrived, setPulseArrived] = useState(false)
-  const [highlightB, setHighlightB] = useState(false)
-  const [ringActiveB, setRingActiveB] = useState(false)
-  const [focusedInputIndex, setFocusedInputIndex] = useState(null)
-  const [focusTick, setFocusTick] = useState(0)
-  const previousInputsRef = useRef([])
-  const sequenceTimeoutsRef = useRef([])
+  const [axonPulse, setAxonPulse] = useState(0)
 
   const svgWidth = isMobile && typeof window !== 'undefined' ? Math.min(window.innerWidth - 48, 760) : 760
   const svgHeight = 260
 
-  const stageWidth = svgWidth * 0.7
-  const stageHeight = svgHeight * 0.7
-  const stageOffsetX = (svgWidth - stageWidth) / 2
-  const stageOffsetY = (svgHeight - stageHeight) / 2
+  const stagePaddingX = 24
+  const stagePaddingY = 16
+  const stageWidth = svgWidth - stagePaddingX * 2
+  const stageHeight = svgHeight - stagePaddingY * 2
 
   // Neuron A positioning (matching ANN)
   const neuronACenterX = stageWidth * 0.34
@@ -69,107 +61,72 @@ function BiologyDiagram({
     inputYPositions.push(startY + i * spacing)
   }
 
-  // Calculate fill opacity
-  const fillRatioA = Math.min(1, Math.max(0, neuronATotalInput / Math.max(neuronAThreshold, 1)))
-  const fillRatioB = Math.min(1, Math.max(0, neuronBInput / Math.max(neuronBThreshold, 1)))
-  const fillRatioBDisplay = pulseArrived ? fillRatioB : 0
+  // Calculate fill ratio (normalized sum)
+  const normalizedSumA = Math.min(1, Math.max(0, neuronATotalInput / Math.max(neuronAThreshold, 1)))
+  const normalizedSumB = Math.min(1, Math.max(0, neuronBInput / Math.max(neuronBThreshold, 1)))
 
   const somaDiameterA = neuronASomaRadius * 2
   const somaDiameterB = neuronBSomaRadius * 2
-  const fillHeightA = somaDiameterA * fillRatioA
-  const fillHeightB = somaDiameterB * fillRatioBDisplay
+  const fillHeightA = somaDiameterA * normalizedSumA
+  const fillHeightB = somaDiameterB * normalizedSumB
   const fillTopYA = neuronACenterY + neuronASomaRadius - fillHeightA
   const fillTopYB = neuronBCenterY + neuronBSomaRadius - fillHeightB
 
   const thresholdRingStroke = '#D9792E'
   const thresholdRingDash = '5 4'
   const thresholdRingWidth = 2.5
-  const thresholdRingInactive = '#D9792E'
-  const thresholdRingActive = '#FF8A1E'
-  const thresholdRingOpacityA = neuronAFires ? 1 : 0.5
-  const thresholdRingOpacityB = neuronBFires ? 1 : 0.5
-
-  const easeOutCubic = [0.215, 0.61, 0.355, 1]
-  const fillOpacityA = fillRatioA >= 0.85 ? 1 : 0.85
-  const fillOpacityB = fillRatioBDisplay >= 0.85 ? 1 : 0.85
+  const thresholdRingOpacityA = normalizedSumA >= 1 ? 1 : 0.6
+  const thresholdRingOpacityB = normalizedSumB >= 1 ? 1 : 0.6
 
   const showDetailed = !isSimpleMode
+  const isBiologyView = view === 'biology'
+  const showMathOverlays = showDetailed && !isBiologyView
   const labelColor = '#51606A'
-  const labelSize = isSimpleMode ? 12 : 11
+  const labelSize = isSimpleMode ? 13 : 10
   const labelWeight = 500
-  const labelTracking = '0.04em'
   const hintColor = '#6B7280'
   const hintSize = 10
-  const detailOpacity = showDetailed ? 1 : 0
-  const detailTransition = { duration: 0.2, ease: 'easeOut' }
 
-  const inputPulseDurationBase = 1.4
-  const inputPulseDurationRange = 0.6
-
-  const fillDurationMs = 450
-  const ringDelayMs = fillDurationMs
-  const pulseDelayMs = fillDurationMs + 120
-  const pulseDurationMs = 600
-
+  // Animate axon pulse when firing
   useEffect(() => {
-    sequenceTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId))
-    sequenceTimeoutsRef.current = []
-    setRingActiveA(false)
-    setPulseActive(false)
-    setPulseArrived(false)
-    setHighlightB(false)
-    setRingActiveB(false)
-
     if (!neuronAFires) {
+      setAxonPulse(0)
       return
     }
 
-    const ringTimer = setTimeout(() => setRingActiveA(true), ringDelayMs)
-    const pulseTimer = setTimeout(() => {
-      setPulseActive(true)
-      setPulseKey((key) => key + 1)
-    }, pulseDelayMs)
-    const pulseEndTimer = setTimeout(() => setPulseActive(false), pulseDelayMs + pulseDurationMs)
-    const arrivalTimer = setTimeout(() => {
-      setPulseArrived(true)
-      setHighlightB(true)
-      setTimeout(() => setHighlightB(false), 200)
-    }, pulseDelayMs + pulseDurationMs)
+    setAxonPulse(0)
+    const duration = 800
+    const startTime = Date.now()
 
-    sequenceTimeoutsRef.current = [ringTimer, pulseTimer, pulseEndTimer, arrivalTimer]
-    return () => {
-      sequenceTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId))
+    const animate = () => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      setAxonPulse(progress)
+
+      if (progress < 1) {
+        requestAnimationFrame(animate)
+      } else {
+        setTimeout(() => setAxonPulse(0), 200)
+      }
     }
+
+    requestAnimationFrame(animate)
   }, [neuronAFires])
-
-  useEffect(() => {
-    setRingActiveB(pulseArrived && neuronBFires)
-  }, [pulseArrived, neuronBFires])
-
-  useEffect(() => {
-    const previousInputs = previousInputsRef.current
-    const changedIndex = inputValues.findIndex((value, index) => value !== previousInputs[index])
-    if (changedIndex !== -1) {
-      setFocusedInputIndex(changedIndex)
-      setFocusTick((tick) => tick + 1)
-    }
-    previousInputsRef.current = inputValues
-  }, [inputValues])
 
   return (
     <div style={{
-      background: 'linear-gradient(180deg, #F8FBFD 0%, #F1F6FB 100%)',
-      border: '1px solid #DDE6F2',
-      borderRadius: '16px',
-      padding: '12px',
-      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'
+      backgroundColor: '#F8FBFD',
+      border: '1px solid #D6E4F0',
+      borderRadius: '12px',
+      padding: '16px',
+      fontFamily: 'system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif'
     }}>
       <svg
         width={svgWidth}
         height={svgHeight}
         style={{ display: 'block' }}
       >
-        <g transform={`translate(${stageOffsetX}, ${stageOffsetY})`}>
+        <g transform={`translate(${stagePaddingX}, ${stagePaddingY})`}>
           <defs>
             <clipPath id="somaClipA">
               <circle cx={neuronACenterX} cy={neuronACenterY} r={neuronASomaRadius} />
@@ -177,22 +134,13 @@ function BiologyDiagram({
             <clipPath id="somaClipB">
               <circle cx={neuronBCenterX} cy={neuronBCenterY} r={neuronBSomaRadius} />
             </clipPath>
-            <pattern id="somaGrid" width="8" height="8" patternUnits="userSpaceOnUse">
-              <path d="M 8 0 L 0 0 0 8" fill="none" stroke="#0F3B2B" strokeWidth="0.6" opacity="0.12" />
-            </pattern>
-            <linearGradient id="inputGradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#2F86FF" />
-              <stop offset="100%" stopColor="#8CC3FF" />
-            </linearGradient>
           </defs>
           {/* ===== INPUTS (straight converging lines) ===== */}
           {inputYPositions.map((inputY, index) => {
             const endX = neuronACenterX - neuronASomaRadius
             const endY = neuronACenterY - 16 + index * 8
             const inputValue = inputValues[index] ?? 0
-            const inputNormalized = inputValue / inputMax
-            const inputOpacity = Math.min(1, Math.max(0.25, inputNormalized))
-            const pulseDuration = inputPulseDurationBase - inputPulseDurationRange * inputNormalized
+            const inputOpacity = Math.min(1, Math.max(0.15, inputValue / inputMax))
 
             return (
               <g key={index}>
@@ -202,39 +150,16 @@ function BiologyDiagram({
                   y1={inputY}
                   x2={endX}
                   y2={endY}
-                  stroke="url(#inputGradient)"
+                  stroke={inputStroke}
                   strokeWidth={inputStrokeWidth}
                   strokeLinecap="round"
                 />
-                <motion.circle
-                  cx={endX - inputMarkerOffset}
-                  cy={endY}
-                  r={inputMarkerRadius + 2}
-                  fill="#57A5FF"
-                  opacity={inputOpacity * 0.35}
-                  animate={{
-                    opacity: [inputOpacity * 0.2, inputOpacity * 0.45, inputOpacity * 0.2],
-                    scale: [1, 1.08, 1]
-                  }}
-                  transition={{ duration: pulseDuration, repeat: Infinity, ease: 'easeInOut' }}
-                />
-                <motion.circle
-                  key={`focus-${focusTick}-${index}`}
+                <circle
                   cx={endX - inputMarkerOffset}
                   cy={endY}
                   r={inputMarkerRadius}
-                  fill="#2F86FF"
+                  fill={inputStroke}
                   opacity={inputOpacity}
-                  animate={
-                    focusedInputIndex === index
-                      ? { opacity: [inputOpacity, 1, inputOpacity], scale: [1, 1.2, 1] }
-                      : { opacity: inputOpacity }
-                  }
-                  transition={
-                    focusedInputIndex === index
-                      ? { duration: 0.2, ease: 'easeOut' }
-                      : { duration: 0.2, ease: 'easeOut' }
-                  }
                 />
               </g>
             )
@@ -242,46 +167,37 @@ function BiologyDiagram({
 
           {/* ===== NEURON A ===== */}
           <g id="neuronA">
-            {/* Soma - FILLED circle */}
+            {/* Soma - outer circle */}
             <circle
               cx={neuronACenterX}
               cy={neuronACenterY}
               r={neuronASomaRadius}
-              fill="#57FFB0"
+              fill="#E7FBF1"
               stroke="#0F3B2B"
               strokeWidth="3"
             />
-            <rect
-              x={neuronACenterX - neuronASomaRadius}
-              y={neuronACenterY - neuronASomaRadius}
-              width={somaDiameterA}
-              height={somaDiameterA}
-              fill="url(#somaGrid)"
-              clipPath="url(#somaClipA)"
-              opacity="0.22"
-            />
 
             {/* Summation fill gauge */}
-            {fillRatioA > 0 && (
+            {normalizedSumA > 0 && (
               <>
-                <motion.rect
+                <rect
                   x={neuronACenterX - neuronASomaRadius}
+                  y={fillTopYA}
                   width={somaDiameterA}
+                  height={fillHeightA}
                   fill="#26C97F"
                   clipPath="url(#somaClipA)"
-                  initial={false}
-                  animate={{ y: fillTopYA, height: fillHeightA, opacity: fillOpacityA }}
-                  transition={{ duration: 0.45, ease: easeOutCubic }}
+                  opacity={0.9}
                 />
-                <motion.line
+                <line
                   x1={neuronACenterX - neuronASomaRadius}
                   x2={neuronACenterX + neuronASomaRadius}
-                  stroke="#1A7F52"
-                  strokeWidth="2"
+                  y1={fillTopYA}
+                  y2={fillTopYA}
+                  stroke="#1E7A4E"
+                  strokeWidth="1"
                   clipPath="url(#somaClipA)"
-                  initial={false}
-                  animate={{ y1: fillTopYA, y2: fillTopYA, opacity: fillOpacityA }}
-                  transition={{ duration: 0.45, ease: easeOutCubic }}
+                  opacity={0.9}
                 />
               </>
             )}
@@ -292,12 +208,27 @@ function BiologyDiagram({
               cy={neuronACenterY}
               r={neuronAThresholdRadius}
               fill="none"
-              stroke={ringActiveA ? thresholdRingActive : thresholdRingInactive}
+              stroke={thresholdRingStroke}
               strokeWidth={thresholdRingWidth}
               strokeDasharray={thresholdRingDash}
               strokeLinecap="round"
-              opacity={ringActiveA ? 1 : thresholdRingOpacityA}
+              opacity={thresholdRingOpacityA}
             />
+
+            {/* Summation indicator */}
+            {showMathOverlays && (
+              <text
+                x={neuronACenterX}
+                y={neuronACenterY + 5}
+                fontSize="18px"
+                fontWeight="600"
+                fill="#1A2D34"
+                textAnchor="middle"
+                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              >
+                Σ
+              </text>
+            )}
 
           </g>
 
@@ -310,68 +241,58 @@ function BiologyDiagram({
               x2={axonEndX}
               y2={axonY}
               stroke="#57A5FF"
-              strokeWidth="3.5"
+              strokeWidth="3"
               strokeLinecap="round"
-              opacity={pulseActive ? 1 : neuronAFires ? 0.7 : 0.35}
+              opacity={neuronAFires ? 1 : 0.3}
             />
 
             {/* Pulse dot - animated with Framer Motion */}
-            {pulseActive && (
+            {neuronAFires && axonPulse > 0 && (
               <motion.circle
-                key={`pulse-${pulseKey}`}
-                cx={axonStartX}
+                cx={axonStartX + axonPulse * axonLength}
                 cy={axonY}
                 r="6"
                 fill="#26C97F"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1, cx: axonStartX + axonLength }}
-                transition={{ duration: pulseDurationMs / 1000, ease: easeOutCubic }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
               />
             )}
           </g>
 
           {/* ===== NEURON B ===== */}
           <g id="neuronB">
-            {/* Soma - FILLED circle */}
+            {/* Soma - outer circle */}
             <circle
               cx={neuronBCenterX}
               cy={neuronBCenterY}
               r={neuronBSomaRadius}
-              fill="#57FFB0"
+              fill="#E7FBF1"
               stroke="#0F3B2B"
               strokeWidth="3"
             />
-            <rect
-              x={neuronBCenterX - neuronBSomaRadius}
-              y={neuronBCenterY - neuronBSomaRadius}
-              width={somaDiameterB}
-              height={somaDiameterB}
-              fill="url(#somaGrid)"
-              clipPath="url(#somaClipB)"
-              opacity="0.22"
-            />
 
             {/* Summation fill gauge */}
-            {fillRatioB > 0 && (
+            {normalizedSumB > 0 && (
               <>
-                <motion.rect
+                <rect
                   x={neuronBCenterX - neuronBSomaRadius}
+                  y={fillTopYB}
                   width={somaDiameterB}
+                  height={fillHeightB}
                   fill="#26C97F"
                   clipPath="url(#somaClipB)"
-                  initial={false}
-                  animate={{ y: fillTopYB, height: fillHeightB, opacity: fillOpacityB }}
-                  transition={{ duration: 0.45, ease: easeOutCubic }}
+                  opacity={0.9}
                 />
-                <motion.line
+                <line
                   x1={neuronBCenterX - neuronBSomaRadius}
                   x2={neuronBCenterX + neuronBSomaRadius}
-                  stroke="#1A7F52"
-                  strokeWidth="2"
+                  y1={fillTopYB}
+                  y2={fillTopYB}
+                  stroke="#1E7A4E"
+                  strokeWidth="1"
                   clipPath="url(#somaClipB)"
-                  initial={false}
-                  animate={{ y1: fillTopYB, y2: fillTopYB, opacity: fillOpacityB }}
-                  transition={{ duration: 0.45, ease: easeOutCubic }}
+                  opacity={0.9}
                 />
               </>
             )}
@@ -382,58 +303,58 @@ function BiologyDiagram({
               cy={neuronBCenterY}
               r={neuronBThresholdRadius}
               fill="none"
-              stroke={ringActiveB ? thresholdRingActive : thresholdRingInactive}
+              stroke={thresholdRingStroke}
               strokeWidth={thresholdRingWidth}
               strokeDasharray={thresholdRingDash}
               strokeLinecap="round"
-              opacity={ringActiveB ? 1 : thresholdRingOpacityB}
+              opacity={thresholdRingOpacityB}
             />
 
-            <motion.circle
-              cx={neuronBCenterX}
-              cy={neuronBCenterY}
-              r={neuronBSomaRadius + 2}
-              fill="none"
-              stroke="#22C55E"
-              strokeWidth="2"
-              initial={false}
-              animate={{ opacity: highlightB ? 0.8 : 0 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-            />
+            {/* Summation indicator */}
+            {showMathOverlays && (
+              <text
+                x={neuronBCenterX}
+                y={neuronBCenterY + 5}
+                fontSize="18px"
+                fontWeight="600"
+                fill="#1A2D34"
+                textAnchor="middle"
+                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              >
+                Σ
+              </text>
+            )}
 
           </g>
 
           {/* ===== LABELS ===== */}
           <g id="labels">
             {inputYPositions.length > 0 && (
-                <text
+              <text
                 x={inputStartX + 8}
                 y={inputYPositions[0] - 10}
                 fontSize={labelSize}
                 fontWeight={labelWeight}
                 fill={labelColor}
                 textAnchor="start"
-                  letterSpacing={labelTracking}
                 fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
               >
-                  DENDRITES
+                dendrites
               </text>
             )}
-            <motion.text
-              x={neuronACenterX}
-              y={neuronACenterY + neuronASomaRadius + 16}
-              fontSize={labelSize}
-              fontWeight={labelWeight}
-              fill={labelColor}
-              textAnchor="middle"
-              letterSpacing={labelTracking}
-              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              initial={false}
-              animate={{ opacity: detailOpacity }}
-              transition={detailTransition}
-            >
-              SOMA
-            </motion.text>
+            {showDetailed && (
+              <text
+                x={neuronACenterX}
+                y={neuronACenterY + neuronASomaRadius + 16}
+                fontSize={labelSize}
+                fontWeight={labelWeight}
+                fill={labelColor}
+                textAnchor="middle"
+                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              >
+                soma
+              </text>
+            )}
             <text
               x={(axonStartX + axonEndX) / 2}
               y={axonY - 12}
@@ -441,52 +362,47 @@ function BiologyDiagram({
               fontWeight={labelWeight}
               fill={labelColor}
               textAnchor="middle"
-              letterSpacing={labelTracking}
               fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
             >
-              AXON
+              axon
             </text>
-            <motion.text
-              x={neuronACenterX + neuronAThresholdRadius + 12}
-              y={neuronACenterY - neuronAThresholdRadius + 4}
-              fontSize={labelSize}
-              fontWeight={labelWeight}
-              fill={labelColor}
-              textAnchor="start"
-              letterSpacing={labelTracking}
-              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              initial={false}
-              animate={{ opacity: detailOpacity }}
-              transition={detailTransition}
-            >
-              THRESHOLD
-            </motion.text>
-            <motion.text
-              x={neuronACenterX + neuronASomaRadius + 10}
-              y={neuronACenterY + 6}
-              fontSize={hintSize}
-              fill={hintColor}
-              textAnchor="start"
-              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              initial={false}
-              animate={{ opacity: detailOpacity }}
-              transition={detailTransition}
-            >
-              {neuronATotalInput}/{neuronAThreshold}
-            </motion.text>
-            <motion.text
-              x={neuronBCenterX + neuronBSomaRadius + 10}
-              y={neuronBCenterY + 6}
-              fontSize={hintSize}
-              fill={hintColor}
-              textAnchor="start"
-              fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
-              initial={false}
-              animate={{ opacity: detailOpacity }}
-              transition={detailTransition}
-            >
-              {neuronBInput}/{neuronBThreshold}
-            </motion.text>
+            {showDetailed && (
+              <text
+                x={neuronACenterX + neuronAThresholdRadius + 12}
+                y={neuronACenterY - neuronAThresholdRadius + 4}
+                fontSize={labelSize}
+                fontWeight={labelWeight}
+                fill={labelColor}
+                textAnchor="start"
+                fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+              >
+                threshold
+              </text>
+            )}
+            {showMathOverlays && (
+              <>
+                <text
+                  x={neuronACenterX + neuronASomaRadius + 10}
+                  y={neuronACenterY + 6}
+                  fontSize={hintSize}
+                  fill={hintColor}
+                  textAnchor="start"
+                  fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+                >
+                  {neuronATotalInput}/{neuronAThreshold}
+                </text>
+                <text
+                  x={neuronBCenterX + neuronBSomaRadius + 10}
+                  y={neuronBCenterY + 6}
+                  fontSize={hintSize}
+                  fill={hintColor}
+                  textAnchor="start"
+                  fontFamily="system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+                >
+                  {neuronBInput}/{neuronBThreshold}
+                </text>
+              </>
+            )}
           </g>
         </g>
       </svg>
