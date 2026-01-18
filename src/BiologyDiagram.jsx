@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 
 /**
@@ -16,6 +16,9 @@ function BiologyDiagram({
   isSimpleMode = true
 }) {
   const [axonPulse, setAxonPulse] = useState(0)
+  const [focusedInputIndex, setFocusedInputIndex] = useState(null)
+  const [focusTick, setFocusTick] = useState(0)
+  const previousInputsRef = useRef(inputValues)
 
   const svgWidth = isMobile && typeof window !== 'undefined' ? Math.min(window.innerWidth - 48, 760) : 760
   const svgHeight = 260
@@ -91,6 +94,9 @@ function BiologyDiagram({
   const hintColor = '#6B7280'
   const hintSize = 10
 
+  const inputPulseDurationBase = 1.4
+  const inputPulseDurationRange = 0.6
+
   // Animate axon pulse when firing
   useEffect(() => {
     if (!neuronAFires) {
@@ -117,6 +123,16 @@ function BiologyDiagram({
     requestAnimationFrame(animate)
   }, [neuronAFires])
 
+  useEffect(() => {
+    const previousInputs = previousInputsRef.current
+    const changedIndex = inputValues.findIndex((value, index) => value !== previousInputs[index])
+    if (changedIndex !== -1) {
+      setFocusedInputIndex(changedIndex)
+      setFocusTick((tick) => tick + 1)
+    }
+    previousInputsRef.current = inputValues
+  }, [inputValues])
+
   return (
     <div style={{
       background: 'linear-gradient(180deg, #F8FBFD 0%, #F1F6FB 100%)',
@@ -141,13 +157,19 @@ function BiologyDiagram({
             <pattern id="somaGrid" width="8" height="8" patternUnits="userSpaceOnUse">
               <path d="M 8 0 L 0 0 0 8" fill="none" stroke="#0F3B2B" strokeWidth="0.6" opacity="0.12" />
             </pattern>
+            <linearGradient id="inputGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#2F86FF" />
+              <stop offset="100%" stopColor="#8CC3FF" />
+            </linearGradient>
           </defs>
           {/* ===== INPUTS (straight converging lines) ===== */}
           {inputYPositions.map((inputY, index) => {
             const endX = neuronACenterX - neuronASomaRadius
             const endY = neuronACenterY - 16 + index * 8
             const inputValue = inputValues[index] ?? 0
-            const inputOpacity = Math.min(1, Math.max(0.15, inputValue / inputMax))
+            const inputNormalized = inputValue / inputMax
+            const inputOpacity = Math.min(1, Math.max(0.25, inputNormalized))
+            const pulseDuration = inputPulseDurationBase - inputPulseDurationRange * inputNormalized
 
             return (
               <g key={index}>
@@ -157,16 +179,39 @@ function BiologyDiagram({
                   y1={inputY}
                   x2={endX}
                   y2={endY}
-                  stroke={inputStroke}
+                  stroke="url(#inputGradient)"
                   strokeWidth={inputStrokeWidth}
                   strokeLinecap="round"
                 />
-                <circle
+                <motion.circle
+                  cx={endX - inputMarkerOffset}
+                  cy={endY}
+                  r={inputMarkerRadius + 2}
+                  fill="#57A5FF"
+                  opacity={inputOpacity * 0.35}
+                  animate={{
+                    opacity: [inputOpacity * 0.2, inputOpacity * 0.45, inputOpacity * 0.2],
+                    scale: [1, 1.08, 1]
+                  }}
+                  transition={{ duration: pulseDuration, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <motion.circle
+                  key={`focus-${focusTick}-${index}`}
                   cx={endX - inputMarkerOffset}
                   cy={endY}
                   r={inputMarkerRadius}
-                  fill={inputStroke}
+                  fill="#2F86FF"
                   opacity={inputOpacity}
+                  animate={
+                    focusedInputIndex === index
+                      ? { opacity: [inputOpacity, 1, inputOpacity], scale: [1, 1.2, 1] }
+                      : { opacity: inputOpacity }
+                  }
+                  transition={
+                    focusedInputIndex === index
+                      ? { duration: 0.2, ease: 'easeOut' }
+                      : { duration: 0.2, ease: 'easeOut' }
+                  }
                 />
               </g>
             )
