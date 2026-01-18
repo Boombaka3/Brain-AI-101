@@ -18,9 +18,12 @@ function BiologyDiagram({
   const [ringActiveA, setRingActiveA] = useState(false)
   const [pulseActive, setPulseActive] = useState(false)
   const [pulseKey, setPulseKey] = useState(0)
+  const [pulseArrived, setPulseArrived] = useState(false)
+  const [highlightB, setHighlightB] = useState(false)
+  const [ringActiveB, setRingActiveB] = useState(false)
   const [focusedInputIndex, setFocusedInputIndex] = useState(null)
   const [focusTick, setFocusTick] = useState(0)
-  const previousInputsRef = useRef(inputValues)
+  const previousInputsRef = useRef([])
   const sequenceTimeoutsRef = useRef([])
 
   const svgWidth = isMobile && typeof window !== 'undefined' ? Math.min(window.innerWidth - 48, 760) : 760
@@ -69,11 +72,12 @@ function BiologyDiagram({
   // Calculate fill opacity
   const fillRatioA = Math.min(1, Math.max(0, neuronATotalInput / Math.max(neuronAThreshold, 1)))
   const fillRatioB = Math.min(1, Math.max(0, neuronBInput / Math.max(neuronBThreshold, 1)))
+  const fillRatioBDisplay = pulseArrived ? fillRatioB : 0
 
   const somaDiameterA = neuronASomaRadius * 2
   const somaDiameterB = neuronBSomaRadius * 2
   const fillHeightA = somaDiameterA * fillRatioA
-  const fillHeightB = somaDiameterB * fillRatioB
+  const fillHeightB = somaDiameterB * fillRatioBDisplay
   const fillTopYA = neuronACenterY + neuronASomaRadius - fillHeightA
   const fillTopYB = neuronBCenterY + neuronBSomaRadius - fillHeightB
 
@@ -87,7 +91,7 @@ function BiologyDiagram({
 
   const easeOutCubic = [0.215, 0.61, 0.355, 1]
   const fillOpacityA = fillRatioA >= 0.85 ? 1 : 0.85
-  const fillOpacityB = fillRatioB >= 0.85 ? 1 : 0.85
+  const fillOpacityB = fillRatioBDisplay >= 0.85 ? 1 : 0.85
 
   const showDetailed = !isSimpleMode
   const labelColor = '#51606A'
@@ -110,6 +114,9 @@ function BiologyDiagram({
     sequenceTimeoutsRef.current = []
     setRingActiveA(false)
     setPulseActive(false)
+    setPulseArrived(false)
+    setHighlightB(false)
+    setRingActiveB(false)
 
     if (!neuronAFires) {
       return
@@ -121,12 +128,21 @@ function BiologyDiagram({
       setPulseKey((key) => key + 1)
     }, pulseDelayMs)
     const pulseEndTimer = setTimeout(() => setPulseActive(false), pulseDelayMs + pulseDurationMs)
+    const arrivalTimer = setTimeout(() => {
+      setPulseArrived(true)
+      setHighlightB(true)
+      setTimeout(() => setHighlightB(false), 200)
+    }, pulseDelayMs + pulseDurationMs)
 
-    sequenceTimeoutsRef.current = [ringTimer, pulseTimer, pulseEndTimer]
+    sequenceTimeoutsRef.current = [ringTimer, pulseTimer, pulseEndTimer, arrivalTimer]
     return () => {
       sequenceTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId))
     }
   }, [neuronAFires])
+
+  useEffect(() => {
+    setRingActiveB(pulseArrived && neuronBFires)
+  }, [pulseArrived, neuronBFires])
 
   useEffect(() => {
     const previousInputs = previousInputsRef.current
@@ -379,11 +395,23 @@ function BiologyDiagram({
               cy={neuronBCenterY}
               r={neuronBThresholdRadius}
               fill="none"
-              stroke={neuronBFires ? thresholdRingActive : thresholdRingInactive}
+              stroke={ringActiveB ? thresholdRingActive : thresholdRingInactive}
               strokeWidth={thresholdRingWidth}
               strokeDasharray={thresholdRingDash}
               strokeLinecap="round"
-              opacity={thresholdRingOpacityB}
+              opacity={ringActiveB ? 1 : thresholdRingOpacityB}
+            />
+
+            <motion.circle
+              cx={neuronBCenterX}
+              cy={neuronBCenterY}
+              r={neuronBSomaRadius + 2}
+              fill="none"
+              stroke="#22C55E"
+              strokeWidth="2"
+              initial={false}
+              animate={{ opacity: highlightB ? 0.8 : 0 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
             />
 
             {/* Summation indicator */}

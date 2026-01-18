@@ -20,9 +20,12 @@ function AnnDiagram({
   const [ringActiveA, setRingActiveA] = useState(false)
   const [pulseActive, setPulseActive] = useState(false)
   const [pulseKey, setPulseKey] = useState(0)
+  const [pulseArrived, setPulseArrived] = useState(false)
+  const [highlightB, setHighlightB] = useState(false)
+  const [ringActiveB, setRingActiveB] = useState(false)
   const [focusedInputIndex, setFocusedInputIndex] = useState(null)
   const [focusTick, setFocusTick] = useState(0)
-  const previousInputsRef = useRef(inputs)
+  const previousInputsRef = useRef([])
   const sequenceTimeoutsRef = useRef([])
 
   const svgWidth = isMobile && typeof window !== 'undefined' ? Math.min(window.innerWidth - 48, 760) : 760
@@ -58,10 +61,11 @@ function AnnDiagram({
   // Calculate fill opacity (matching biology)
   const fillRatioA = Math.min(1, Math.max(0, neuronATotalInput / Math.max(neuronAThreshold, 1)))
   const fillRatioB = Math.min(1, Math.max(0, neuronBInput / Math.max(neuronBThreshold, 1)))
+  const fillRatioBDisplay = pulseArrived ? fillRatioB : 0
 
   const somaDiameter = neuronRadius * 2
   const fillHeightA = somaDiameter * fillRatioA
-  const fillHeightB = somaDiameter * fillRatioB
+  const fillHeightB = somaDiameter * fillRatioBDisplay
   const fillTopYA = centerY + neuronRadius - fillHeightA
   const fillTopYB = centerY + neuronRadius - fillHeightB
 
@@ -74,7 +78,7 @@ function AnnDiagram({
 
   const easeOutCubic = [0.215, 0.61, 0.355, 1]
   const fillOpacityA = fillRatioA >= 0.85 ? 1 : 0.85
-  const fillOpacityB = fillRatioB >= 0.85 ? 1 : 0.85
+  const fillOpacityB = fillRatioBDisplay >= 0.85 ? 1 : 0.85
 
   const inputMax = Math.max(...inputs, 1)
   const inputStroke = '#57A5FF'
@@ -104,6 +108,9 @@ function AnnDiagram({
     sequenceTimeoutsRef.current = []
     setRingActiveA(false)
     setPulseActive(false)
+    setPulseArrived(false)
+    setHighlightB(false)
+    setRingActiveB(false)
 
     if (!neuronAFires) {
       return
@@ -115,12 +122,21 @@ function AnnDiagram({
       setPulseKey((key) => key + 1)
     }, pulseDelayMs)
     const pulseEndTimer = setTimeout(() => setPulseActive(false), pulseDelayMs + pulseDurationMs)
+    const arrivalTimer = setTimeout(() => {
+      setPulseArrived(true)
+      setHighlightB(true)
+      setTimeout(() => setHighlightB(false), 200)
+    }, pulseDelayMs + pulseDurationMs)
 
-    sequenceTimeoutsRef.current = [ringTimer, pulseTimer, pulseEndTimer]
+    sequenceTimeoutsRef.current = [ringTimer, pulseTimer, pulseEndTimer, arrivalTimer]
     return () => {
       sequenceTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId))
     }
   }, [neuronAFires])
+
+  useEffect(() => {
+    setRingActiveB(pulseArrived && neuronBFires)
+  }, [pulseArrived, neuronBFires])
 
   useEffect(() => {
     const previousInputs = previousInputsRef.current
@@ -388,11 +404,23 @@ function AnnDiagram({
               cy={centerY}
               r={neuronThresholdRadius}
               fill="none"
-              stroke={neuronBFires ? thresholdRingActive : thresholdRingInactive}
+              stroke={ringActiveB ? thresholdRingActive : thresholdRingInactive}
               strokeWidth={thresholdRingWidth}
               strokeDasharray={thresholdRingDash}
               strokeLinecap="round"
-              opacity={thresholdRingOpacityB}
+              opacity={ringActiveB ? 1 : thresholdRingOpacityB}
+            />
+
+            <motion.circle
+              cx={neuronBCenterX}
+              cy={centerY}
+              r={neuronRadius + 2}
+              fill="none"
+              stroke="#22C55E"
+              strokeWidth="2"
+              initial={false}
+              animate={{ opacity: highlightB ? 0.8 : 0 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
             />
 
             {/* Σ symbol */}
