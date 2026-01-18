@@ -59,11 +59,16 @@ function AnnDiagram({
   const fillTopYA = centerY + neuronRadius - fillHeightA
   const fillTopYB = centerY + neuronRadius - fillHeightB
 
-  const thresholdRingStroke = '#D9792E'
+  const thresholdRingInactive = '#D9792E'
+  const thresholdRingActive = '#FF8A1E'
   const thresholdRingDash = '5 4'
   const thresholdRingWidth = 2.5
-  const thresholdRingOpacityA = neuronAFires ? 1 : 0.6
-  const thresholdRingOpacityB = neuronBFires ? 1 : 0.6
+  const thresholdRingOpacityA = neuronAFires ? 1 : 0.5
+  const thresholdRingOpacityB = neuronBFires ? 1 : 0.5
+
+  const easeOutCubic = [0.215, 0.61, 0.355, 1]
+  const fillOpacityA = fillRatioA >= 0.85 ? 1 : 0.85
+  const fillOpacityB = fillRatioB >= 0.85 ? 1 : 0.85
 
   const inputMax = Math.max(...inputs, 1)
   const inputStroke = '#57A5FF'
@@ -127,6 +132,9 @@ function AnnDiagram({
             <clipPath id="somaClipB">
               <circle cx={neuronBCenterX} cy={centerY} r={neuronRadius} />
             </clipPath>
+            <pattern id="somaGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+              <path d="M 8 0 L 0 0 0 8" fill="none" stroke="#0F3B2B" strokeWidth="0.6" opacity="0.12" />
+            </pattern>
           </defs>
           {/* ===== INPUTS (straight converging lines) ===== */}
           {inputs.map((input, index) => {
@@ -183,32 +191,37 @@ function AnnDiagram({
               stroke="#0F3B2B"
               strokeWidth="3"
             />
+            <rect
+              x={neuronACenterX - neuronRadius}
+              y={centerY - neuronRadius}
+              width={somaDiameter}
+              height={somaDiameter}
+              fill="url(#somaGrid)"
+              clipPath="url(#somaClipA)"
+              opacity="0.22"
+            />
 
             {/* Summation fill gauge */}
             {fillRatioA > 0 && (
               <>
                 <motion.rect
                   x={neuronACenterX - neuronRadius}
-                  y={fillTopYA}
                   width={somaDiameter}
-                  height={fillHeightA}
                   fill="#26C97F"
                   clipPath="url(#somaClipA)"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.9 }}
-                  transition={{ duration: 0.3 }}
+                  initial={false}
+                  animate={{ y: fillTopYA, height: fillHeightA, opacity: fillOpacityA }}
+                  transition={{ duration: 0.45, ease: easeOutCubic }}
                 />
                 <motion.line
                   x1={neuronACenterX - neuronRadius}
                   x2={neuronACenterX + neuronRadius}
-                  y1={fillTopYA}
-                  y2={fillTopYA}
                   stroke="#1A7F52"
                   strokeWidth="2"
                   clipPath="url(#somaClipA)"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.9 }}
-                  transition={{ duration: 0.3 }}
+                  initial={false}
+                  animate={{ y1: fillTopYA, y2: fillTopYA, opacity: fillOpacityA }}
+                  transition={{ duration: 0.45, ease: easeOutCubic }}
                 />
               </>
             )}
@@ -219,7 +232,7 @@ function AnnDiagram({
               cy={centerY}
               r={neuronThresholdRadius}
               fill="none"
-              stroke={thresholdRingStroke}
+              stroke={neuronAFires ? thresholdRingActive : thresholdRingInactive}
               strokeWidth={thresholdRingWidth}
               strokeDasharray={thresholdRingDash}
               strokeLinecap="round"
@@ -282,32 +295,37 @@ function AnnDiagram({
               stroke="#0F3B2B"
               strokeWidth="3"
             />
+            <rect
+              x={neuronBCenterX - neuronRadius}
+              y={centerY - neuronRadius}
+              width={somaDiameter}
+              height={somaDiameter}
+              fill="url(#somaGrid)"
+              clipPath="url(#somaClipB)"
+              opacity="0.22"
+            />
 
             {/* Summation fill gauge */}
             {fillRatioB > 0 && (
               <>
                 <motion.rect
                   x={neuronBCenterX - neuronRadius}
-                  y={fillTopYB}
                   width={somaDiameter}
-                  height={fillHeightB}
                   fill="#26C97F"
                   clipPath="url(#somaClipB)"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.9 }}
-                  transition={{ duration: 0.3 }}
+                  initial={false}
+                  animate={{ y: fillTopYB, height: fillHeightB, opacity: fillOpacityB }}
+                  transition={{ duration: 0.45, ease: easeOutCubic }}
                 />
                 <motion.line
                   x1={neuronBCenterX - neuronRadius}
                   x2={neuronBCenterX + neuronRadius}
-                  y1={fillTopYB}
-                  y2={fillTopYB}
                   stroke="#1A7F52"
                   strokeWidth="2"
                   clipPath="url(#somaClipB)"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.9 }}
-                  transition={{ duration: 0.3 }}
+                  initial={false}
+                  animate={{ y1: fillTopYB, y2: fillTopYB, opacity: fillOpacityB }}
+                  transition={{ duration: 0.45, ease: easeOutCubic }}
                 />
               </>
             )}
@@ -318,7 +336,7 @@ function AnnDiagram({
               cy={centerY}
               r={neuronThresholdRadius}
               fill="none"
-              stroke={thresholdRingStroke}
+              stroke={neuronBFires ? thresholdRingActive : thresholdRingInactive}
               strokeWidth={thresholdRingWidth}
               strokeDasharray={thresholdRingDash}
               strokeLinecap="round"
