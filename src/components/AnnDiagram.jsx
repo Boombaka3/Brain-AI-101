@@ -17,10 +17,13 @@ function AnnDiagram({
   isMobile = false,
   isSimpleMode = true
 }) {
-  const [connectionPulse, setConnectionPulse] = useState(0)
+  const [ringActiveA, setRingActiveA] = useState(false)
+  const [pulseActive, setPulseActive] = useState(false)
+  const [pulseKey, setPulseKey] = useState(0)
   const [focusedInputIndex, setFocusedInputIndex] = useState(null)
   const [focusTick, setFocusTick] = useState(0)
   const previousInputsRef = useRef(inputs)
+  const sequenceTimeoutsRef = useRef([])
 
   const svgWidth = isMobile && typeof window !== 'undefined' ? Math.min(window.innerWidth - 48, 760) : 760
   const svgHeight = 260
@@ -90,30 +93,33 @@ function AnnDiagram({
   const inputPulseDurationBase = 1.4
   const inputPulseDurationRange = 0.6
 
+  const fillDurationMs = 450
+  const ringDelayMs = fillDurationMs
+  const pulseDelayMs = fillDurationMs + 120
+  const pulseDurationMs = 600
+
   // Animate connection pulse from A to B when firing
   useEffect(() => {
+    sequenceTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId))
+    sequenceTimeoutsRef.current = []
+    setRingActiveA(false)
+    setPulseActive(false)
+
     if (!neuronAFires) {
-      setConnectionPulse(0)
       return
     }
 
-    setConnectionPulse(0)
-    const duration = 800
-    const startTime = Date.now()
+    const ringTimer = setTimeout(() => setRingActiveA(true), ringDelayMs)
+    const pulseTimer = setTimeout(() => {
+      setPulseActive(true)
+      setPulseKey((key) => key + 1)
+    }, pulseDelayMs)
+    const pulseEndTimer = setTimeout(() => setPulseActive(false), pulseDelayMs + pulseDurationMs)
 
-    const animate = () => {
-      const elapsed = Date.now() - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      setConnectionPulse(progress)
-
-      if (progress < 1) {
-        requestAnimationFrame(animate)
-      } else {
-        setTimeout(() => setConnectionPulse(0), 200)
-      }
+    sequenceTimeoutsRef.current = [ringTimer, pulseTimer, pulseEndTimer]
+    return () => {
+      sequenceTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId))
     }
-
-    requestAnimationFrame(animate)
   }, [neuronAFires])
 
   useEffect(() => {
@@ -277,11 +283,11 @@ function AnnDiagram({
               cy={centerY}
               r={neuronThresholdRadius}
               fill="none"
-              stroke={neuronAFires ? thresholdRingActive : thresholdRingInactive}
+              stroke={ringActiveA ? thresholdRingActive : thresholdRingInactive}
               strokeWidth={thresholdRingWidth}
               strokeDasharray={thresholdRingDash}
               strokeLinecap="round"
-              opacity={thresholdRingOpacityA}
+              opacity={ringActiveA ? 1 : thresholdRingOpacityA}
             />
 
             {/* Σ symbol (summation) */}
@@ -310,21 +316,22 @@ function AnnDiagram({
               x2={axonEndX}
               y2={centerY}
               stroke="#57A5FF"
-              strokeWidth="3"
+              strokeWidth="3.5"
               strokeLinecap="round"
-              opacity={neuronAFires ? 1 : 0.3}
+              opacity={pulseActive ? 1 : neuronAFires ? 0.7 : 0.35}
             />
 
             {/* Pulse dot - animated with Framer Motion */}
-            {neuronAFires && connectionPulse > 0 && (
+            {pulseActive && (
               <motion.circle
-                cx={axonStartX + connectionPulse * axonLength}
+                key={`pulse-${pulseKey}`}
+                cx={axonStartX}
                 cy={centerY}
                 r="6"
                 fill="#26C97F"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1, cx: axonStartX + axonLength }}
+                transition={{ duration: pulseDurationMs / 1000, ease: easeOutCubic }}
               />
             )}
           </g>
