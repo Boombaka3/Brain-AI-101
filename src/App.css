@@ -1,0 +1,123 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Responsive layout for neuron steps */
+.steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Desktop/PC: horizontal layout (left, center, right) */
+@media (min-width: 900px) {
+  .steps-container {
+    flex-direction: row;
+  }
+}
+
+/* Mobile/Phone: vertical layout (top to bottom) */
+@media (max-width: 899px) {
+  .steps-container {
+    flex-direction: column;
+  }
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  #root {
+    padding: 1rem;
+  }
+  
+  /* Make grids stack vertically on mobile */
+  .responsive-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Reduce padding on mobile */
+  .mobile-padding {
+    padding: 12px !important;
+  }
+  
+  /* Stack header elements */
+  .mobile-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+  
+  /* Make tabs scrollable */
+  .mobile-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Smaller font sizes on mobile */
+  .mobile-text {
+    font-size: 12px !important;
+  }
+  
+  /* Full width buttons on mobile */
+  .mobile-button {
+    width: 100% !important;
+  }
+}
+
+/* Biological neuron animations */
+@keyframes somaFlash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes actionPotential {
+  0% { transform: translateX(0); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes neurotransmitter {
+  0% { transform: translateX(0) translateY(0); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateX(100%) translateY(0); opacity: 0; }
+}

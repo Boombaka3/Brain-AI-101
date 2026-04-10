@@ -1,41 +1,16 @@
-# Single Neuron Model - Week 1 MVP
+# React + Vite
 
-This is a small React single-page app that shows how a single neuron can be modeled as:
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-- multiple input signals,
-- all inputs added together,
-- compared against one threshold,
-- producing either **fire** or **no fire**.
+Currently, two official plugins are available:
 
-## How it works
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-- 3–5 input sliders control the strength of each input.
-- A threshold slider sets the gate level.
-- The app shows:
-  - each input value,
-  - the total input (sum of all inputs),
-  - the threshold value,
-  - whether the neuron **fires** or **does not fire**.
+## React Compiler
 
-All behavior is deterministic: the same inputs and threshold always give the same result.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Running locally
+## Expanding the ESLint configuration
 
-From this folder:
-
-```bash
-npm install
-npm run start
-```
-
-Then open `http://localhost:3000` in your browser.
-
-## Building for GitHub Pages
-
-```bash
-npm run build
-```
-
-The static files will be in the `dist` folder. You can publish `dist` to GitHub Pages.
-
-
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

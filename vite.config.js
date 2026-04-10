@@ -5,5 +5,3 @@ export default defineConfig({
   plugins: [react()],
   base: '/Brain-AI-101/'
 })
-
-

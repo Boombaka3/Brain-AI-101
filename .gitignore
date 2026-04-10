@@ -1,39 +1,103 @@
-# Node dependencies
-node_modules/
+# Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# Build output
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# AI Agents and Assistants
+.cursor/
+.cursor
+.cursorignore
+.cursorindexingignore
+.codeium/
+.copilot/
+.github/copilot/
+.tabnine/
+.tabninerc
+.windsurf/
+.aider*
+.aider/
+.continue/
+.cody/
+.sourcegraph/
+.codium/
+.bito/
+.codewhisperer/
+.amazonq/
+.qodo/
+.supermaven/
+.blackbox/
+.kite/
+.codegpt/
+.pieces/
+.aide/
+.double/
+.mentat/
+.smol/
+.gpt-pilot/
+.idx/
+.replit/
+.devin/
+.claude
+
+# Package managers and dependencies
+node_modules/
+bower_components/
+jspm_packages/
+.pnp/
+.pnp.js
+.yarn/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
 dist/
 build/
+*.egg
 
-# Local environment files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Jupyter Notebooks
+*.ipynb
+*.ipynb_checkpoints
+.ipynb_checkpoints/
 
-# Editor and IDE settings
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS-specific files
-Thumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-.DS_Store
-
-# Logs
-logs/
-*.log
-
-# Misc
-*.tmp
-*.bak
-
-
+# Analysis reports
+react_ast_analysis_report.txt
+*.ast_analysis.txt
