@@ -9,154 +9,104 @@ export const PROCESS_PHASES = {
   INTEGRATE: 'integrate',
   COMPARE: 'compare',
   FIRE: 'fire',
-  PASS_ON: 'pass-on',
+  TERMINAL: 'terminal',
+  BOUTONS: 'boutons',
   COMPLETE: 'complete',
 }
+
+export const PROCESS_PHASE_LABELS = Object.freeze({
+  [PROCESS_PHASES.IDLE]: 'Ready',
+  [PROCESS_PHASES.RECEIVE]: 'Signals arrive',
+  [PROCESS_PHASES.INTEGRATE]: 'Soma builds',
+  [PROCESS_PHASES.COMPARE]: 'Threshold check',
+  [PROCESS_PHASES.FIRE]: 'Axon fires',
+  [PROCESS_PHASES.TERMINAL]: 'Terminal branches',
+  [PROCESS_PHASES.BOUTONS]: 'Signal passed on',
+  [PROCESS_PHASES.COMPLETE]: 'Complete',
+})
 
 export const PROCESS_AUTOPLAY_THRESHOLD = 0.3
 
 export const PROCESS_PHASE_TIMINGS = Object.freeze({
-  [PROCESS_PHASES.IDLE]: 120,
-  [PROCESS_PHASES.RECEIVE]: 900,
-  [PROCESS_PHASES.INTEGRATE]: 1000,
-  [PROCESS_PHASES.COMPARE]: 850,
-  [PROCESS_PHASES.FIRE]: 700,
-  [PROCESS_PHASES.PASS_ON]: 900,
-  [PROCESS_PHASES.COMPLETE]: 0,
+  [PROCESS_PHASES.RECEIVE]: 520,
+  [PROCESS_PHASES.INTEGRATE]: 460,
+  [PROCESS_PHASES.COMPARE]: 320,
+  [PROCESS_PHASES.FIRE]: 520,
+  [PROCESS_PHASES.TERMINAL]: 260,
+  [PROCESS_PHASES.BOUTONS]: 260,
 })
 
-export const PROCESS_PHASE_METADATA = Object.freeze({
-  [PROCESS_PHASES.IDLE]: {
-    label: 'Idle',
-    title: 'Preparing the next run',
-    buildBody: () => 'The neuron resets to its resting state before the sequence begins again.',
-  },
-  [PROCESS_PHASES.RECEIVE]: {
-    label: 'Receive',
-    stepLabel: '1. Receive',
-    detail: 'Signals arrive through the dendrites.',
-    title: 'Signals arrive at the dendrites',
-    buildBody: ({ weightedInputs }) => {
+export function getProcessPhasePlan(willFire) {
+  return willFire
+    ? [
+        PROCESS_PHASES.RECEIVE,
+        PROCESS_PHASES.INTEGRATE,
+        PROCESS_PHASES.COMPARE,
+        PROCESS_PHASES.FIRE,
+        PROCESS_PHASES.TERMINAL,
+        PROCESS_PHASES.BOUTONS,
+      ]
+    : [PROCESS_PHASES.RECEIVE, PROCESS_PHASES.INTEGRATE, PROCESS_PHASES.COMPARE]
+}
+
+export function getProcessPhaseLabel(phase) {
+  return PROCESS_PHASE_LABELS[phase] ?? 'Ready'
+}
+
+export function getProcessPhaseSummary(phase, context) {
+  const { totalInput, threshold, neuronFires, weightedInputs } = context
+
+  switch (phase) {
+    case PROCESS_PHASES.RECEIVE: {
       const strongestInputIndex = weightedInputs.reduce(
         (best, current, index) => (current > best.value ? { value: current, index } : best),
         { value: -Infinity, index: 0 },
       ).index
-
-      return `Each pathway carries input into the neuron. Right now, dendrite ${strongestInputIndex + 1} contributes the most.`
-    },
-  },
-  [PROCESS_PHASES.INTEGRATE]: {
-    label: 'Integrate',
-    stepLabel: '2. Integrate',
-    detail: 'The soma gathers the incoming signal.',
-    title: 'The soma adds the incoming signals',
-    buildBody: ({ totalInput }) => `Each weighted input contributes to one running total. In this run, the soma builds up to ${totalInput}.`,
-  },
-  [PROCESS_PHASES.COMPARE]: {
-    label: 'Compare',
-    stepLabel: '3. Compare',
-    detail: 'The total is checked against threshold.',
-    title: 'The soma checks the threshold',
-    buildBody: ({ totalInput, threshold }) => `The neuron compares ${totalInput} against the firing threshold of ${threshold}.`,
-  },
-  [PROCESS_PHASES.FIRE]: {
-    label: 'Fire',
-    stepLabel: '4. Fire',
-    detail: 'Crossing threshold launches an output spike.',
-    title: 'Threshold crossed: the neuron fires',
-    buildBody: ({ totalInput, threshold }) => `Because ${totalInput} is at or above ${threshold}, the neuron sends an output spike down the axon.`,
-  },
-  [PROCESS_PHASES.PASS_ON]: {
-    label: 'Pass On',
-    stepLabel: '5. Pass On',
-    detail: 'The signal reaches the next neuron.',
-    title: 'The signal reaches the next neuron',
-    buildBody: () => 'A firing neuron can now influence what happens next in the circuit.',
-  },
-  [PROCESS_PHASES.COMPLETE]: {
-    label: 'Complete',
-    buildResult: ({ neuronFires, totalInput, threshold }) =>
-      neuronFires
+      return {
+        title: 'Signals move in through the dendrites',
+        body: `Each active input travels inward toward the soma. In this run, input ${strongestInputIndex + 1} contributes the most.`,
+      }
+    }
+    case PROCESS_PHASES.INTEGRATE:
+      return {
+        title: 'The soma builds the combined signal',
+        body: `The neuron adds the incoming signals together. Here, the soma builds to a total of ${totalInput}.`,
+      }
+    case PROCESS_PHASES.COMPARE:
+      return {
+        title: 'The neuron checks threshold',
+        body: `The soma compares ${totalInput} with the threshold of ${threshold}.`,
+      }
+    case PROCESS_PHASES.FIRE:
+      return {
+        title: 'The axon carries the response forward',
+        body: `Because ${totalInput} reaches threshold, the neuron sends a signal down the axon.`,
+      }
+    case PROCESS_PHASES.TERMINAL:
+      return {
+        title: 'The terminal branches activate',
+        body: 'The signal reaches the end of the neuron and spreads through the terminal branches.',
+      }
+    case PROCESS_PHASES.BOUTONS:
+      return {
+        title: 'The signal is passed on',
+        body: 'The boutons briefly activate to show how the signal can be passed to the next connection.',
+      }
+    case PROCESS_PHASES.COMPLETE:
+      return neuronFires
         ? {
-            title: 'Process complete: signal passed on',
-            body: 'This run reached threshold, fired, and sent a signal to the next neuron.',
+            title: 'This run ends with a signal being passed on',
+            body: 'The neuron reached threshold, fired, and carried the response to its terminal end.',
           }
         : {
-            title: 'Process complete: this neuron does not fire',
-            body: `The total of ${totalInput} stays below the threshold of ${threshold}, so no output signal is sent on.`,
-          },
-  },
-})
-
-export const PROCESS_STEPS = Object.freeze(
-  [
-    PROCESS_PHASES.RECEIVE,
-    PROCESS_PHASES.INTEGRATE,
-    PROCESS_PHASES.COMPARE,
-    PROCESS_PHASES.FIRE,
-    PROCESS_PHASES.PASS_ON,
-  ].map((phase) => ({
-    id: phase,
-    label: PROCESS_PHASE_METADATA[phase].stepLabel,
-    detail: PROCESS_PHASE_METADATA[phase].detail,
-  })),
-)
-
-export const PROCESS_SUCCESS_PHASE_ORDER = Object.freeze([
-  PROCESS_PHASES.RECEIVE,
-  PROCESS_PHASES.INTEGRATE,
-  PROCESS_PHASES.COMPARE,
-  PROCESS_PHASES.FIRE,
-  PROCESS_PHASES.PASS_ON,
-])
-
-export const PROCESS_SILENT_PHASE_ORDER = Object.freeze([
-  PROCESS_PHASES.RECEIVE,
-  PROCESS_PHASES.INTEGRATE,
-  PROCESS_PHASES.COMPARE,
-])
-
-export function getProcessPhaseLabel(phase) {
-  return PROCESS_PHASE_METADATA[phase]?.label ?? phase
-}
-
-export function getProcessReplayLabel(runCount) {
-  return runCount === 0 ? 'Play the Example' : 'Replay the Process'
-}
-
-export function getProcessPhasePlan(willFire) {
-  return willFire ? PROCESS_SUCCESS_PHASE_ORDER : PROCESS_SILENT_PHASE_ORDER
-}
-
-export function getProcessPhaseSummary(phase, context) {
-  const metadata = PROCESS_PHASE_METADATA[phase]
-
-  if (!metadata) {
-    return context.neuronFires
-      ? {
-          title: 'Ready to replay the process',
-          body: 'Press replay to watch the same neuron decision again, or change the controls to explore a different outcome.',
-        }
-      : {
-          title: 'Ready to test a new setup',
-          body: 'Adjust the inputs, synaptic strengths, or threshold, then run the process to see whether the neuron stays silent or fires.',
-        }
-  }
-
-  if (metadata.buildResult) {
-    return metadata.buildResult(context)
-  }
-
-  return {
-    title: metadata.title,
-    body: metadata.buildBody(context),
+            title: 'This run stops before firing',
+            body: `The total stayed below threshold, so the signal built in the soma but did not continue down the axon.`,
+          }
+    case PROCESS_PHASES.IDLE:
+    default:
+      return {
+        title: 'Set up a run',
+        body: 'Adjust the inputs, then press Run to watch how the biological neuron responds.',
+      }
   }
 }
-
-export const BRIDGE_MAPPINGS = [
-  ['Dendrites', 'Inputs'],
-  ['Synaptic strengths', 'Weights'],
-  ['Soma', 'Summation'],
-  ['Threshold', 'Activation condition'],
-  ['Firing', 'Output'],
-]

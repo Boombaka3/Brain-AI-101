@@ -1,0 +1,173 @@
+.biology-diagram {
+  width: 100%;
+}
+
+.biology-diagram__frame {
+  position: relative;
+  margin: 0;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid #e1d6cf;
+  background:
+    radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.88), transparent 22%),
+    linear-gradient(180deg, #fbf8f4 0%, #f2e8e1 100%);
+  box-shadow: 0 16px 36px rgba(87, 56, 48, 0.12);
+}
+
+.biology-diagram__frame--interactive {
+  background:
+    radial-gradient(circle at 24% 22%, rgba(255, 255, 255, 0.94), transparent 24%),
+    linear-gradient(180deg, #fbf8f4 0%, #efe4dc 100%);
+}
+
+.biology-diagram__image,
+.biology-diagram__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.biology-diagram__image {
+  background: #f7f4ef;
+  filter: contrast(1.04) saturate(1.02);
+}
+
+.biology-diagram__credit {
+  position: absolute;
+  right: 14px;
+  bottom: 10px;
+  margin: 0;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(247, 244, 239, 0.72);
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.62;
+  transition: opacity 160ms ease;
+}
+
+.biology-diagram__credit:hover {
+  opacity: 0.9;
+}
+
+.biology-diagram__credit a {
+  color: #6f5b53;
+  text-decoration: none;
+}
+
+.biology-diagram__credit a:hover {
+  text-decoration: underline;
+}
+
+.biology-diagram--interactive .biology-diagram__credit {
+  display: none;
+}
+
+.biology-diagram__panel-bg {
+  fill: #f6efe9;
+}
+
+.biology-diagram__dendrite,
+.biology-diagram__axon-path,
+.biology-diagram__terminal-branch {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.biology-diagram__dendrite {
+  stroke: #b55d63;
+  stroke-width: 11;
+  opacity: 0.92;
+}
+
+.biology-diagram__soma-shell {
+  fill: url(#bio-soma-base);
+  stroke: #8f3c42;
+  stroke-width: 5;
+  vector-effect: non-scaling-stroke;
+}
+
+.biology-diagram__soma-fill {
+  fill: url(#bio-soma-fill);
+  opacity: 0.2;
+}
+
+.biology-diagram__soma-fill-line {
+  stroke: rgba(219, 234, 254, 0.95);
+  stroke-width: 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.biology-diagram__soma-glow {
+  fill: rgba(255, 255, 255, 0.22);
+  opacity: 0;
+}
+
+.biology-diagram__nucleus-shell {
+  fill: #4f2229;
+  stroke: rgba(28, 8, 12, 0.28);
+  stroke-width: 2.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.biology-diagram__nucleolus {
+  fill: #241015;
+}
+
+.biology-diagram__threshold-ring {
+  fill: none;
+  stroke: #f59e0b;
+  stroke-width: 3;
+  stroke-dasharray: 7 5;
+  vector-effect: non-scaling-stroke;
+  transform-origin: center;
+}
+
+.biology-diagram__hillock-shape {
+  fill: #d78887;
+  stroke: #9a4349;
+  stroke-width: 3.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.biology-diagram__axon-path {
+  stroke: #a74d54;
+  stroke-width: 13;
+}
+
+.biology-diagram__terminal-branch {
+  stroke: #b55d63;
+  stroke-width: 6.5;
+  opacity: 0.72;
+}
+
+.biology-diagram__bouton {
+  fill: #cf5a61;
+  stroke: #8c3940;
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.biology-diagram__signal-pulse {
+  fill: #3b82f6;
+  stroke: #dbeafe;
+  stroke-width: 1.5;
+  opacity: 0;
+  vector-effect: non-scaling-stroke;
+}
+
+@media (max-width: 700px) {
+  .biology-diagram__frame {
+    border-radius: 18px;
+  }
+
+  .biology-diagram__credit {
+    right: 10px;
+    bottom: 8px;
+    font-size: 10px;
+  }
+}

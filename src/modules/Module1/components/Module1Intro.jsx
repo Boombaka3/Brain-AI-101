@@ -4,26 +4,27 @@ function Module1Intro({ onStart }) {
       <div className="module1-two-column module1-intro-grid">
         <div className="module1-intro-lead">
           <p className="module1-eyebrow module1-intro-eyebrow">A. Intro</p>
-          <h2 className="module1-intro-title">Watch one neuron decide.</h2>
+          <h2 className="module1-intro-title">Meet a neuron in action</h2>
           <p className="module1-intro-copy">
-            First, observe how signals enter, build inside the soma, reach threshold, and travel onward.
+            In this module, you'll look at how one neuron receives signals, builds toward a response, and passes that
+            signal forward.
           </p>
           <div className="module1-inline-actions">
             <button className="module1-primary-button module1-intro-cta" onClick={onStart}>
-              Start Observing
+              Start exploring
             </button>
           </div>
         </div>
 
         <div className="module1-panel module1-intro-panel">
-          <p className="module1-hero-side-label module1-text-reset">By the end of this module</p>
-          <h3 className="module1-panel-title module1-intro-panel-title">Students should be able to explain:</h3>
+          <p className="module1-hero-side-label module1-text-reset">In this module</p>
+          <h3 className="module1-panel-title module1-intro-panel-title">You'll focus on:</h3>
           <div className="module1-chip-row module1-chip-row-tight module1-intro-chip-row">
-            <span className="module1-chip">Dendrites receive</span>
-            <span className="module1-chip">Synapses weight</span>
-            <span className="module1-chip">Soma adds up</span>
-            <span className="module1-chip">Threshold decides</span>
-            <span className="module1-chip">Axon passes on</span>
+            <span className="module1-chip">signals come in</span>
+            <span className="module1-chip">connections change impact</span>
+            <span className="module1-chip">the soma adds them up</span>
+            <span className="module1-chip">threshold shapes the response</span>
+            <span className="module1-chip">the axon carries the signal on</span>
           </div>
         </div>
       </div>

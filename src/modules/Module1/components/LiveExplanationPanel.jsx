@@ -25,13 +25,13 @@ function LiveExplanationPanel({ currentPhase, neuronBFires, neuronFires, summary
         <div className="module1-detail-row">
           <span className="module1-card-muted">This neuron</span>
           <strong className={neuronFires ? 'module1-status-success' : 'module1-status-warn'}>
-            {neuronFires ? 'Fires' : 'Silent'}
+            {neuronFires ? 'fires' : 'stays quiet'}
           </strong>
         </div>
         <div className="module1-detail-row module1-detail-row-last">
-          <span className="module1-card-muted">Next neuron</span>
+          <span className="module1-card-muted">Signal passed on</span>
           <strong className={neuronBFires ? 'module1-status-success' : 'module1-status-warn'}>
-            {neuronBFires ? 'Gets a signal' : 'Gets nothing'}
+            {neuronBFires ? 'yes' : 'no'}
           </strong>
         </div>
       </div>
@@ -39,7 +39,7 @@ function LiveExplanationPanel({ currentPhase, neuronBFires, neuronFires, summary
       <div className="module1-stack-gap-sm">
         <h4 className="module1-subtitle">Key idea</h4>
         <p className="module1-card-muted module1-text-reset">
-          Inputs build together in the soma, and firing happens only when that total reaches threshold.
+          Inputs build together in the soma, and the signal only continues if that total reaches threshold.
         </p>
       </div>
     </aside>

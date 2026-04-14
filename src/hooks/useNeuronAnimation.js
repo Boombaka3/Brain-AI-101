@@ -1,537 +1,326 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 
-/**
- * useNeuronAnimation - GSAP-based animation system for neuron visualization
- * 
- * EXTENDED CIRCUIT SUPPORT:
- * - Handles divergent signaling (one neuron to multiple targets)
- * - Single pulse travels to branch point, then splits visually
- * - Both synapses highlight, both targets integrate
- * 
- * ANIMATION NARRATIVE:
- * 1) Integration - fill rises
- * 2) Tension pause
- * 3) Threshold acknowledgment
- * 4) Action potential launches
- * 5) Signal propagates to branch (if extended) or directly to synapse
- * 6) At branch: pulse splits to both paths
- * 7) Synapse B highlights, Synapse C highlights (slight stagger)
- * 8) Neuron B integrates, Neuron C integrates
- * 9) Silence
- */
+const SIGNAL_PULSE_COLOR = '#3B82F6'
+const TERMINAL_GLOW_COLOR = '#60A5FA'
+
+const canMeasurePath = (node) =>
+  node &&
+  typeof node.getTotalLength === 'function' &&
+  typeof node.getPointAtLength === 'function'
+
 export function useNeuronAnimation({
-  neuronAFires,
-  neuronBInput,
-  neuronCInput = 0,
-  inputValues,
-  neuronAThreshold,
-  axonStartX,
-  axonEndBX,
-  axonEndBY,
-  axonEndCX,
-  axonEndCY,
-  branchPointX,
-  branchPointY,
-  axonY,
-  fillTopYA,
-  fillHeightA,
-  fillTopYB,
-  fillHeightB,
-  fillTopYC = 0,
-  fillHeightC = 0,
-  fillOpacityA,
-  fillOpacityB,
-  fillOpacityC = 0,
-  thresholdRingOpacityA,
-  thresholdRingOpacityB,
-  thresholdRingOpacityC = 0,
-  somaFillARef,
-  somaFillLineARef,
-  somaFillBRef,
-  somaFillLineBRef,
-  somaFillCRef,
-  somaFillLineCRef,
-  thresholdRingARef,
-  thresholdRingBRef,
-  thresholdRingCRef,
-  pulseRef,
-  pulseBranchRef,
-  axonSynapseBRef,
-  axonSynapseCRef,
-  synapseRefs,
+  weightedInputs,
+  totalInput,
+  threshold,
+  didFire,
+  replaySignal,
+  currentPhase,
   dendritePathRefs,
   inputPulseRefs,
-  setAVisualTotal,
-  setBVisualInput,
-  setCVisualInput,
-  showExtendedCircuit = false,
-  currentPhase = 'idle',
-  didFire = neuronAFires,
-  replaySignal = 0,
-  onInteractionLockChange,
+  somaFillRef,
+  somaFillLineRef,
+  somaGlowRef,
+  thresholdRingRef,
+  axonPathRef,
+  axonPulseRef,
+  terminalBranchRefs,
+  boutonRefs,
+  onPhaseChange,
+  onComplete,
+  restingSomaY,
+  restingSomaHeight,
+  activeSomaY,
+  activeSomaHeight,
 }) {
-  const prevPhaseRef = useRef(currentPhase)
-  const prevInputsRef = useRef([])
-  const prevThresholdRef = useRef(neuronAThreshold)
-  const fireTimelineRef = useRef(null)
-  const receiveTimelineRef = useRef(null)
-  const integrateTimelineRef = useRef(null)
-  const compareTimelineRef = useRef(null)
-  const passTimelineRef = useRef(null)
+  const timelineRef = useRef(null)
 
-  // For backwards compatibility
-  const axonEndX = axonEndBX
-  const axonSynapseRef = axonSynapseBRef
-
-  const killTimeline = (timelineRef) => {
-    if (timelineRef.current) {
-      timelineRef.current.kill()
-      timelineRef.current = null
+  useEffect(() => {
+    return () => {
+      timelineRef.current?.kill()
     }
-  }
-
-  const killAllTimelines = () => {
-    killTimeline(receiveTimelineRef)
-    killTimeline(integrateTimelineRef)
-    killTimeline(compareTimelineRef)
-    killTimeline(fireTimelineRef)
-    killTimeline(passTimelineRef)
-  }
-
-  const canMeasurePath = (node) =>
-    node &&
-    typeof node.getTotalLength === 'function' &&
-    typeof node.getPointAtLength === 'function'
-
-  // ===== SOMA A FILL ANIMATION =====
-  useEffect(() => {
-    if (!somaFillARef.current || !somaFillLineARef.current) return
-    gsap.to(somaFillARef.current, {
-      attr: { y: fillTopYA, height: fillHeightA },
-      opacity: fillOpacityA,
-      duration: 0.2,
-      ease: 'power2.out',
-    })
-    gsap.to(somaFillLineARef.current, {
-      attr: { y1: fillTopYA, y2: fillTopYA },
-      opacity: fillOpacityA,
-      duration: 0.2,
-      ease: 'power2.out',
-    })
-  }, [fillTopYA, fillHeightA, fillOpacityA, somaFillARef, somaFillLineARef])
-
-  // ===== SOMA B FILL ANIMATION =====
-  useEffect(() => {
-    if (!somaFillBRef.current || !somaFillLineBRef.current) return
-    gsap.to(somaFillBRef.current, {
-      attr: { y: fillTopYB, height: fillHeightB },
-      opacity: fillOpacityB,
-      duration: 0.2,
-      ease: 'power2.out',
-    })
-    gsap.to(somaFillLineBRef.current, {
-      attr: { y1: fillTopYB, y2: fillTopYB },
-      opacity: fillOpacityB,
-      duration: 0.2,
-      ease: 'power2.out',
-    })
-  }, [fillTopYB, fillHeightB, fillOpacityB, somaFillBRef, somaFillLineBRef])
-
-  // ===== SOMA C FILL ANIMATION (extended circuit) =====
-  useEffect(() => {
-    if (!somaFillCRef?.current || !somaFillLineCRef?.current) return
-    gsap.to(somaFillCRef.current, {
-      attr: { y: fillTopYC, height: fillHeightC },
-      opacity: fillOpacityC,
-      duration: 0.2,
-      ease: 'power2.out',
-    })
-    gsap.to(somaFillLineCRef.current, {
-      attr: { y1: fillTopYC, y2: fillTopYC },
-      opacity: fillOpacityC,
-      duration: 0.2,
-      ease: 'power2.out',
-    })
-  }, [fillTopYC, fillHeightC, fillOpacityC, somaFillCRef, somaFillLineCRef])
-
-  // ===== THRESHOLD RING ANIMATIONS =====
-  useEffect(() => {
-    if (!thresholdRingARef.current) return
-    gsap.to(thresholdRingARef.current, {
-      opacity: thresholdRingOpacityA,
-      duration: 0.25,
-      ease: 'power2.out',
-    })
-  }, [thresholdRingOpacityA, thresholdRingARef])
+  }, [])
 
   useEffect(() => {
-    if (!thresholdRingBRef.current) return
-    gsap.to(thresholdRingBRef.current, {
-      opacity: thresholdRingOpacityB,
-      duration: 0.25,
-      ease: 'power2.out',
-    })
-  }, [thresholdRingOpacityB, thresholdRingBRef])
+    if (!replaySignal) return
 
-  useEffect(() => {
-    if (!thresholdRingCRef?.current) return
-    gsap.to(thresholdRingCRef.current, {
-      opacity: thresholdRingOpacityC,
-      duration: 0.25,
-      ease: 'power2.out',
-    })
-  }, [thresholdRingOpacityC, thresholdRingCRef])
+    timelineRef.current?.kill()
 
-  // ===== THRESHOLD CHANGE FEEDBACK =====
-  useEffect(() => {
-    if (!thresholdRingARef.current) return
-    if (prevThresholdRef.current === neuronAThreshold) return
-    prevThresholdRef.current = neuronAThreshold
-    gsap.to(thresholdRingARef.current, {
-      opacity: 0.9,
-      duration: 0.1,
-      ease: 'power2.out',
-      yoyo: true,
-      repeat: 1,
+    const tl = gsap.timeline({
+      onComplete: () => {
+        onPhaseChange?.('complete')
+        onComplete?.()
+      },
     })
-  }, [neuronAThreshold, thresholdRingARef])
 
-  // ===== INPUT SYNAPSE RESPONSE =====
-  useEffect(() => {
-    const prevInputs = prevInputsRef.current || []
-    let changedIndex = -1
-    for (let i = 0; i < inputValues.length; i++) {
-      if (inputValues[i] !== prevInputs[i]) {
-        changedIndex = i
-        break
-      }
+    timelineRef.current = tl
+
+    const activeInputIndexes = weightedInputs
+      .map((value, index) => ({ value, index }))
+      .filter(({ value }) => value > 0)
+
+    gsap.set(inputPulseRefs.current.filter(Boolean), { opacity: 0, scale: 0.65 })
+    if (axonPulseRef.current) {
+      gsap.set(axonPulseRef.current, { opacity: 0, scale: 0.7 })
     }
-    prevInputsRef.current = [...inputValues]
-    if (changedIndex === -1) return
-    const synapseNode = synapseRefs.current[changedIndex]
-    if (!synapseNode) return
-    gsap.to(synapseNode, {
-      opacity: 1,
-      duration: 0.1,
-      ease: 'power2.out',
-      yoyo: true,
-      repeat: 1,
+    if (somaFillRef.current) {
+      gsap.set(somaFillRef.current, {
+        attr: { y: restingSomaY, height: restingSomaHeight },
+        opacity: 0.2,
+      })
+    }
+    if (somaFillLineRef.current) {
+      gsap.set(somaFillLineRef.current, {
+        attr: { y1: restingSomaY, y2: restingSomaY },
+        opacity: 0.18,
+      })
+    }
+    if (somaGlowRef.current) {
+      gsap.set(somaGlowRef.current, { opacity: 0 })
+    }
+    if (thresholdRingRef.current) {
+      gsap.set(thresholdRingRef.current, { opacity: 0.32, scale: 1 })
+    }
+    terminalBranchRefs.current.filter(Boolean).forEach((node) => {
+      gsap.set(node, { opacity: 0.72, stroke: '' })
     })
-  }, [inputValues, synapseRefs])
+    boutonRefs.current.filter(Boolean).forEach((node) => {
+      gsap.set(node, {
+        opacity: 0.9,
+        scale: 1,
+        transformOrigin: 'center center',
+      })
+    })
 
-  // ===== MAIN FIRING SEQUENCE =====
-  useEffect(() => {
-    try {
-      const previousPhase = prevPhaseRef.current
-      const enteringReceivePhase = previousPhase !== 'receive' && currentPhase === 'receive'
-      const enteringIntegratePhase = previousPhase !== 'integrate' && currentPhase === 'integrate'
-      const enteringComparePhase = previousPhase !== 'compare' && currentPhase === 'compare'
-      const enteringFirePhase = previousPhase !== 'fire' && currentPhase === 'fire'
-      const enteringPassPhase = previousPhase !== 'pass-on' && currentPhase === 'pass-on'
-      const resettingToIdle = currentPhase === 'idle'
+    tl.call(() => onPhaseChange?.('receive'))
 
-      if (resettingToIdle) {
-        killAllTimelines()
-        if (pulseRef.current) {
-          gsap.set(pulseRef.current, {
-            opacity: 0,
-            attr: { cx: axonStartX, cy: axonY },
-          })
-        }
-        if (pulseBranchRef?.current) {
-          gsap.set(pulseBranchRef.current, {
-            opacity: 0,
-            attr: { cx: branchPointX, cy: branchPointY },
-          })
-        }
-        inputPulseRefs.current.forEach((node, index) => {
-          if (!node) return
-          const path = dendritePathRefs.current[index]
-          if (!canMeasurePath(path)) return
-          const startPoint = path.getPointAtLength(0)
-          gsap.set(node, {
-            opacity: 0,
-            attr: { cx: startPoint.x, cy: startPoint.y },
-          })
-        })
-        if (setAVisualTotal) setAVisualTotal(0)
-        if (setBVisualInput) setBVisualInput(0)
-        if (setCVisualInput) setCVisualInput(0)
-        if (onInteractionLockChange) {
-          onInteractionLockChange(false)
-        }
-      }
+    activeInputIndexes.forEach(({ index }, order) => {
+      const pulseNode = inputPulseRefs.current[index]
+      const pathNode = dendritePathRefs.current[index]
+      if (!pulseNode || !canMeasurePath(pathNode)) return
 
-      if (enteringReceivePhase) {
-        killTimeline(receiveTimelineRef)
-        const tl = gsap.timeline()
-        receiveTimelineRef.current = tl
+      const pathLength = pathNode.getTotalLength()
+      const tracker = { progress: 0 }
+      const startPoint = pathNode.getPointAtLength(0)
 
-        inputValues.forEach((inputValue, index) => {
-          const pulseNode = inputPulseRefs.current[index]
-          const pathNode = dendritePathRefs.current[index]
-          if (!pulseNode || !canMeasurePath(pathNode) || inputValue <= 0) return
-
-          const tracker = { progress: 0 }
-          const pathLength = pathNode.getTotalLength()
-          const startDelay = index * 0.16
-
-          tl.set(pulseNode, { opacity: 0 }, startDelay)
-          tl.to(
-            pulseNode,
-            { opacity: 1, duration: 0.08, ease: 'power1.out' },
-            startDelay,
-          )
-          tl.to(
-            tracker,
-            {
-              progress: 1,
-              duration: 0.34,
-              ease: 'power1.inOut',
-              onUpdate: () => {
-                const point = pathNode.getPointAtLength(pathLength * tracker.progress)
-                gsap.set(pulseNode, { attr: { cx: point.x, cy: point.y } })
-              },
-            },
-            startDelay,
-          )
-          tl.call(
-            () => {
-              const synapseNode = synapseRefs.current[index]
-              if (synapseNode) {
-                gsap.to(synapseNode, {
-                  opacity: 1,
-                  duration: 0.12,
-                  ease: 'power2.out',
-                  yoyo: true,
-                  repeat: 1,
-                })
-              }
-            },
-            null,
-            startDelay + 0.34,
-          )
-          tl.to(
-            pulseNode,
-            { opacity: 0, duration: 0.08, ease: 'power1.in' },
-            startDelay + 0.32,
-          )
-        })
-      }
-
-      if (enteringIntegratePhase) {
-        killTimeline(integrateTimelineRef)
-        const tl = gsap.timeline()
-        integrateTimelineRef.current = tl
-        const cumulativeInputs = inputValues.reduce((acc, value) => {
-          const previous = acc.length > 0 ? acc[acc.length - 1] : 0
-          acc.push(previous + value)
-          return acc
-        }, [])
-        const activeSteps = cumulativeInputs.filter((value, index) => inputValues[index] > 0)
-
-        if (setAVisualTotal) {
-          tl.call(() => setAVisualTotal(0))
-          activeSteps.forEach((value, index) => {
-            tl.call(() => setAVisualTotal(value), null, index * 0.18 + 0.06)
-          })
-        }
-      }
-
-      if (enteringComparePhase) {
-        killTimeline(compareTimelineRef)
-        const tl = gsap.timeline()
-        compareTimelineRef.current = tl
-        if (thresholdRingARef.current) {
-          tl.to(thresholdRingARef.current, {
-            opacity: didFire ? 1 : 0.95,
-            duration: 0.18,
-            ease: 'power2.out',
-          })
-          tl.to({}, { duration: 0.22 })
-          tl.to(thresholdRingARef.current, {
-            opacity: didFire ? 0.82 : 0.92,
-            duration: 0.22,
-            ease: 'power2.out',
-          })
-        }
-      }
-
-      if (enteringFirePhase && neuronAFires) {
-        killTimeline(fireTimelineRef)
-
-        if (onInteractionLockChange) {
-          onInteractionLockChange(true)
-        }
-
-        const tl = gsap.timeline({
-          onComplete: () => {
-            if (onInteractionLockChange) {
-              onInteractionLockChange(false)
-            }
-          },
-        })
-        fireTimelineRef.current = tl
-
-        tl.set(pulseRef.current, {
+      tl.set(
+        pulseNode,
+        {
           opacity: 0,
-          attr: { cx: axonStartX, cy: axonY },
-        })
-
-        if (showExtendedCircuit && pulseBranchRef?.current) {
-          tl.set(pulseBranchRef.current, {
-            opacity: 0,
-            attr: { cx: branchPointX, cy: branchPointY },
-          })
-        }
-
-        tl.to(pulseRef.current, {
+          scale: 0.65,
+          attr: { cx: startPoint.x, cy: startPoint.y },
+        },
+        order === 0 ? '>' : '>-0.08',
+      )
+      tl.to(
+        pulseNode,
+        {
           opacity: 1,
+          scale: 1,
           duration: 0.08,
+          ease: 'power1.out',
+        },
+        '<',
+      )
+      tl.to(
+        tracker,
+        {
+          progress: 1,
+          duration: 0.34,
+          ease: 'power1.inOut',
+          onUpdate: () => {
+            const point = pathNode.getPointAtLength(pathLength * tracker.progress)
+            gsap.set(pulseNode, { attr: { cx: point.x, cy: point.y } })
+          },
+        },
+        '<',
+      )
+      tl.to(
+        pulseNode,
+        {
+          opacity: 0,
+          duration: 0.08,
+          ease: 'power1.in',
+        },
+        '>-0.1',
+      )
+    })
+
+    tl.call(() => onPhaseChange?.('integrate'))
+    if (somaFillRef.current && somaFillLineRef.current) {
+      tl.to(
+        somaFillRef.current,
+        {
+          attr: { y: activeSomaY, height: activeSomaHeight },
+          opacity: 0.82,
+          duration: 0.42,
           ease: 'power2.out',
-        }, '-=0.05')
+        },
+        '>',
+      )
+      tl.to(
+        somaFillLineRef.current,
+        {
+          attr: { y1: activeSomaY, y2: activeSomaY },
+          opacity: 0.64,
+          duration: 0.42,
+          ease: 'power2.out',
+        },
+        '<',
+      )
+    }
+    if (somaGlowRef.current) {
+      tl.to(
+        somaGlowRef.current,
+        {
+          opacity: 0.55,
+          duration: 0.24,
+          ease: 'power2.out',
+          yoyo: true,
+          repeat: 1,
+        },
+        '<+0.08',
+      )
+    }
 
-        if (showExtendedCircuit) {
-          tl.to(pulseRef.current, {
-            attr: { cx: branchPointX, cy: branchPointY },
-            duration: 0.4,
-            ease: 'power2.inOut',
-          })
+    tl.call(() => onPhaseChange?.('compare'))
+    if (thresholdRingRef.current) {
+      tl.to(
+        thresholdRingRef.current,
+        {
+          opacity: didFire ? 1 : 0.82,
+          scale: didFire ? 1.06 : 1.03,
+          duration: 0.2,
+          ease: 'power2.out',
+        },
+        '>',
+      )
+      tl.to(
+        thresholdRingRef.current,
+        {
+          opacity: didFire ? 0.86 : 0.58,
+          scale: 1,
+          duration: 0.22,
+          ease: 'power2.out',
+        },
+        '>',
+      )
+    }
 
-          tl.call(() => {
-            if (pulseBranchRef?.current) {
-              gsap.set(pulseBranchRef.current, { opacity: 1 })
-            }
-          })
+    if (!didFire) {
+      tl.call(() => onComplete?.())
+      return () => tl.kill()
+    }
 
-          tl.to(pulseRef.current, {
-            attr: { cx: axonEndBX, cy: axonEndBY },
-            duration: 0.35,
-            ease: 'power2.inOut',
-          })
+    tl.call(() => onPhaseChange?.('fire'))
+    if (axonPulseRef.current && canMeasurePath(axonPathRef.current)) {
+      const pathLength = axonPathRef.current.getTotalLength()
+      const tracker = { progress: 0 }
+      const startPoint = axonPathRef.current.getPointAtLength(0)
 
-          if (pulseBranchRef?.current) {
-            tl.to(pulseBranchRef.current, {
-              attr: { cx: axonEndCX, cy: axonEndCY },
-              duration: 0.35,
-              ease: 'power2.inOut',
-            }, '<')
-          }
+      tl.set(
+        axonPulseRef.current,
+        {
+          opacity: 0,
+          scale: 0.72,
+          attr: { cx: startPoint.x, cy: startPoint.y },
+          fill: SIGNAL_PULSE_COLOR,
+        },
+        '>',
+      )
+      tl.to(
+        axonPulseRef.current,
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.08,
+          ease: 'power1.out',
+        },
+        '<',
+      )
+      tl.to(
+        tracker,
+        {
+          progress: 1,
+          duration: 0.5,
+          ease: 'power2.inOut',
+          onUpdate: () => {
+            const point = axonPathRef.current.getPointAtLength(pathLength * tracker.progress)
+            gsap.set(axonPulseRef.current, { attr: { cx: point.x, cy: point.y } })
+          },
+        },
+        '<',
+      )
+    }
 
-          tl.to({}, { duration: 0.06 })
+    tl.call(() => onPhaseChange?.('terminal'))
+    terminalBranchRefs.current.filter(Boolean).forEach((node, index) => {
+      tl.to(
+        node,
+        {
+          opacity: 1,
+          stroke: TERMINAL_GLOW_COLOR,
+          duration: 0.14,
+          ease: 'power2.out',
+          yoyo: true,
+          repeat: 1,
+        },
+        index === 0 ? '>' : '<+0.04',
+      )
+    })
 
-        } else {
-          tl.to(pulseRef.current, {
-            attr: { cx: axonEndX, cy: axonY },
-            duration: 0.7,
-            ease: 'power2.inOut',
-          })
-        }
-      }
+    tl.call(() => onPhaseChange?.('boutons'))
+    boutonRefs.current.filter(Boolean).forEach((node, index) => {
+      tl.to(
+        node,
+        {
+          opacity: 1,
+          scale: 1.22,
+          duration: 0.12,
+          ease: 'back.out(2.2)',
+          fill: SIGNAL_PULSE_COLOR,
+          yoyo: true,
+          repeat: 1,
+        },
+        index === 0 ? '>' : '<+0.03',
+      )
+    })
 
-      if (enteringPassPhase && neuronAFires) {
-        killTimeline(passTimelineRef)
-        const tl = gsap.timeline()
-        passTimelineRef.current = tl
-
-        if (showExtendedCircuit) {
-          tl.call(() => {
-            if (axonSynapseBRef?.current) {
-              gsap.to(axonSynapseBRef.current, {
-                opacity: 1,
-                duration: 0.16,
-                ease: 'power2.out',
-                yoyo: true,
-                repeat: 1,
-              })
-            }
-            if (axonSynapseCRef?.current) {
-              gsap.to(axonSynapseCRef.current, {
-                opacity: 1,
-                duration: 0.16,
-                ease: 'power2.out',
-                yoyo: true,
-                repeat: 1,
-              })
-            }
-          })
-          tl.call(() => {
-            if (setBVisualInput) setBVisualInput(neuronBInput)
-            if (setCVisualInput) setCVisualInput(neuronCInput)
-          }, null, '+=0.05')
-          tl.to(pulseBranchRef.current, {
-            opacity: 0,
-            duration: 0.14,
-            ease: 'power2.in',
-          }, '<')
-        } else {
-          tl.call(() => {
-            if (axonSynapseRef?.current) {
-              gsap.to(axonSynapseRef.current, {
-                opacity: 1,
-                duration: 0.16,
-                ease: 'power2.out',
-                yoyo: true,
-                repeat: 1,
-              })
-            }
-          })
-          tl.call(() => {
-            if (setBVisualInput) setBVisualInput(neuronBInput)
-          }, null, '+=0.06')
-        }
-
-        tl.to(pulseRef.current, {
+    if (axonPulseRef.current) {
+      tl.to(
+        axonPulseRef.current,
+        {
           opacity: 0,
           duration: 0.14,
           ease: 'power2.in',
-        })
-      }
-
-      prevPhaseRef.current = currentPhase
-
-      return () => {
-        if (onInteractionLockChange && (currentPhase === 'fire' || currentPhase === 'idle')) {
-          onInteractionLockChange(false)
-        }
-      }
-    } catch (error) {
-      console.error('Neuron animation effect failed', error)
-      killAllTimelines()
-      if (onInteractionLockChange) {
-        onInteractionLockChange(false)
-      }
-      return undefined
+        },
+        '<+0.1',
+      )
     }
+
+    return () => tl.kill()
   }, [
+    activeSomaHeight,
+    activeSomaY,
+    axonPathRef,
+    axonPulseRef,
+    boutonRefs,
     currentPhase,
-    neuronAFires,
-    neuronBInput,
-    neuronCInput,
-    axonStartX,
-    axonEndX,
-    axonEndBX,
-    axonEndBY,
-    axonEndCX,
-    axonEndCY,
-    branchPointX,
-    branchPointY,
-    axonY,
-    showExtendedCircuit,
-    replaySignal,
-    didFire,
-    pulseRef,
-    pulseBranchRef,
-    thresholdRingARef,
-    axonSynapseRef,
-    axonSynapseBRef,
-    axonSynapseCRef,
     dendritePathRefs,
+    didFire,
     inputPulseRefs,
-    onInteractionLockChange,
-    setAVisualTotal,
-    setBVisualInput,
-    setCVisualInput,
+    onComplete,
+    onPhaseChange,
+    replaySignal,
+    restingSomaHeight,
+    restingSomaY,
+    somaFillLineRef,
+    somaFillRef,
+    somaGlowRef,
+    terminalBranchRefs,
+    threshold,
+    thresholdRingRef,
+    totalInput,
+    weightedInputs,
   ])
 }

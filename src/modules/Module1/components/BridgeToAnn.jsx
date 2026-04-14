@@ -1,18 +1,19 @@
-function BridgeToAnn({ activeNeuronAFires, activeThreshold, activeTotalInput, onContinue }) {
+function BridgeToAnn({ onContinue }) {
   return (
     <section className="module1-section module1-bridge-section">
       <div className="module1-section-heading module1-bridge-heading">
         <p className="module1-eyebrow">D. Bridge</p>
-        <h2>The biological neuron becomes a mathematical model.</h2>
+        <h2>From a living neuron to a simpler model</h2>
         <p>
-          Read the comparison left to right: living cell first, simplified AI version second.
+          On the left is a biological neuron. On the right is a simplified artificial neuron that keeps the same basic
+          idea: inputs combine, and the unit responds if the total is strong enough.
         </p>
       </div>
 
       <section className="bridge-comparison module1-bridge-comparison">
         <div className="bridge-panel bridge-panel-bio module1-panel module1-soft-panel">
           <h3 className="module1-panel-title module1-panel-title-large">Biological neuron</h3>
-          <p className="module1-card-muted">What you just watched in the cell.</p>
+          <p className="module1-card-muted">A real cell with parts that carry and combine signals.</p>
           <div className="bridge-visual bridge-visual-bio">
             <svg viewBox="0 0 860 420" role="img" aria-label="Biological neuron diagram">
               <g data-part="dendrites" className="bridge-bio__dendrites">
@@ -86,7 +87,7 @@ function BridgeToAnn({ activeNeuronAFires, activeThreshold, activeTotalInput, on
 
         <div className="bridge-panel bridge-panel-ann module1-panel module1-soft-panel">
           <h3 className="module1-panel-title">Artificial neuron</h3>
-          <p className="module1-card-muted">The simplified mathematical version.</p>
+          <p className="module1-card-muted">A simplified model built from the same basic logic.</p>
           <div className="bridge-visual bridge-visual-ann">
             <svg viewBox="520 150 360 220" role="img" aria-label="Artificial neuron diagram">
               <g className="bridge-ann__inputs">
@@ -113,8 +114,7 @@ function BridgeToAnn({ activeNeuronAFires, activeThreshold, activeTotalInput, on
             </svg>
           </div>
           <p className="module1-card-muted">
-            Total {activeTotalInput} vs threshold {activeThreshold}:{' '}
-            {activeNeuronAFires ? 'the unit activates.' : 'the unit stays off.'}
+            In both cases, inputs are combined and compared with a threshold before an output is produced.
           </p>
         </div>
       </section>
