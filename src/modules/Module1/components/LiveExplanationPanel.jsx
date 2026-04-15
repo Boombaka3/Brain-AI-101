@@ -3,9 +3,7 @@ import { getProcessPhaseLabel } from '../module1Config'
 function LiveExplanationPanel({ currentPhase, neuronBFires, neuronFires, summary, threshold, totalInput }) {
   return (
     <aside aria-live="polite" className="module1-panel module1-explanation-panel">
-      <p className="module1-eyebrow module1-eyebrow-tight">
-        What this run shows
-      </p>
+      <p className="module1-eyebrow module1-eyebrow-tight">Run breakdown</p>
       <h3 className="module1-panel-title module1-panel-title-xl">{summary.title}</h3>
       <p className="module1-card-muted module1-body-copy module1-stack-gap-md">
         {summary.body}
@@ -36,10 +34,10 @@ function LiveExplanationPanel({ currentPhase, neuronBFires, neuronFires, summary
         </div>
       </div>
 
-      <div className="module1-stack-gap-sm">
-        <h4 className="module1-subtitle">Key idea</h4>
+      <div className="module1-stack-gap-sm module1-explanation-footer">
+        <h4 className="module1-subtitle">What to notice</h4>
         <p className="module1-card-muted module1-text-reset">
-          Inputs build together in the soma, and the signal only continues if that total reaches threshold.
+          Stronger pathways add more to the soma. The axon only activates once the combined input reaches threshold.
         </p>
       </div>
     </aside>

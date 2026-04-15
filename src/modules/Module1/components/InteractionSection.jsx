@@ -72,27 +72,21 @@ function InteractionSection({ isMobile = false }) {
     <section className="module1-section module1-interaction-section">
       <div className="module1-section-heading">
         <p className="module1-eyebrow">C. Interaction</p>
-        <h2>Change the inputs and see what the neuron does</h2>
+        <h2>Build a signal and watch the neuron respond</h2>
         <p>
-          Adjust the signal on each path, change connection strength, and watch how activity moves through the neuron.
+          Tune each input pathway, set the firing threshold, and run the neuron to see whether the signal moves forward.
         </p>
       </div>
 
       <div className="module1-two-column module1-interaction-layout">
-        <div className="module1-interaction-stack">
-          <NeuronExperimentPanel
-            contributions={weightedInputs}
-            onReplay={startRun}
-            onResetLesson={handleReset}
-            onRun={startRun}
-            setSignalLevels={setSignalLevels}
-            setSynapseStrengths={setSynapseStrengths}
-            setThreshold={setDraftThreshold}
-            signalLevels={signalLevels}
-            synapseStrengths={synapseStrengths}
-            threshold={draftThreshold}
-            totalInput={totalInput}
-          />
+        <div className="module1-interaction-visual-column">
+          <div className="module1-interaction-hero-copy">
+            <p className="module1-eyebrow module1-eyebrow-tight">Live neuron model</p>
+            <h3 className="module1-panel-title module1-panel-title-xl">See where the signal builds, pauses, or fires</h3>
+            <p className="module1-card-muted module1-text-reset">
+              The diagram highlights each active dendrite, fills the soma as inputs combine, and shows whether the axon carries the response onward.
+            </p>
+          </div>
 
           <div className="module1-hero-shell module1-process-visual module1-interaction-visual">
             <div className="module1-process-diagram-frame">
@@ -109,16 +103,32 @@ function InteractionSection({ isMobile = false }) {
               />
             </div>
           </div>
+
+          <LiveExplanationPanel
+            currentPhase={currentPhase}
+            neuronBFires={activeNeuronAFires}
+            neuronFires={activeNeuronAFires}
+            summary={explanation}
+            threshold={activeThreshold}
+            totalInput={activeTotalInput}
+          />
         </div>
 
-        <LiveExplanationPanel
-          currentPhase={currentPhase}
-          neuronBFires={activeNeuronAFires}
-          neuronFires={activeNeuronAFires}
-          summary={explanation}
-          threshold={activeThreshold}
-          totalInput={activeTotalInput}
-        />
+        <div className="module1-interaction-stack">
+          <NeuronExperimentPanel
+            contributions={weightedInputs}
+            onReplay={startRun}
+            onResetLesson={handleReset}
+            onRun={startRun}
+            setSignalLevels={setSignalLevels}
+            setSynapseStrengths={setSynapseStrengths}
+            setThreshold={setDraftThreshold}
+            signalLevels={signalLevels}
+            synapseStrengths={synapseStrengths}
+            threshold={draftThreshold}
+            totalInput={totalInput}
+          />
+        </div>
       </div>
     </section>
   )

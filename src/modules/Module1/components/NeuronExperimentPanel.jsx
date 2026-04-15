@@ -22,19 +22,19 @@ function NeuronExperimentPanel({
   return (
     <div className="module1-panel module1-interaction-panel">
       <div className="module1-panel-header">
-        <div>
-          <p className="module1-eyebrow module1-eyebrow-tight">Try a setup</p>
-          <h3 className="module1-panel-title module1-panel-title-large">Adjust the neuron</h3>
+        <div className="module1-panel-header-copy">
+          <p className="module1-eyebrow module1-eyebrow-tight">Control panel</p>
+          <h3 className="module1-panel-title module1-panel-title-large">Shape the incoming signal</h3>
           <p className="module1-card-muted module1-text-reset">
-            Use the controls to change the incoming signals, then run the model to see the result.
+            Mix signal level and connection strength on each pathway, then test whether the neuron crosses threshold.
           </p>
         </div>
         <div className="module1-inline-actions">
           <button className="module1-primary-button" onClick={onRun}>
-            Run
+            Run model
           </button>
           <button className="module1-secondary-button" onClick={onReplay}>
-            Run again
+            Replay signal
           </button>
           <button className="module1-ghost-button" onClick={onResetLesson}>
             Reset
@@ -43,12 +43,29 @@ function NeuronExperimentPanel({
       </div>
 
       <div className={`module1-result-banner ${willFire ? 'module1-result-banner-success' : 'module1-result-banner-pending'}`}>
-        <div className="module1-result-banner-label">Result</div>
+        <div className="module1-result-banner-label">Current outcome</div>
         <div className="module1-result-banner-main">
-          {willFire ? 'This neuron would fire.' : 'This neuron would stay quiet.'}
+          {willFire ? 'The neuron fires.' : 'The neuron stays quiet.'}
         </div>
         <div className="module1-result-banner-detail">
-          Total input: {formatValue(totalInput)}. Threshold: {formatValue(threshold)}.
+          Total input {formatValue(totalInput)} compared with threshold {formatValue(threshold)}.
+        </div>
+      </div>
+
+      <div className="module1-interaction-summary-row">
+        <div className="module1-stat module1-stat-compact">
+          <div className="module1-card-muted">Draft total</div>
+          <div className="module1-stat-value">{formatValue(totalInput)}</div>
+        </div>
+        <div className="module1-stat module1-stat-compact">
+          <div className="module1-card-muted">Threshold</div>
+          <div className="module1-stat-value">{formatValue(threshold)}</div>
+        </div>
+        <div className={`module1-stat module1-stat-compact module1-stat-highlight ${willFire ? 'module1-stat-highlight-success' : 'module1-stat-highlight-pending'}`}>
+          <div className="module1-card-muted">Response</div>
+          <div className={willFire ? 'module1-stat-outcome module1-status-success' : 'module1-stat-outcome module1-status-warn'}>
+            {willFire ? 'fires' : 'quiet'}
+          </div>
         </div>
       </div>
 
@@ -56,9 +73,9 @@ function NeuronExperimentPanel({
         {signalLevels.map((signal, index) => (
           <div className="module1-control-row module1-control-card" key={`control-${index}`}>
             <div className="module1-control-path">
-              <div className="module1-control-label">Input {index + 1}</div>
+              <div className="module1-control-label">Path {index + 1}</div>
               <div className="module1-card-muted module1-control-path-note">
-                Current contribution: {formatValue(contributions[index])}
+                Contribution {formatValue(contributions[index])}
               </div>
             </div>
 
@@ -107,7 +124,7 @@ function NeuronExperimentPanel({
             </label>
 
             <div className="module1-control-value module1-control-value-prominent">
-              <div className="module1-card-muted">Total</div>
+              <div className="module1-card-muted">Path total</div>
               <div className="module1-control-value-number">{formatValue(contributions[index])}</div>
             </div>
           </div>
@@ -132,25 +149,8 @@ function NeuronExperimentPanel({
           />
         </label>
         <p className="module1-card-muted module1-threshold-note">
-          A higher threshold means the neuron needs more combined input before it responds.
+          Raise the threshold to make firing harder; lower it to make the neuron respond sooner.
         </p>
-      </div>
-
-      <div className="module1-stat-grid">
-        <div className="module1-stat">
-          <div className="module1-card-muted">Total</div>
-          <div className="module1-stat-value">{formatValue(totalInput)}</div>
-        </div>
-        <div className="module1-stat">
-          <div className="module1-card-muted">Threshold</div>
-          <div className="module1-stat-value">{formatValue(threshold)}</div>
-        </div>
-        <div className={`module1-stat module1-stat-highlight ${willFire ? 'module1-stat-highlight-success' : 'module1-stat-highlight-pending'}`}>
-          <div className="module1-card-muted">Response</div>
-          <div className={willFire ? 'module1-stat-outcome module1-status-success' : 'module1-stat-outcome module1-status-warn'}>
-            {willFire ? 'fires' : 'stays quiet'}
-          </div>
-        </div>
       </div>
     </div>
   )

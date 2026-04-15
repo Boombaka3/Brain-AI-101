@@ -82,6 +82,7 @@ function InteractiveBiologyDiagram({
   const boutonRefs = useRef([])
 
   const somaMetrics = useMemo(() => getSomaFillMetrics(totalInput, threshold), [totalInput, threshold])
+  const activeInputCount = weightedInputs.filter((value) => value > 0).length
 
   useNeuronAnimation({
     weightedInputs,
@@ -118,13 +119,35 @@ function InteractiveBiologyDiagram({
           aria-label="Animated biological neuron showing signals entering through dendrites, building in the soma, crossing threshold, and moving down the axon"
         >
           <defs>
+            <linearGradient id="bio-panel-bg" x1="126" y1="40" x2="854" y2="520" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#fffdf9" />
+              <stop offset="54%" stopColor="#eff7ff" />
+              <stop offset="100%" stopColor="#e2eefc" />
+            </linearGradient>
+            <radialGradient id="bio-panel-glow" cx="0" cy="0" r="1" gradientTransform="translate(308 280) rotate(50) scale(320 240)" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="rgba(255,255,255,0.95)" />
+              <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+            </radialGradient>
+            <linearGradient id="bio-dendrite-stroke" x1="60" y1="68" x2="425" y2="360" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#4da2ff" />
+              <stop offset="100%" stopColor="#1d4ed8" />
+            </linearGradient>
+            <linearGradient id="bio-axon-stroke" x1="382" y1="282" x2="884" y2="386" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#2563eb" />
+              <stop offset="100%" stopColor="#8b5cf6" />
+            </linearGradient>
             <linearGradient id="bio-soma-base" x1="178" y1="190" x2="398" y2="392" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#f8b1b5" />
-              <stop offset="100%" stopColor="#cb6267" />
+              <stop offset="0%" stopColor="#ffe4d8" />
+              <stop offset="55%" stopColor="#ffb48b" />
+              <stop offset="100%" stopColor="#f36f45" />
             </linearGradient>
             <linearGradient id="bio-soma-fill" x1="240" y1="230" x2="360" y2="388" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#93c5fd" />
-              <stop offset="100%" stopColor="#3b82f6" />
+              <stop offset="0%" stopColor="#67e8f9" />
+              <stop offset="100%" stopColor="#2563eb" />
+            </linearGradient>
+            <linearGradient id="bio-threshold-ring" x1="230" y1="216" x2="352" y2="348" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#fb923c" />
+              <stop offset="100%" stopColor="#facc15" />
             </linearGradient>
             <clipPath id="bio-soma-clip">
               <path d="M 341 212 C 305 176 246 170 203 197 C 164 221 149 274 166 320 C 184 370 235 406 294 402 C 342 398 383 372 403 333 C 421 297 419 252 394 227 C 379 212 362 206 341 212 Z" />
@@ -132,6 +155,25 @@ function InteractiveBiologyDiagram({
           </defs>
 
           <rect className="biology-diagram__panel-bg" x="0" y="0" width="980" height="560" rx="28" />
+          <rect className="biology-diagram__panel-glow" x="0" y="0" width="980" height="560" rx="28" />
+          <g className="biology-diagram__ambient">
+            <circle className="biology-diagram__ambient-orb biology-diagram__ambient-orb--warm" cx="744" cy="126" r="122" />
+            <circle className="biology-diagram__ambient-orb biology-diagram__ambient-orb--cool" cx="162" cy="448" r="144" />
+          </g>
+          <g className="biology-diagram__labels" aria-hidden="true">
+            <text className="biology-diagram__label-title" x="56" y="68">Input pathways</text>
+            <text className="biology-diagram__label-title" x="242" y="164">Soma integration</text>
+            <text className="biology-diagram__label-title" x="636" y="246">Axon output</text>
+            <text className="biology-diagram__label-subtle" x="56" y="92">
+              {activeInputCount} active {activeInputCount === 1 ? 'path' : 'paths'}
+            </text>
+            <text className="biology-diagram__label-subtle" x="242" y="188">
+              total {totalInput.toFixed(1)} / threshold {threshold.toFixed(1)}
+            </text>
+            <text className="biology-diagram__label-subtle" x="636" y="270">
+              {didFire ? 'signal continues forward' : 'no output signal yet'}
+            </text>
+          </g>
 
           <g className="biology-diagram__dendrites" data-part="dendrites">
             {DENDRITES.map((d, index) => (
@@ -143,6 +185,19 @@ function InteractiveBiologyDiagram({
                 d={d}
                 className="biology-diagram__dendrite"
               />
+            ))}
+          </g>
+
+          <g className="biology-diagram__input-badges" aria-hidden="true">
+            {SIGNAL_INPUT_POSITIONS.map((position, index) => (
+              <g
+                key={`input-badge-${position.cx}-${position.cy}`}
+                className={`biology-diagram__input-badge ${weightedInputs[index] > 0 ? 'is-active' : ''}`}
+                transform={`translate(${position.cx - 14} ${position.cy - 14})`}
+              >
+                <circle cx="14" cy="14" r="14" />
+                <text x="14" y="18">{index + 1}</text>
+              </g>
             ))}
           </g>
 
@@ -173,6 +228,10 @@ function InteractiveBiologyDiagram({
               ref={somaGlowRef}
               d="M 305 224 C 272 201 227 205 199 232 C 173 259 171 305 191 336 C 216 375 263 389 314 378 C 352 370 382 344 392 309 C 400 280 392 247 369 229 C 351 215 330 213 305 224 Z"
               className="biology-diagram__soma-glow"
+            />
+            <path
+              d="M 334 224 C 301 198 252 197 216 222 C 186 243 174 280 183 315 C 194 357 231 383 279 386 C 330 389 372 363 388 322 C 403 283 390 243 358 225 C 349 220 342 221 334 224 Z"
+              className="biology-diagram__soma-shine"
             />
           </g>
 
@@ -241,6 +300,15 @@ function InteractiveBiologyDiagram({
               />
             ))}
             <circle ref={axonPulseRef} cx="438" cy="308" r="8" className="biology-diagram__signal-pulse" />
+          </g>
+
+          <g className="biology-diagram__hud" aria-hidden="true">
+            <rect className={`biology-diagram__hud-card ${didFire ? 'is-success' : 'is-pending'}`} x="688" y="52" width="232" height="104" rx="20" />
+            <text className="biology-diagram__hud-kicker" x="716" y="84">Run status</text>
+            <text className="biology-diagram__hud-main" x="716" y="116">{didFire ? 'Neuron fires' : 'Below threshold'}</text>
+            <text className="biology-diagram__hud-detail" x="716" y="144">
+              {currentPhase === 'idle' ? 'Press Run model to animate.' : 'Phase: ' + currentPhase}
+            </text>
           </g>
         </svg>
       </div>
