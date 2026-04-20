@@ -1,11 +1,13 @@
 import * as ort from 'onnxruntime-web'
 
+// Point ONNX Runtime to our pre-copied WASM file in /public
+ort.env.wasm.wasmPaths = import.meta.env.BASE_URL
+
 // Lazy singleton — session loads only on first classify call
 let session = null
 
 async function getSession() {
   if (!session) {
-    // mnist-12.onnx is a LeNet-5 from the ONNX Model Zoo (~26KB)
     session = await ort.InferenceSession.create(
       import.meta.env.BASE_URL + 'model/mnist-12.onnx',
       { executionProviders: ['wasm'] }
