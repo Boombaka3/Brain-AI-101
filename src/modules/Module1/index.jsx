@@ -1,19 +1,53 @@
 import { useEffect, useRef, useState } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import BiologyDiagram from '../../components/diagrams/BiologyDiagram'
+import ProgressRail from '../../components/ui/ProgressRail'
+import TimeIndicator from '../../components/ui/TimeIndicator'
 import BridgeToAnn from './components/BridgeToAnn'
 import InteractionSection from './components/InteractionSection'
 import Module1Intro from './components/Module1Intro'
 import './module1.css'
 
+gsap.registerPlugin(ScrollTrigger)
+
 function Module1({ onContinue }) {
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 900 : false)
   const processRef = useRef(null)
   const bridgeRef = useRef(null)
+  const interactionRef = useRef(null)
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 900)
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Diagram section entrance
+      if (processRef.current) {
+        gsap.from(processRef.current, {
+          scrollTrigger: { trigger: processRef.current, start: 'top 82%', once: true },
+          y: 28, opacity: 0, duration: 0.7, ease: 'power2.out',
+        })
+      }
+      // Interaction section slide in
+      if (interactionRef.current) {
+        gsap.from(interactionRef.current, {
+          scrollTrigger: { trigger: interactionRef.current, start: 'top 80%', once: true },
+          y: 24, opacity: 0, duration: 0.65, ease: 'power2.out',
+        })
+      }
+      // Bridge section
+      if (bridgeRef.current) {
+        gsap.from(bridgeRef.current, {
+          scrollTrigger: { trigger: bridgeRef.current, start: 'top 80%', once: true },
+          y: 24, opacity: 0, duration: 0.65, ease: 'power2.out',
+        })
+      }
+    })
+    return () => ctx.revert()
   }, [])
 
   const scrollToRef = (ref) => {
@@ -22,14 +56,20 @@ function Module1({ onContinue }) {
 
   return (
     <div className="module1-page">
-      <header className="module1-header">
-        <div>
-          <p className="module1-kicker">Brain-AI-101</p>
-          <h1 className="module1-title">Module 1: Biological Neuron Experience</h1>
+      <header className="module1-header" style={{ flexDirection: 'column', gap: 10, alignItems: 'stretch' }}>
+        <div style={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+          <div>
+            <p className="module1-kicker">Brain-AI-101</p>
+            <h1 className="module1-title" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              Module 1: Biological Neuron Experience
+              <TimeIndicator minutes={12} label="Neuron Fundamentals" active />
+            </h1>
+          </div>
+          <button className="module1-primary-button" onClick={() => scrollToRef(bridgeRef)}>
+            Skip to Bridge
+          </button>
         </div>
-        <button className="module1-primary-button" onClick={() => scrollToRef(bridgeRef)}>
-          Skip to Bridge
-        </button>
+        <ProgressRail currentModule="module1" />
       </header>
 
       <main className="module1-main">
@@ -62,7 +102,9 @@ function Module1({ onContinue }) {
           </section>
         </section>
 
-        <InteractionSection isMobile={isMobile} />
+        <div ref={interactionRef}>
+          <InteractionSection isMobile={isMobile} />
+        </div>
 
         <section ref={bridgeRef} className="module1-anchor-section">
           <BridgeToAnn onContinue={onContinue} />
