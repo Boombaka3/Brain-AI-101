@@ -1,0 +1,301 @@
+@import '../../styles/shared.css';
+
+.module3-page {
+  --module3-surface: rgba(255, 255, 255, 0.82);
+  --module3-surface-strong: rgba(255, 255, 255, 0.94);
+  --module3-border: var(--shared-border);
+  --module3-text: var(--shared-text);
+  --module3-text-muted: var(--shared-text-muted);
+  --module3-accent: var(--shared-accent);
+
+  background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+  color: var(--module3-text);
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* ── Header ───────────────────────────────────────────────────────── */
+
+.module3-header {
+  align-items: stretch;
+  background-color: var(--module3-surface-strong);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--module3-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.module3-header-row {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.module3-kicker {
+  color: var(--shared-text-soft);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0 0 2px;
+  text-transform: uppercase;
+}
+
+.module3-title {
+  align-items: center;
+  display: flex;
+  font-size: 20px;
+  font-weight: 700;
+  gap: 10px;
+  margin: 0;
+}
+
+/* ── 3D Hero ──────────────────────────────────────────────────────── */
+
+.module3-hero {
+  margin: 0 auto;
+  max-width: 1100px;
+  padding: 24px 24px 0;
+}
+
+.module3-hero-inner {
+  align-items: center;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(239,246,255,0.9));
+  border: 1px solid var(--module3-border);
+  border-radius: var(--shared-radius-lg);
+  box-shadow: var(--shared-shadow);
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  padding: 28px 32px;
+}
+
+.module3-hero-text h2 {
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin: 0 0 10px;
+}
+
+.module3-hero-text p {
+  color: var(--shared-text-muted);
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Tab bar ──────────────────────────────────────────────────────── */
+
+.module3-tabs-row {
+  margin: 0 auto;
+  max-width: 1100px;
+  padding: 16px 24px 0;
+}
+
+.module3-tabs {
+  background: rgba(255,255,255,0.82);
+  border: 1px solid var(--module3-border);
+  border-radius: var(--shared-radius-md);
+  box-shadow: var(--shared-shadow-card);
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 6px;
+  scrollbar-width: none;
+}
+
+.module3-tabs::-webkit-scrollbar { display: none; }
+
+.module3-tab {
+  background: transparent;
+  border: none;
+  border-radius: var(--shared-radius-sm);
+  color: var(--shared-text-muted);
+  cursor: pointer;
+  flex: 1;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 36px;
+  min-width: 72px;
+  padding: 8px 12px;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.module3-tab:hover {
+  background: #f0f7ff;
+  color: var(--shared-text);
+}
+
+.module3-tab.active {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 1px solid #bfdbfe;
+  color: var(--shared-accent-strong);
+}
+
+/* ── Guidance bar ─────────────────────────────────────────────────── */
+
+.module3-guidance {
+  background: #eff6ff;
+  border-bottom: 1px solid #bfdbfe;
+  border-top: 1px solid #bfdbfe;
+  color: #1e40af;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 24px;
+  text-align: center;
+}
+
+/* ── Main content ─────────────────────────────────────────────────── */
+
+.module3-main {
+  margin: 0 auto;
+  max-width: 1100px;
+  padding: 20px 24px 40px;
+}
+
+.module3-section-heading {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.module3-section-heading h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 0 0 8px;
+}
+
+.module3-section-heading p {
+  color: var(--shared-text-muted);
+  font-size: 15px;
+  margin: 0;
+}
+
+.module3-shell {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--module3-border);
+  border-radius: var(--shared-radius-lg);
+  box-shadow: var(--shared-shadow);
+  overflow: hidden;
+  padding: 20px;
+}
+
+.module3-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 14px 0;
+}
+
+.module3-takeaway {
+  color: var(--shared-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0 0 16px;
+  text-align: center;
+}
+
+/* ── Loss chart ───────────────────────────────────────────────────── */
+
+.module3-loss-chart-wrap {
+  background: rgba(255,255,255,0.9);
+  border: 1px solid var(--module3-border);
+  border-radius: var(--shared-radius-card);
+  box-shadow: var(--shared-shadow-card);
+  margin-bottom: 16px;
+  overflow: hidden;
+  padding: 16px 20px;
+}
+
+.module3-loss-chart-label {
+  color: var(--shared-text-soft);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+/* ── LR explorer ──────────────────────────────────────────────────── */
+
+.module3-lr-wrap {
+  background: rgba(255,255,255,0.9);
+  border: 1px solid var(--module3-border);
+  border-radius: var(--shared-radius-card);
+  box-shadow: var(--shared-shadow-card);
+  margin-bottom: 16px;
+  padding: 16px 20px;
+}
+
+.module3-lr-curves {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 12px;
+}
+
+.module3-lr-curve-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.module3-lr-curve-card.selected {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.module3-lr-curve-card p {
+  color: var(--shared-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin: 8px 0 0;
+  text-transform: uppercase;
+}
+
+/* ── Deep learning bridge ─────────────────────────────────────────── */
+
+.module3-bridge-wrap {
+  background: linear-gradient(135deg, rgba(239,246,255,0.9), rgba(245,243,255,0.9));
+  border: 1px solid #c4b5fd;
+  border-radius: var(--shared-radius-lg);
+  box-shadow: var(--shared-shadow-card);
+  margin-bottom: 16px;
+  overflow: hidden;
+  padding: 24px;
+}
+
+.module3-bridge-steps {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .module3-hero-inner { grid-template-columns: 1fr; }
+  .module3-header { padding: 12px 16px; }
+  .module3-hero { padding: 16px 16px 0; }
+  .module3-tabs-row { padding: 12px 16px 0; }
+  .module3-main { padding: 16px 16px 32px; }
+  .module3-lr-curves { grid-template-columns: 1fr; }
+}

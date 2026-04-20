@@ -1,6 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { motion } from 'framer-motion'
+import ProgressRail from '../../components/ui/ProgressRail'
+import TimeIndicator from '../../components/ui/TimeIndicator'
+import LossChart from './components/LossChart'
+import LearningRateExplorer from './components/LearningRateExplorer'
+import DeepLearningBridge from './components/DeepLearningBridge'
+import './module3.css'
+
+gsap.registerPlugin(ScrollTrigger)
+
+const NetworkGraph3D = lazy(() => import('../../components/three/NetworkGraph3D'))
 
 const TABS = ['transition', 'types', 'training', 'feedback', 'inference', 'synthesis']
 const CFG = {
@@ -65,6 +76,15 @@ function Module3({ onBack }) {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
+  // Tab entrance animation
+  useEffect(() => {
+    gsap.fromTo('.module3-shell, .module3-section-heading', {
+      y: 16, opacity: 0,
+    }, {
+      y: 0, opacity: 1, duration: 0.45, ease: 'power2.out', stagger: 0.06,
+    })
+  }, [activeTab])
+
   useEffect(() => {
     if (activeTab !== 'transition' || !pulseRef.current) return
     gsap.fromTo(pulseRef.current, { scale: 0.96, opacity: 0.85 }, { scale: 1, opacity: 1, duration: 0.26 })
@@ -101,18 +121,9 @@ function Module3({ onBack }) {
   const baseThr = 5
   const ctxThr = contextOn ? 6.2 : 5
 
-  const page = { backgroundColor: '#F8FAFC', minHeight: '100vh', color: '#1E293B', fontFamily: 'system-ui, -apple-system, sans-serif' }
-  const header = { padding: isMobile ? '10px 14px' : '10px 20px', borderBottom: '1px solid #E2E8F0', backgroundColor: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }
-  const topNav = { display: 'flex', gap: '8px', alignItems: 'center' }
-  const stepRow = { maxWidth: '950px', margin: '0 auto', padding: isMobile ? '10px 14px 4px' : '10px 24px 4px', fontSize: '12px', color: '#94A3B8' }
-  const tabRow = { maxWidth: '950px', margin: '0 auto', padding: isMobile ? '0 14px 8px' : '0 24px 8px' }
-  const tabs = { display: 'flex', backgroundColor: '#F1F5F9', borderRadius: '6px', padding: '2px', overflowX: 'auto', maxWidth: isMobile ? '100%' : '640px' }
-  const tabBtn = { padding: '6px 12px', fontSize: '12px', fontWeight: 500, color: '#64748B', backgroundColor: 'transparent', border: 'none', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' }
-  const tabBtnActive = { ...tabBtn, color: '#fff', backgroundColor: '#3B82F6' }
-  const btn = { padding: '6px 14px', fontSize: '13px', fontWeight: 500, color: '#475569', backgroundColor: '#F8FAFC', border: '1px solid #D6E2F1', borderRadius: '6px', cursor: 'pointer' }
-  const pBtn = { padding: '6px 14px', fontSize: '13px', fontWeight: 600, color: '#fff', backgroundColor: '#3B82F6', border: 'none', borderRadius: '6px', cursor: 'pointer' }
-  const main = { maxWidth: '950px', margin: '0 auto', padding: isMobile ? '14px 14px 28px' : '18px 24px 28px' }
-  const shell = { border: '1px solid #E2E8F0', borderRadius: '12px', backgroundColor: '#fff', padding: isMobile ? '10px' : '14px' }
+  // Shared button style (used by inline controls in view functions)
+  const btn = { padding: '6px 14px', fontSize: '13px', fontWeight: 500, color: '#475569', backgroundColor: '#F8FAFC', border: '1px solid #D6E2F1', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit' }
+  const pBtn = { padding: '6px 14px', fontSize: '13px', fontWeight: 600, color: '#fff', backgroundColor: '#3B82F6', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit' }
 
   const applySup = () => {
     setSupShowFeedback(true)
@@ -631,29 +642,85 @@ function Module3({ onBack }) {
   }
 
   return (
-    <div style={page}>
-      <header style={header}>
-        <h1 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>{cfg.pageTitle}</h1>
-        <div style={topNav}>
-          <button onClick={() => { if (prevTab) setActiveTab(prevTab); else onBack?.() }} style={btn}>Back</button>
-          {nextTab && <button onClick={() => setActiveTab(nextTab)} style={btn}>Next</button>}
+    <div className="module3-page">
+      {/* Header */}
+      <header className="module3-header">
+        <div className="module3-header-row">
+          <div>
+            <p className="module3-kicker">Brain-AI-101</p>
+            <h1 className="module3-title">
+              Module 3: Learning to Learn
+              <TimeIndicator minutes={26} label="Learning to Learn" active />
+            </h1>
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button className="shared-btn shared-btn-ghost shared-btn-sm" onClick={() => { if (prevTab) setActiveTab(prevTab); else onBack?.() }}>← Back</button>
+            {nextTab && <button className="shared-btn shared-btn-primary shared-btn-sm" onClick={() => setActiveTab(nextTab)}>Next →</button>}
+          </div>
         </div>
+        <ProgressRail currentModule="module3" />
       </header>
 
-      <div style={stepRow}>Step {idx + 1} of {TABS.length}</div>
-      <div style={tabRow}>
-        <div style={tabs}>
-          {TABS.map((t) => <button key={t} onClick={() => setActiveTab(t)} style={activeTab === t ? tabBtnActive : tabBtn}>{CFG[t].label}</button>)}
+      {/* 3D Hero */}
+      <div className="module3-hero">
+        <div className="module3-hero-inner">
+          <div className="module3-hero-text">
+            <p className="shared-eyebrow" style={{ marginBottom: 10 }}>Module 3 · Learning to Learn</p>
+            <h2>{cfg.headline}</h2>
+            <p>{cfg.subtitle}</p>
+            <div style={{ marginTop: 14 }}>
+              <span className="shared-chip">Step {idx + 1} of {TABS.length}</span>
+            </div>
+          </div>
+          <Suspense fallback={<div style={{ height: 260, background: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', borderRadius: 16 }} />}>
+            <NetworkGraph3D height={260} />
+          </Suspense>
         </div>
       </div>
-      <div style={{ backgroundColor: '#EAF3FF', borderTop: '1px solid #D4E5FF', borderBottom: '1px solid #D4E5FF', color: '#1E3A8A', fontSize: '13px', fontWeight: 500, textAlign: 'center', padding: '8px 12px' }}>{cfg.guidance}</div>
 
-      <main style={main}>
-        <div style={{ textAlign: 'center', marginBottom: '10px' }}><h2 style={{ fontSize: isMobile ? '28px' : '34px', fontWeight: 700, margin: '2px 0 8px' }}>{cfg.headline}</h2><p style={{ margin: 0, color: '#64748B', fontSize: '15px' }}>{cfg.subtitle}</p></div>
-        <div style={shell}>{visual}</div>
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', marginTop: '10px', marginBottom: '10px' }}>{controls()}</div>
-        <p style={{ textAlign: 'center', color: '#475569', fontSize: '13px', margin: '0 0 12px' }}>{cfg.takeaway}</p>
-        {nextTab && <div style={{ textAlign: 'center' }}><button style={btn} onClick={() => setActiveTab(nextTab)}>Next</button></div>}
+      {/* Tab bar */}
+      <div className="module3-tabs-row">
+        <div className="module3-tabs">
+          {TABS.map((t) => (
+            <button key={t} className={`module3-tab${activeTab === t ? ' active' : ''}`} onClick={() => setActiveTab(t)}>
+              {CFG[t].label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="module3-guidance">💡 {cfg.guidance}</div>
+
+      <main className="module3-main">
+        <div className="module3-section-heading">
+          <h2>{cfg.headline}</h2>
+          <p>{cfg.subtitle}</p>
+        </div>
+
+        {/* Loss chart — only on training tab */}
+        {activeTab === 'training' && (
+          <LossChart trainingStep={trainingStep} mismatch={tCalc.mismatch} />
+        )}
+
+        {/* Learning rate explorer — only on training tab */}
+        {activeTab === 'training' && <LearningRateExplorer />}
+
+        <div className="module3-shell">{visual}</div>
+
+        <div className="module3-controls">{controls()}</div>
+
+        <p className="module3-takeaway">{cfg.takeaway}</p>
+
+        {/* Deep learning bridge — shown on synthesis tab */}
+        {activeTab === 'synthesis' && <DeepLearningBridge />}
+
+        {nextTab && (
+          <div style={{ textAlign: 'center' }}>
+            <button className="shared-btn shared-btn-primary" onClick={() => setActiveTab(nextTab)}>
+              Next: {CFG[nextTab]?.label} →
+            </button>
+          </div>
+        )}
       </main>
     </div>
   )
