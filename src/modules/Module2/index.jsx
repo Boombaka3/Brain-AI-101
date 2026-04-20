@@ -1,7 +1,14 @@
-import { useState, useEffect, useRef } from 'react'
+import { lazy, Suspense, useState, useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { motion, AnimatePresence } from 'framer-motion'
 import { calculateTotal, neuronFires } from '../../utils/neuronLogic'
+import ProgressRail from '../../components/ui/ProgressRail'
+import TimeIndicator from '../../components/ui/TimeIndicator'
+import { applyConvolution as _applyConvolution, toGrayscale as _toGrayscale, preprocessForClassification as _preprocessForClassification } from './utils/imageProcessing'
+import { classifyDigit as _classifyDigit } from './utils/classifier'
+import './module2.css'
+
+const PatternGrid3D = lazy(() => import('../../components/three/PatternGrid3D'))
 
 /**
  * Module 2: Perception and Response
@@ -136,224 +143,14 @@ const LAB_BIO_BRIDGE = {
 // Max dimension for processing (keeps it fast)
 const LAB_MAX_IMAGE_SIZE = 400
 
-// Apply 3x3 convolution to grayscale image data
-// Uses zero-padding for same-size output
-function applyConvolution(imageData, width, height, kernel, normalize = false) {
-  const src = imageData.data
-  const output = new Uint8ClampedArray(src.length)
-  
-  // Calculate kernel sum for normalization (blur kernels)
-  let kernelSum = kernel.reduce((a, b) => a + b, 0)
-  if (kernelSum === 0) kernelSum = 1  // Prevent division by zero
-  const shouldNormalize = normalize && kernelSum > 1
-  
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      let sum = 0
-      
-      // Apply 3x3 kernel
-      for (let ky = -1; ky <= 1; ky++) {
-        for (let kx = -1; kx <= 1; kx++) {
-          const px = x + kx
-          const py = y + ky
-          
-          // Zero-padding: out of bounds = 0
-          if (px >= 0 && px < width && py >= 0 && py < height) {
-            const srcIdx = (py * width + px) * 4
-            const gray = src[srcIdx]  // Already grayscale, R=G=B
-            const kernelIdx = (ky + 1) * 3 + (kx + 1)
-            sum += gray * kernel[kernelIdx]
-          }
-        }
-      }
-      
-      // Normalize if needed (for blur kernels)
-      if (shouldNormalize) {
-        sum = sum / kernelSum
-      }
-      
-      // Clamp to [0, 255]
-      const value = Math.max(0, Math.min(255, Math.round(sum)))
-      
-      // Set output pixel (grayscale)
-      const outIdx = (y * width + x) * 4
-      output[outIdx] = value      // R
-      output[outIdx + 1] = value  // G
-      output[outIdx + 2] = value  // B
-      output[outIdx + 3] = 255    // A
-    }
-  }
-  
-  return new ImageData(output, width, height)
-}
+// Re-export imported utils under original names so existing call-sites work unchanged
+const applyConvolution = _applyConvolution
+const toGrayscale = _toGrayscale
+const preprocessForClassification = _preprocessForClassification
+const classifyDigitImpl = _classifyDigit
 
-// Convert image to grayscale
-function toGrayscale(imageData) {
-  const data = imageData.data
-  for (let i = 0; i < data.length; i += 4) {
-    // Luminance formula
-    const gray = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2])
-    data[i] = gray
-    data[i + 1] = gray
-    data[i + 2] = gray
-  }
-  return imageData
-}
+// implementations live in utils/imageProcessing.js and utils/classifier.js
 
-// ============================================
-// CLASSIFIER INTERFACE
-// ============================================
-// 
-// This interface defines how classification will work.
-// Currently stubbed with a fake response for UI development.
-// 
-// FUTURE INTEGRATION OPTIONS:
-// 
-// Option A: TensorFlow.js (WASM backend)
-//   - Pros: Easiest integration, many examples, well documented
-//   - Cons: ~400KB+ bundle size, slower on low-end devices
-//   - Import: import * as tf from '@tensorflow/tfjs'
-//   - Model: Load pre-trained MNIST model (tfjs-converter format)
-//   - Example: tf.loadLayersModel('model.json')
-// 
-// Option B: ONNX Runtime Web (WASM / WebGPU)
-//   - Pros: Faster inference, smaller optimized models, WebGPU acceleration
-//   - Cons: More setup complexity, less documentation
-//   - Import: import * as ort from 'onnxruntime-web'
-//   - Model: Export trained model to .onnx format
-//   - Example: ort.InferenceSession.create('model.onnx')
-// 
-// MODEL CHOICE: MNIST for digit classification (0-9)
-//   - Input: 28x28 grayscale image, normalized to [0,1]
-//   - Output: 10 probabilities (one per digit)
-//   - Size: ~100KB-500KB depending on architecture
-// 
-// PRE-PROCESSING PIPELINE (when real model is integrated):
-//   1. Resize image to 28x28 (using canvas)
-//   2. Convert to grayscale
-//   3. Normalize pixel values: pixel / 255.0
-//   4. Reshape to tensor: [1, 28, 28, 1] or [1, 1, 28, 28]
-//   5. Run inference
-//   6. Apply softmax if not in model
-//   7. Return {label: argmax, confidence: max probability}
-// 
-// PRIVACY RULE: All inference happens in-browser. Never upload images.
-// ============================================
-
-/**
- * Classify an image to predict a digit (0-9).
- * 
- * @param {ImageData} imageData - The image to classify
- * @returns {Promise<{label: string, confidence: number, allScores: number[]}>}
- * 
- * STUB: Returns deterministic fake response until real model is integrated.
- * The stub analyzes basic image statistics to provide somewhat varied output.
- */
-async function classifyDigit(imageData) {
-  // Simulate processing delay (real inference takes ~50-200ms)
-  await new Promise(resolve => setTimeout(resolve, 300))
-  
-  // STUB LOGIC: Analyze image statistics to produce varied (but fake) results
-  // This makes the demo feel more responsive while we wait for real model
-  const data = imageData.data
-  let totalBrightness = 0
-  let pixelCount = 0
-  let centerBrightness = 0
-  let centerCount = 0
-  
-  const width = imageData.width
-  const height = imageData.height
-  const centerX = width / 2
-  const centerY = height / 2
-  const centerRadius = Math.min(width, height) / 4
-  
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const idx = (y * width + x) * 4
-      const brightness = data[idx]  // Grayscale, so R=G=B
-      totalBrightness += brightness
-      pixelCount++
-      
-      // Check if in center region
-      const dx = x - centerX
-      const dy = y - centerY
-      if (dx * dx + dy * dy < centerRadius * centerRadius) {
-        centerBrightness += brightness
-        centerCount++
-      }
-    }
-  }
-  
-  const avgBrightness = totalBrightness / pixelCount
-  const avgCenterBrightness = centerCount > 0 ? centerBrightness / centerCount : 128
-  
-  // Generate fake scores based on image statistics
-  // This is NOT real classification - just makes the demo interesting
-  const baseScores = [0.02, 0.03, 0.05, 0.08, 0.04, 0.06, 0.03, 0.07, 0.02, 0.04]
-  
-  // Bias toward certain digits based on image characteristics
-  // (This is arbitrary and just for demo purposes)
-  const brightnessIndex = Math.floor((avgBrightness / 255) * 9)
-  const centerIndex = Math.floor((avgCenterBrightness / 255) * 9)
-  
-  // Boost scores for "detected" digits
-  baseScores[brightnessIndex] += 0.25
-  baseScores[centerIndex] += 0.20
-  baseScores[(brightnessIndex + centerIndex) % 10] += 0.15
-  
-  // Normalize to sum to 1
-  const sum = baseScores.reduce((a, b) => a + b, 0)
-  const normalizedScores = baseScores.map(s => s / sum)
-  
-  // Find winner
-  let maxScore = 0
-  let maxIndex = 0
-  normalizedScores.forEach((score, idx) => {
-    if (score > maxScore) {
-      maxScore = score
-      maxIndex = idx
-    }
-  })
-  
-  return {
-    label: maxIndex.toString(),
-    confidence: maxScore,
-    allScores: normalizedScores
-  }
-}
-
-/**
- * Pre-process image for digit classification.
- * Resizes to 28x28 and converts to grayscale ImageData.
- * 
- * @param {HTMLImageElement | HTMLCanvasElement} source - Image source
- * @returns {ImageData} - 28x28 grayscale ImageData ready for classification
- */
-function preprocessForClassification(source) {
-  const canvas = document.createElement('canvas')
-  canvas.width = 28
-  canvas.height = 28
-  const ctx = canvas.getContext('2d')
-  
-  // Fill with white background (MNIST digits are white on black, but user images vary)
-  ctx.fillStyle = 'white'
-  ctx.fillRect(0, 0, 28, 28)
-  
-  // Draw source image scaled to fit
-  const srcWidth = source.width || source.naturalWidth
-  const srcHeight = source.height || source.naturalHeight
-  const scale = Math.min(26 / srcWidth, 26 / srcHeight)
-  const scaledWidth = srcWidth * scale
-  const scaledHeight = srcHeight * scale
-  const offsetX = (28 - scaledWidth) / 2
-  const offsetY = (28 - scaledHeight) / 2
-  
-  ctx.drawImage(source, offsetX, offsetY, scaledWidth, scaledHeight)
-  
-  // Get image data and convert to grayscale
-  const imageData = ctx.getImageData(0, 0, 28, 28)
-  return toGrayscale(imageData)
-}
 
 const THRESHOLD = 4
 
@@ -866,8 +663,7 @@ function Module2({ onBack, onContinue }) {
       // Preprocess to 28x28 grayscale
       const preprocessed = preprocessForClassification(classifierImageEl)
       
-      // Run classification (currently stubbed)
-      const result = await classifyDigit(preprocessed)
+      const result = await classifyDigitImpl(preprocessed)
       setClassifierResult(result)
     } catch (error) {
       console.error('Classification error:', error)
@@ -1137,142 +933,65 @@ function Module2({ onBack, onContinue }) {
   // ============================================
   
   return (
-    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      {/* ============================================ */}
-      {/* UNIFIED HEADER - Matches Module 1 styling */}
-      {/* ============================================ */}
-      <header style={{ 
-        padding: '12px 24px', 
-        borderBottom: '1px solid #E2E8F0', 
-        backgroundColor: 'white', 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '12px'
-      }}>
-        <div>
-          <h1 style={{ 
-            fontSize: '18px', 
-            fontWeight: '600', 
-            color: '#1E293B', 
-            margin: 0,
-            fontFamily: 'system-ui, -apple-system, sans-serif'
-          }}>
-            Module 2: Seeing and Thinking
-          </h1>
-          <span style={{ 
-            fontSize: '12px', 
-            color: '#94A3B8',
-            fontFamily: 'system-ui, -apple-system, sans-serif'
-          }}>
-            Step {stepIndex + 1} of {STEP_REGISTRY.length}
-          </span>
-        </div>
-        
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          {/* View mode tabs - ALL 5 always visible with tooltips */}
-          <div style={{ 
-            display: 'flex', 
-            backgroundColor: '#F1F5F9',
-            borderRadius: '6px',
-            padding: '2px'
-          }}>
-            {VIEW_MODES.map(({ id, label, tooltip }) => {
-              const isEnabled = enabledViews.includes(id)
-              const isActive = viewMode === id
-              return (
-                <button
-                  key={id}
-                  onClick={() => isEnabled && handleViewModeChange(id)}
-                  disabled={!isEnabled}
-                  title={tooltip}
-                  style={{
-                    padding: '6px 14px',
-                    fontSize: '13px',
-                    fontWeight: '500',
-                    color: isActive ? 'white' : (isEnabled ? '#64748B' : '#CBD5E1'),
-                    backgroundColor: isActive ? '#3B82F6' : 'transparent',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: isEnabled ? 'pointer' : 'not-allowed',
-                    opacity: isEnabled ? 1 : 0.5,
-                    fontFamily: 'system-ui, sans-serif'
-                  }}
-                >
-                  {label}
-                </button>
-              )
-            })}
+    <div className="module2-page">
+      {/* Header */}
+      <header className="module2-header">
+        <div className="module2-header-row">
+          <div>
+            <p className="module2-kicker">Brain-AI-101</p>
+            <h1 className="module2-title">
+              Module 2: Perception &amp; Response
+              <TimeIndicator minutes={22} label="Perception & Response" active />
+            </h1>
           </div>
-          
-          {/* Back/Next buttons - fixed position, matches Module 1 */}
-          <button 
-            onClick={handlePrevStep} 
-            style={{ 
-              padding: '6px 14px', 
-              fontSize: '13px', 
-              fontWeight: '500', 
-              color: '#64748B', 
-              backgroundColor: '#F1F5F9', 
-              border: '1px solid #E2E8F0', 
-              borderRadius: '6px', 
-              cursor: 'pointer',
-              fontFamily: 'system-ui, sans-serif'
-            }}
-          >
-            ← Back
-          </button>
-          <button 
-            onClick={handleNextStep} 
-            style={{ 
-              padding: '6px 14px', 
-              fontSize: '13px', 
-              fontWeight: '500', 
-              color: 'white', 
-              backgroundColor: '#3B82F6', 
-              border: 'none', 
-              borderRadius: '6px', 
-              cursor: 'pointer',
-              fontFamily: 'system-ui, sans-serif'
-            }}
-          >
-            Next →
-          </button>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <div className="module2-tabs" style={{ flex: 'unset' }}>
+              {VIEW_MODES.map(({ id, label, tooltip }) => {
+                const isEnabled = enabledViews.includes(id)
+                return (
+                  <button
+                    key={id}
+                    className={`module2-tab${viewMode === id ? ' active' : ''}`}
+                    onClick={() => isEnabled && handleViewModeChange(id)}
+                    disabled={!isEnabled}
+                    title={tooltip}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+            <button className="shared-btn shared-btn-ghost shared-btn-sm" onClick={handlePrevStep}>← Back</button>
+            <button className="shared-btn shared-btn-primary shared-btn-sm" onClick={handleNextStep}>Next →</button>
+          </div>
         </div>
+        <ProgressRail currentModule="module2" />
       </header>
-      
-      {/* ============================================ */}
-      {/* GUIDANCE BAR - Shows current step guidance */}
-      {/* ============================================ */}
-      <div style={{
-        padding: '10px 24px',
-        backgroundColor: '#EFF6FF',
-        borderBottom: '1px solid #BFDBFE',
-        textAlign: 'center'
-      }}>
-        <p style={{ 
-          fontSize: '13px', 
-          fontWeight: '500', 
-          color: '#1E40AF', 
-          margin: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px'
-        }}>
-          <span style={{ fontSize: '16px' }}>💡</span>
-          {currentStepConfig.guidance}
-        </p>
+
+      {/* 3D Hero + guidance */}
+      <div className="module2-hero">
+        <div className="module2-hero-inner">
+          <div className="module2-hero-text">
+            <p className="shared-eyebrow" style={{ marginBottom: 10 }}>Module 2 · Perception &amp; Response</p>
+            <h2>{currentStepConfig.title}</h2>
+            <p>💡 {currentStepConfig.guidance}</p>
+            <div style={{ marginTop: 14 }}>
+              <span className="shared-chip">Step {stepIndex + 1} of {STEP_REGISTRY.length}</span>
+            </div>
+          </div>
+          <Suspense fallback={<div style={{ height: 280, background: 'linear-gradient(135deg,#eff6ff,#dbeafe)', borderRadius: 16 }} />}>
+            <PatternGrid3D height={280} />
+          </Suspense>
+        </div>
       </div>
       
-      {/* ============================================ */}
+      <div className="module2-main">
+
       {/* TRANSITION VIEW */}
-      {/* ============================================ */}
       {viewMode === 'transition' && (
-        <main style={{ 
+        <main style={{
           flex: 1,
-          display: 'flex', 
+          display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
@@ -2843,6 +2562,8 @@ function Module2({ onBack, onContinue }) {
         </div>
       </main>
       )}
+
+      </div>{/* end module2-main */}
     </div>
   )
 }
