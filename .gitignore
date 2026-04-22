@@ -98,6 +98,6 @@ build/
 *.ipynb_checkpoints
 .ipynb_checkpoints/
 
-# Analysis reports
 react_ast_analysis_report.txt
 *.ast_analysis.txt
+attribute.txt
