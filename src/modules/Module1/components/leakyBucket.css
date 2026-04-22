@@ -1,0 +1,12 @@
+.leaky-bucket {
+  width: 100%;
+  max-width: 210px;
+  margin: 0 auto;
+  padding: 8px 0 4px;
+}
+
+.leaky-bucket__svg {
+  width: 100%;
+  display: block;
+  overflow: visible;
+}

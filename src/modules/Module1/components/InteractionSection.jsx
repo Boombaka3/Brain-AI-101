@@ -6,19 +6,22 @@ import {
   DEFAULT_SYNAPSE_STRENGTHS,
   DEFAULT_THRESHOLD,
   PROCESS_PHASES,
+  SCENARIOS,
   getProcessPhaseSummary,
 } from '../module1Config'
 import LiveExplanationPanel from './LiveExplanationPanel'
 import NeuronExperimentPanel from './NeuronExperimentPanel'
+import ScenarioPicker from './ScenarioPicker'
 
 const roundValue = (value) => Number(value.toFixed(1))
 const getWeightedInputs = (signals, strengths) =>
   signals.map((signal, index) => roundValue(signal * strengths[index]))
 
 function InteractionSection({ isMobile = false }) {
-  const [signalLevels, setSignalLevels] = useState(DEFAULT_SIGNAL_LEVELS)
-  const [synapseStrengths, setSynapseStrengths] = useState(DEFAULT_SYNAPSE_STRENGTHS)
-  const [draftThreshold, setDraftThreshold] = useState(DEFAULT_THRESHOLD)
+  const [selectedScenario, setSelectedScenario] = useState(SCENARIOS[0])
+  const [signalLevels, setSignalLevels] = useState(SCENARIOS[0].signalLevels)
+  const [synapseStrengths, setSynapseStrengths] = useState(SCENARIOS[0].synapseStrengths)
+  const [draftThreshold, setDraftThreshold] = useState(SCENARIOS[0].threshold)
 
   const [activeInputs, setActiveInputs] = useState(
     getWeightedInputs(DEFAULT_SIGNAL_LEVELS, DEFAULT_SYNAPSE_STRENGTHS),
@@ -43,6 +46,15 @@ function InteractionSection({ isMobile = false }) {
     weightedInputs: activeInputs,
   })
 
+  const handleScenarioSelect = (scenario) => {
+    setSelectedScenario(scenario)
+    setSignalLevels(scenario.signalLevels)
+    setSynapseStrengths(scenario.synapseStrengths)
+    setDraftThreshold(scenario.threshold)
+    setCurrentPhase(PROCESS_PHASES.IDLE)
+    setReplaySignal(0)
+  }
+
   const startRun = () => {
     const nextInputs = getWeightedInputs(signalLevels, synapseStrengths)
     const nextTotal = roundValue(calculateTotal(nextInputs))
@@ -56,13 +68,14 @@ function InteractionSection({ isMobile = false }) {
   }
 
   const handleReset = () => {
-    const defaultInputs = getWeightedInputs(DEFAULT_SIGNAL_LEVELS, DEFAULT_SYNAPSE_STRENGTHS)
+    const resetScenario = selectedScenario ?? SCENARIOS[0]
+    const defaultInputs = getWeightedInputs(resetScenario.signalLevels, resetScenario.synapseStrengths)
 
-    setSignalLevels(DEFAULT_SIGNAL_LEVELS)
-    setSynapseStrengths(DEFAULT_SYNAPSE_STRENGTHS)
-    setDraftThreshold(DEFAULT_THRESHOLD)
+    setSignalLevels(resetScenario.signalLevels)
+    setSynapseStrengths(resetScenario.synapseStrengths)
+    setDraftThreshold(resetScenario.threshold)
     setActiveInputs(defaultInputs)
-    setActiveThreshold(DEFAULT_THRESHOLD)
+    setActiveThreshold(resetScenario.threshold)
     setActiveNeuronAFires(false)
     setCurrentPhase(PROCESS_PHASES.IDLE)
     setReplaySignal(0)
@@ -72,11 +85,13 @@ function InteractionSection({ isMobile = false }) {
     <section className="module1-section module1-interaction-section">
       <div className="module1-section-heading">
         <p className="module1-eyebrow">C. Interaction</p>
-        <h2>Build a signal and watch the neuron respond</h2>
+        <h2>Pick a scenario and watch the neuron respond</h2>
         <p>
-          Tune each input pathway, set the firing threshold, and run the neuron to see whether the signal moves forward.
+          Choose a real biological event — each one pre-loads the correct neuron inputs. Then run the simulation to see how the signal travels and what action results.
         </p>
       </div>
+
+      <ScenarioPicker selectedId={selectedScenario?.id} onSelect={handleScenarioSelect} />
 
       <div className="module1-two-column module1-interaction-layout">
         <div className="module1-interaction-visual-column">
@@ -117,9 +132,13 @@ function InteractionSection({ isMobile = false }) {
         <div className="module1-interaction-stack">
           <NeuronExperimentPanel
             contributions={weightedInputs}
+            currentPhase={currentPhase}
+            didFire={activeNeuronAFires}
             onReplay={startRun}
             onResetLesson={handleReset}
             onRun={startRun}
+            pathLabels={selectedScenario?.dendriteLabelS ?? ['Path 1', 'Path 2', 'Path 3', 'Path 4']}
+            selectedScenario={selectedScenario}
             setSignalLevels={setSignalLevels}
             setSynapseStrengths={setSynapseStrengths}
             setThreshold={setDraftThreshold}

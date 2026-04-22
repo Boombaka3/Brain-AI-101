@@ -1,4 +1,6 @@
 import InfoTip from '../../../components/ui/InfoTip'
+import DownstreamCallout from './DownstreamCallout'
+import LeakyBucket from './LeakyBucket'
 
 function formatValue(value) {
   return Number.isInteger(value) ? value.toString() : value.toFixed(1)
@@ -6,9 +8,13 @@ function formatValue(value) {
 
 function NeuronExperimentPanel({
   contributions,
+  currentPhase,
+  didFire,
   onReplay,
   onResetLesson,
   onRun,
+  pathLabels = ['Path 1', 'Path 2', 'Path 3', 'Path 4'],
+  selectedScenario,
   setSignalLevels,
   setSynapseStrengths,
   setThreshold,
@@ -42,15 +48,17 @@ function NeuronExperimentPanel({
         </div>
       </div>
 
-      <div className={`module1-result-banner ${willFire ? 'module1-result-banner-success' : 'module1-result-banner-pending'}`}>
-        <div className="module1-result-banner-label">Current outcome</div>
-        <div className="module1-result-banner-main">
-          {willFire ? 'The neuron fires.' : 'The neuron stays quiet.'}
-        </div>
-        <div className="module1-result-banner-detail">
-          Total input {formatValue(totalInput)} compared with threshold {formatValue(threshold)}.
-        </div>
-      </div>
+      <LeakyBucket
+        totalInput={totalInput}
+        threshold={threshold}
+        didFire={didFire}
+        currentPhase={currentPhase}
+      />
+
+      <DownstreamCallout
+        scenario={selectedScenario}
+        isVisible={didFire && !!selectedScenario}
+      />
 
       <div className="module1-interaction-summary-row">
         <div className="module1-stat module1-stat-compact">
@@ -73,7 +81,7 @@ function NeuronExperimentPanel({
         {signalLevels.map((signal, index) => (
           <div className="module1-control-row module1-control-card" key={`control-${index}`}>
             <div className="module1-control-path">
-              <div className="module1-control-label">Path {index + 1}</div>
+              <div className="module1-control-label">{pathLabels[index] ?? `Path ${index + 1}`}</div>
               <div className="module1-card-muted module1-control-path-note">
                 Contribution {formatValue(contributions[index])}
               </div>
