@@ -228,14 +228,64 @@
   margin: 0;
 }
 
+.module1-scene-flipcard {
+  -webkit-tap-highlight-color: transparent;
+  background: transparent;
+  border: 0;
+  contain: layout paint;
+  cursor: pointer;
+  display: block;
+  padding: 0;
+  perspective: 1600px;
+  text-align: left;
+  width: 100%;
+}
+
+.module1-scene-flipcard__inner {
+  display: block;
+  height: 340px;
+  min-height: 340px;
+  position: relative;
+  transform: translateZ(0);
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.22, 0.76, 0.28, 1);
+  will-change: transform;
+  width: 100%;
+}
+
+.module1-scene-flipcard.is-flipped .module1-scene-flipcard__inner {
+  transform: rotateY(180deg);
+}
+
+.module1-scene-flipcard__face {
+  backface-visibility: hidden;
+  contain: layout paint style;
+  display: block;
+  inset: 0;
+  overflow: hidden;
+  position: absolute;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.module1-scene-flipcard__face--back {
+  transform: rotateY(180deg) translateZ(0);
+}
+
 .module1-attention-scene {
   background:
     radial-gradient(circle at 24% 20%, rgba(255, 255, 255, 0.96) 0%, rgba(244, 249, 255, 0.92) 44%, rgba(228, 238, 251, 0.9) 100%);
   border: 1px solid rgba(191, 219, 254, 0.88);
   border-radius: 18px;
+  contain: layout paint;
+  display: block;
+  height: 100%;
   min-height: 340px;
   overflow: hidden;
   position: relative;
+  transform: translateZ(0);
+  will-change: transform;
+  width: 100%;
 }
 
 .module1-attention-caption {
@@ -270,11 +320,93 @@
 .module1-attention-scene__art svg {
   display: block;
   height: 100%;
+  transform: translateZ(0);
   width: 100%;
 }
 
 .module1-attention-scene__art #freepik_stories-pay-attention {
   overflow: visible;
+}
+
+.module1-eye-scene {
+  background:
+    radial-gradient(circle at 72% 24%, rgba(255, 249, 214, 0.56) 0%, rgba(255, 250, 232, 0.28) 18%, rgba(244, 249, 255, 0.92) 42%, rgba(229, 238, 251, 0.9) 100%);
+  border: 1px solid rgba(191, 219, 254, 0.88);
+  border-radius: 18px;
+  contain: layout paint;
+  display: block;
+  height: 100%;
+  min-height: 340px;
+  overflow: hidden;
+  position: relative;
+  transform: translateZ(0);
+  will-change: transform;
+  width: 100%;
+}
+
+.module1-eye-scene__art {
+  inset: 0;
+  position: absolute;
+}
+
+.module1-eye-scene__art svg {
+  display: block;
+  height: 100%;
+  transform: translateZ(0);
+  width: 100%;
+}
+
+.module1-eye-scene__art #freepik_stories-eyes {
+  overflow: visible;
+}
+
+.module1-eye-light-layer {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.module1-eye-light-layer__source,
+.module1-eye-light-layer__beam,
+.module1-eye-light-layer__glow {
+  position: absolute;
+}
+
+.module1-eye-light-layer__source {
+  animation: module1-eye-light-pulse 4.8s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(255, 247, 179, 0.98) 0%, rgba(255, 231, 138, 0.88) 44%, rgba(255, 231, 138, 0) 76%);
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(255, 214, 102, 0.34);
+  height: 78px;
+  opacity: 0;
+  right: 8%;
+  top: 16%;
+  width: 78px;
+}
+
+.module1-eye-light-layer__beam {
+  animation: module1-eye-light-beam 4.8s ease-in-out infinite;
+  background: linear-gradient(180deg, rgba(255, 244, 196, 0.44) 0%, rgba(255, 239, 189, 0.16) 58%, rgba(255, 239, 189, 0) 100%);
+  border-radius: 999px;
+  filter: blur(1px);
+  height: 156px;
+  opacity: 0;
+  right: 18%;
+  top: 24%;
+  transform: rotate(18deg);
+  transform-origin: right center;
+  width: 162px;
+}
+
+.module1-eye-light-layer__glow {
+  animation: module1-eye-light-glow 4.8s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(255, 243, 196, 0.54) 0%, rgba(255, 243, 196, 0.18) 38%, rgba(255, 243, 196, 0) 72%);
+  border-radius: 50%;
+  height: 150px;
+  opacity: 0;
+  right: 27%;
+  top: 28%;
+  width: 162px;
 }
 
 .module1-attention-noise-layer,
@@ -524,6 +656,51 @@
     box-shadow: 0 0 0 10px rgba(14, 165, 233, 0);
     opacity: 0;
     transform: scale(0.9);
+  }
+}
+
+@keyframes module1-eye-light-pulse {
+  0%,
+  18%,
+  100% {
+    opacity: 0;
+    transform: scale(0.78);
+  }
+
+  28%,
+  60% {
+    opacity: 0.96;
+    transform: scale(1);
+  }
+}
+
+@keyframes module1-eye-light-beam {
+  0%,
+  16%,
+  100% {
+    opacity: 0;
+    transform: rotate(18deg) scaleX(0.78);
+  }
+
+  26%,
+  60% {
+    opacity: 1;
+    transform: rotate(18deg) scaleX(1);
+  }
+}
+
+@keyframes module1-eye-light-glow {
+  0%,
+  22%,
+  100% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+
+  30%,
+  56% {
+    opacity: 0.76;
+    transform: scale(1);
   }
 }
 
@@ -1488,6 +1665,12 @@
     min-height: 300px;
   }
 
+  .module1-eye-scene,
+  .module1-scene-flipcard__inner {
+    height: 300px;
+    min-height: 300px;
+  }
+
   .module1-attention-signal__word {
     font-size: 18px;
     padding: 9px 14px;
@@ -1500,6 +1683,24 @@
   .module1-attention-ear-focus {
     left: 41.7%;
     top: 31.2%;
+  }
+
+  .module1-eye-light-layer__source {
+    height: 64px;
+    width: 64px;
+  }
+
+  .module1-eye-light-layer__beam {
+    height: 126px;
+    right: 16%;
+    top: 27%;
+    width: 128px;
+  }
+
+  .module1-eye-light-layer__glow {
+    right: 24%;
+    top: 31%;
+    width: 132px;
   }
 
   .module1-bridge-comparison,
