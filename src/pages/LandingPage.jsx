@@ -6,33 +6,9 @@ import './landing.css'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const NeuronOrb3D = lazy(() => import('../components/three/NeuronOrb3D'))
+const BrainParticleField = lazy(() => import('../components/three/BrainParticleField'))
+const NeuronShowcase = lazy(() => import('../components/three/NeuronShowcase'))
 
-const MODULE_DATA = [
-  {
-    number: 'Module 1',
-    icon: '🧠',
-    name: 'Meet the Neuron',
-    desc: 'Explore the biological building block of intelligence — how dendrites receive, soma integrates, and axons fire.',
-    time: '~12 min',
-  },
-  {
-    number: 'Module 2',
-    icon: '👁️',
-    name: 'Perception & Response',
-    desc: 'Discover why spatial patterns matter, how multiple neurons cooperate, and what convolution really means.',
-    time: '~22 min',
-  },
-  {
-    number: 'Module 3',
-    icon: '⚡',
-    name: 'Learning to Learn',
-    desc: 'Understand the feedback loops that turn fixed connections into adaptive intelligence — from synapses to backprop.',
-    time: '~26 min',
-  },
-]
-
-// 5×5 dot grid — two states: noise → edge pattern
 const NOISE_PATTERN = [
   0.2, 0.8, 0.1, 0.7, 0.3,
   0.6, 0.2, 0.9, 0.1, 0.5,
@@ -51,11 +27,11 @@ const EDGE_PATTERN = [
 function DotGrid({ resolved }) {
   const pattern = resolved ? EDGE_PATTERN : NOISE_PATTERN
   return (
-    <div className="landing-dot-grid">
+    <div className="lp-dot-grid">
       {pattern.map((v, i) => (
         <div
           key={i}
-          className={`landing-dot${v > 0.5 ? ' active' : ''}`}
+          className={`lp-dot${v > 0.5 ? ' lp-dot--active' : ''}`}
           style={{
             background: v > 0.5
               ? `rgba(45,126,255,${0.4 + v * 0.5})`
@@ -67,274 +43,307 @@ function DotGrid({ resolved }) {
   )
 }
 
+const ANATOMY_STEPS = [
+  { icon: '📡', label: 'Dendrites receive', color: 'blue' },
+  { icon: '⚖️', label: 'Soma integrates', color: 'green' },
+  { icon: '⚡', label: 'Threshold fires', color: 'amber' },
+  { icon: '⟶', label: 'Axon propagates', color: 'purple' },
+]
+
 export default function LandingPage({ onStart }) {
-  const heroTextRef = useRef()
-  const narrativeRef = useRef()
   const patternRef = useRef()
-  const roadmapRef = useRef()
   const [scrollProgress, setScrollProgress] = useState(0)
   const [dotResolved, setDotResolved] = useState(false)
 
   useEffect(() => {
-    // Hero text entrance
     const ctx = gsap.context(() => {
-      gsap.from('.landing-eyebrow, .landing-headline, .landing-subhead, .landing-meta-row, .landing-hero-cta, .landing-scroll-hint', {
-        y: 28,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'power3.out',
-        delay: 0.3,
+      gsap.from('.lp-hero-bg-text', {
+        opacity: 0, scale: 0.92, duration: 1.4, ease: 'power3.out', delay: 0.1,
       })
 
-      // Scroll progress for orb
+      gsap.from(
+        '.lp-flank-left, .lp-flank-right, .lp-hero-bottom, .lp-scroll-hint',
+        { y: 40, opacity: 0, duration: 1.0, stagger: 0.12, ease: 'power3.out', delay: 0.5 },
+      )
+
+      gsap.from('.lp-bust', {
+        y: 60, opacity: 0, duration: 1.2, ease: 'power3.out', delay: 0.2,
+      })
+
       ScrollTrigger.create({
-        trigger: '.landing-hero',
+        trigger: '.lp-hero',
         start: 'top top',
         end: 'bottom top',
         onUpdate: (self) => setScrollProgress(self.progress),
       })
 
-      // Narrative sections reveal
-      gsap.utils.toArray('.landing-narrative-label, .landing-narrative-heading, .landing-narrative-body, .landing-stat-row').forEach((el) => {
+      gsap.from('.lp-bd-card', {
+        scrollTrigger: { trigger: '.lp-bento-dash-grid', start: 'top 82%', once: true },
+        y: 40, opacity: 0, duration: 0.7, stagger: 0.1, ease: 'power2.out',
+      })
+
+      gsap.utils.toArray('.lp-nr-label, .lp-nr-heading, .lp-nr-body').forEach((el) => {
         gsap.from(el, {
-          scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-          y: 24,
-          opacity: 0,
-          duration: 0.7,
-          ease: 'power2.out',
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+          y: 28, opacity: 0, duration: 0.65, ease: 'power2.out',
         })
       })
 
-      // Dot grid — resolve on scroll into view
       ScrollTrigger.create({
         trigger: patternRef.current,
-        start: 'top 70%',
+        start: 'top 72%',
         once: true,
         onEnter: () => setDotResolved(true),
       })
 
-      // Module cards stagger
-      gsap.from('.landing-module-card', {
-        scrollTrigger: { trigger: '.landing-module-cards', start: 'top 80%', once: true },
-        y: 32,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.12,
-        ease: 'power2.out',
-      })
-
-      gsap.from('.landing-roadmap-heading, .landing-roadmap-sub, .landing-cta-row', {
-        scrollTrigger: { trigger: '.landing-roadmap-heading', start: 'top 85%', once: true },
-        y: 20,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'power2.out',
+      gsap.from('.lp-final-heading, .lp-final-sub, .lp-final-actions', {
+        scrollTrigger: { trigger: '.lp-final-cta', start: 'top 85%', once: true },
+        y: 28, opacity: 0, duration: 0.7, stagger: 0.12, ease: 'power2.out',
       })
     })
-
     return () => ctx.revert()
   }, [])
 
   return (
-    <div className="landing-page">
+    <div className="lp-page">
 
-      {/* ── Hero ─────────────────────────────────────────────────── */}
-      <section className="landing-hero">
-        <div className="landing-hero-orb">
-          <Suspense fallback={
-            <div style={{
-              width: '100%', height: 420, borderRadius: '50%',
-              background: 'radial-gradient(circle at 40% 35%, #dbeafe, #eff6ff)',
-              margin: '0 auto',
-            }} />
-          }>
-            <NeuronOrb3D scrollProgress={scrollProgress} height={420} />
-          </Suspense>
-        </div>
+      {/* ── Hero ── */}
+      <section className="lp-hero">
+        {/* Headline BEHIND the bust */}
+        <h1 className="lp-hero-bg-text" aria-hidden="true">
+          How Does<br />a Brain Learn?
+        </h1>
 
-        <div className="landing-hero-text" ref={heroTextRef}>
-          <p className="landing-eyebrow">Interactive Neuroscience + AI</p>
-          <h1 className="landing-headline">
-            How Does a<br /><em>Brain Learn?</em>
-          </h1>
-          <p className="landing-subhead">
-            A hands-on journey from biological neurons to artificial intelligence — no maths required.
-          </p>
-          <div className="landing-meta-row">
-            <span className="landing-meta-pill">⏱ 1 hour</span>
-            <span className="landing-meta-pill">🧪 3 labs</span>
-            <span className="landing-meta-pill">🎯 Interactive</span>
+        {/* Small flanking labels beside the headline */}
+        <span className="lp-hero-tag lp-hero-tag--left">Neuroscience × AI</span>
+        <span className="lp-hero-tag lp-hero-tag--right">Interactive Learning Platform</span>
+
+        {/* Centered bust + brain overlay — IN FRONT of headline */}
+        <div className="lp-hero-center">
+          <img
+            src={import.meta.env.BASE_URL + 'images/bust.png'}
+            alt="Human profile silhouette"
+            className="lp-bust"
+          />
+          <div className="lp-hero-canvas-wrap">
+            <Suspense fallback={<div className="lp-canvas-fallback" />}>
+              <BrainParticleField scrollProgress={scrollProgress} />
+            </Suspense>
           </div>
-          <button className="shared-btn shared-btn-primary landing-hero-cta" onClick={onStart}>
-            Start the experience →
-          </button>
-          <p className="landing-scroll-hint">↓ Scroll to explore</p>
         </div>
+
+        {/* Lower-left info block */}
+        <div className="lp-flank-left">
+          <p className="lp-flank-label">A hands-on journey from<br />biological neurons to modern AI</p>
+          <button className="lp-btn-text" onClick={onStart}>
+            Learn more <span className="lp-btn-arrow">→</span>
+          </button>
+        </div>
+
+        {/* Lower-right stat */}
+        <div className="lp-flank-right">
+          <span className="lp-flank-stat">86B</span>
+          <p className="lp-flank-stat-label">neurons in the<br />human brain</p>
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="lp-hero-bottom">
+          <div className="lp-hero-meta">
+            <span className="lp-meta-chip">1 hour</span>
+            <span className="lp-meta-chip">3 interactive labs</span>
+            <span className="lp-meta-chip">Built for curious minds</span>
+          </div>
+          <button className="lp-btn-primary" onClick={onStart}>
+            Start the experience <span className="lp-btn-arrow">→</span>
+          </button>
+        </div>
+
+        <div className="lp-scroll-hint">
+          <span className="lp-scroll-line" />
+          <span className="lp-scroll-text">Scroll Down</span>
+        </div>
+
+        {/* Accessible headline for screen readers */}
+        <h1 className="sr-only">How Does a Brain Learn? — Brain-AI-101 Interactive Course</h1>
       </section>
 
-      {/* ── Narrative 1: The Neuron ───────────────────────────────── */}
-      <section className="landing-narrative" ref={narrativeRef}>
-        <div className="landing-narrative-grid">
-          <div>
-            <p className="landing-narrative-label">Module 1 · Neuron fundamentals</p>
-            <h2 className="landing-narrative-heading">Every thought starts with a single cell</h2>
-            <p className="landing-narrative-body">
-              Neurons are the atoms of intelligence. Each one receives signals, weighs them, and decides
-              whether to fire — a process almost identical to how AI nodes compute. Understanding one
-              neuron unlocks everything that follows.
-            </p>
-            <div className="landing-stat-row">
-              <div className="landing-stat">
-                <span className="landing-stat-value">86B</span>
-                <span className="landing-stat-label">neurons in the human brain</span>
+      {/* ── Bento dashboard section ── */}
+      <section className="lp-bento-dash">
+        <div className="lp-bento-dash-grid">
+
+          {/* Left column */}
+          <div className="lp-bd-left">
+            <div className="lp-bd-card lp-bd-course-info">
+              <p className="lp-bd-overline">Interactive Course</p>
+              <h2 className="lp-bd-headline">Three modules.<br />One complete picture.</h2>
+              <p className="lp-bd-sub">From biological neurons to modern AI — built for curious minds.</p>
+              <button className="lp-btn-primary lp-btn-primary--sm" onClick={onStart}>
+                Try for free <span className="lp-btn-arrow">→</span>
+              </button>
+            </div>
+
+            <div className="lp-bd-card lp-bd-modules">
+              <div className="lp-bd-mod-tabs">
+                <button className="lp-bd-tab lp-bd-tab--active" onClick={onStart}>
+                  <span className="lp-bd-tab-dot lp-bd-tab-dot--blue" />Neurons
+                </button>
+                <button className="lp-bd-tab" onClick={onStart}>
+                  <span className="lp-bd-tab-dot lp-bd-tab-dot--purple" />Perception
+                </button>
+                <button className="lp-bd-tab" onClick={onStart}>
+                  <span className="lp-bd-tab-dot lp-bd-tab-dot--green" />Learning
+                </button>
               </div>
-              <div className="landing-stat">
-                <span className="landing-stat-value">100T</span>
-                <span className="landing-stat-label">synaptic connections</span>
+              <p className="lp-bd-mod-desc">Adjust real inputs, set thresholds, and watch neurons fire across 6 scenarios.</p>
+            </div>
+          </div>
+
+          {/* Center — tall 3D neuron */}
+          <div className="lp-bd-center">
+            <div className="lp-bd-card lp-bd-neuron-card">
+              <div className="lp-bd-neuron-canvas">
+                <Suspense fallback={<div className="lp-canvas-fallback" />}>
+                  <NeuronShowcase />
+                </Suspense>
+              </div>
+              <div className="lp-bd-neuron-caption">
+                <p className="lp-bd-caption-text">Explore the building block of intelligence</p>
+                <p className="lp-bd-caption-sub">Interactive 3D neuron model</p>
               </div>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{
-              background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-              border: '1px solid #bfdbfe',
-              borderRadius: 24,
-              padding: '32px',
-              width: '100%',
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* Right column */}
+          <div className="lp-bd-right">
+            <div className="lp-bd-card lp-bd-stats-card">
+              <p className="lp-bd-overline">By the numbers</p>
+              <span className="lp-bd-big-stat">86B</span>
+              <p className="lp-bd-stat-label">neurons in the human brain</p>
+              <div className="lp-bd-stat-bar-group">
                 {[
-                  { label: 'Dendrites receive', icon: '📡', color: '#dbeafe', border: '#93c5fd' },
-                  { label: 'Soma integrates', icon: '⚖️', color: '#f0fdf4', border: '#86efac' },
-                  { label: 'Threshold fires', icon: '⚡', color: '#fff7ed', border: '#fdba74' },
-                  { label: 'Axon propagates', icon: '→', color: '#f5f3ff', border: '#c4b5fd' },
-                ].map((step) => (
-                  <div key={step.label} style={{
-                    alignItems: 'center', background: step.color, border: `1px solid ${step.border}`,
-                    borderRadius: 12, display: 'flex', gap: 12, padding: '12px 16px',
-                  }}>
-                    <span style={{ fontSize: 18 }}>{step.icon}</span>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{step.label}</span>
+                  { label: 'Neurons', pct: 85, color: '#2D7EFF' },
+                  { label: 'Synapses', pct: 100, color: '#7C3AED' },
+                  { label: 'Reflexes', pct: 40, color: '#10B981' },
+                ].map((b) => (
+                  <div key={b.label} className="lp-bd-bar-row">
+                    <span className="lp-bd-bar-label">{b.label}</span>
+                    <div className="lp-bd-bar-track">
+                      <div className="lp-bd-bar-fill" style={{ width: `${b.pct}%`, background: b.color }} />
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
+
+            <div className="lp-bd-card lp-bd-schedule">
+              <p className="lp-bd-overline">Course modules</p>
+              {[
+                { mod: 'Module 1', label: 'Meet the Neuron', time: '~12 min', color: '#2D7EFF' },
+                { mod: 'Module 2', label: 'Perception & Patterns', time: '~22 min', color: '#7C3AED' },
+                { mod: 'Module 3', label: 'Learning to Learn', time: '~26 min', color: '#10B981' },
+              ].map((m) => (
+                <button key={m.mod} className="lp-bd-sched-row" onClick={onStart}>
+                  <span className="lp-bd-sched-dot" style={{ background: m.color }} />
+                  <span className="lp-bd-sched-info">
+                    <span className="lp-bd-sched-mod">{m.mod}</span>
+                    <span className="lp-bd-sched-label">{m.label}</span>
+                  </span>
+                  <span className="lp-bd-sched-time">{m.time}</span>
+                </button>
+              ))}
+            </div>
           </div>
+
+        </div>
+
+        {/* Bottom headline */}
+        <div className="lp-bd-bottom">
+          <h2 className="lp-bd-bottom-headline">
+            The perfect place<br />to build your <span className="lp-hero-accent">intuition</span>
+          </h2>
+          <button className="lp-btn-primary" onClick={onStart}>
+            Start learning <span className="lp-btn-arrow">→</span>
+          </button>
         </div>
       </section>
 
-      {/* ── Narrative 2: Pattern ─────────────────────────────────── */}
-      <section className="landing-narrative" style={{ paddingTop: 0 }}>
-        <div className="landing-narrative-grid reverse">
-          <div>
-            <p className="landing-narrative-label">Module 2 · Perception & patterns</p>
-            <h2 className="landing-narrative-heading">Vision isn't brightness. It's pattern.</h2>
-            <p className="landing-narrative-body">
-              Two inputs with the same sum can mean completely different things spatially.
-              Discover how groups of neurons detect edges, shapes, and features — and how
-              this is exactly what convolutional neural networks do.
-            </p>
-            <button className="shared-btn shared-btn-secondary" onClick={onStart}>
-              Explore Module 2 →
-            </button>
-          </div>
-          <div ref={patternRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-            <p style={{ color: '#64748b', fontSize: 13, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', margin: 0 }}>
-              {dotResolved ? '✓ Pattern detected' : 'Analysing signal...'}
-            </p>
-            <DotGrid resolved={dotResolved} />
-            <p style={{ color: '#94a3b8', fontSize: 12, margin: 0 }}>
-              {dotResolved ? 'Cross-edge kernel response' : 'Raw pixel activations'}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Narrative 3: Learning ────────────────────────────────── */}
-      <section className="landing-narrative" style={{ paddingTop: 0 }}>
-        <div className="landing-narrative-grid">
-          <div>
-            <p className="landing-narrative-label">Module 3 · Learning mechanisms</p>
-            <h2 className="landing-narrative-heading">Intelligence is what changes when you're wrong.</h2>
-            <p className="landing-narrative-body">
-              Supervised learning, reinforcement learning, and context-based inference — all three
-              reduce to one idea: feedback changes connections. Watch a network learn in real time,
-              then see how this bridges to modern deep learning.
-            </p>
-            <button className="shared-btn shared-btn-secondary" onClick={onStart}>
-              Explore Module 3 →
-            </button>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {/* Simplified loss curve illustration */}
-            <div style={{
-              background: 'linear-gradient(135deg, #f8fafc, #f0f9ff)',
-              border: '1px solid #e2e8f0',
-              borderRadius: 20,
-              padding: '28px 24px',
-              width: '100%',
-            }}>
-              <p style={{ margin: '0 0 16px', fontSize: 13, fontWeight: 600, color: '#64748b', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                Training loss over time
+      {/* ── Narrative sections ── */}
+      <section className="lp-narrative">
+        <div className="lp-narrative-inner">
+          <div className="lp-nr-row">
+            <div className="lp-nr-text">
+              <p className="lp-nr-label lp-section-label">Module 1 · Neuron fundamentals</p>
+              <h2 className="lp-nr-heading">Every thought starts<br />with a single cell</h2>
+              <p className="lp-nr-body">
+                Neurons receive signals from many paths simultaneously, weigh them by connection strength, and decide whether to fire — a process almost identical to how artificial neural networks compute.
               </p>
-              <svg width="100%" viewBox="0 0 240 100" fill="none">
-                <defs>
-                  <linearGradient id="lossGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#2563eb" stopOpacity="0.2" />
-                    <stop offset="100%" stopColor="#2563eb" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path d="M10,10 C40,10 50,30 70,50 C90,68 110,78 140,82 C165,85 190,87 230,88" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-                <path d="M10,10 C40,10 50,30 70,50 C90,68 110,78 140,82 C165,85 190,87 230,88 L230,100 L10,100 Z" fill="url(#lossGrad)" />
-                <text x="10" y="97" fill="#94a3b8" fontSize="9">Step 0</text>
-                <text x="195" y="97" fill="#94a3b8" fontSize="9">Step 100</text>
-                <text x="6" y="14" fill="#94a3b8" fontSize="9">High</text>
-                <text x="6" y="92" fill="#10b981" fontSize="9">Low ✓</text>
-              </svg>
+              <div className="lp-nr-bigstats">
+                <div className="lp-bigstat">
+                  <span className="lp-bigstat-value">86B</span>
+                  <span className="lp-bigstat-label">neurons in your brain</span>
+                </div>
+                <div className="lp-bigstat">
+                  <span className="lp-bigstat-value">100T</span>
+                  <span className="lp-bigstat-label">synaptic connections</span>
+                </div>
+              </div>
+            </div>
+            <div className="lp-nr-visual">
+              <div className="lp-anatomy-card">
+                <p className="lp-anatomy-heading">How a neuron processes signals</p>
+                <div className="lp-anatomy-steps">
+                  {ANATOMY_STEPS.map((step) => (
+                    <div key={step.label} className={`lp-anatomy-step lp-anatomy-step--${step.color}`}>
+                      <span className="lp-anatomy-icon">{step.icon}</span>
+                      <span className="lp-anatomy-label">{step.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="lp-nr-row lp-nr-row--reverse">
+            <div className="lp-nr-text">
+              <p className="lp-nr-label lp-section-label">Module 2 · Perception &amp; patterns</p>
+              <h2 className="lp-nr-heading">Vision isn't brightness.<br />It's pattern.</h2>
+              <p className="lp-nr-body">
+                Two inputs with the same total sum can mean completely different things when their spatial arrangement differs. Discover how groups of neurons detect edges, shapes, and features.
+              </p>
+              <button className="lp-btn-secondary" onClick={onStart}>Explore Module 2 →</button>
+            </div>
+            <div className="lp-nr-visual" ref={patternRef}>
+              <div className="lp-dot-visual">
+                <p className="lp-dot-status">
+                  {dotResolved ? '✓ Pattern detected' : 'Analysing signal...'}
+                </p>
+                <DotGrid resolved={dotResolved} />
+                <p className="lp-dot-caption">
+                  {dotResolved ? 'Cross-edge kernel response' : 'Raw pixel activations'}
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Module Roadmap ───────────────────────────────────────── */}
-      <section className="landing-roadmap" ref={roadmapRef}>
-        <div className="landing-roadmap-inner">
-          <h2 className="landing-roadmap-heading">Your 1-hour learning path</h2>
-          <p className="landing-roadmap-sub">
-            Three self-contained modules. Explore them in order or jump to any topic.
+      {/* ── Final CTA ── */}
+      <section className="lp-final-cta">
+        <div className="lp-final-inner">
+          <h2 className="lp-final-heading">
+            Ready to understand<br /><span className="lp-hero-accent">intelligence?</span>
+          </h2>
+          <p className="lp-final-sub">
+            One hour. Three modules. Your own intuition for how AI works — built from neurons up.
           </p>
-
-          <div className="landing-module-cards">
-            {MODULE_DATA.map((mod, i) => (
-              <button
-                key={mod.number}
-                className="landing-module-card"
-                onClick={onStart}
-                style={{ border: 'none', background: 'rgba(255,255,255,0.88)', cursor: 'pointer', textAlign: 'left', font: 'inherit' }}
-              >
-                <div className="landing-module-icon">{mod.icon}</div>
-                <div>
-                  <p className="landing-module-number">{mod.number}</p>
-                  <h3 className="landing-module-name">{mod.name}</h3>
-                  <p className="landing-module-desc">{mod.desc}</p>
-                </div>
-                <div className="landing-module-footer">
-                  <span className="shared-time-pill">{mod.time}</span>
-                  <span style={{ color: '#2563eb', fontSize: 13, fontWeight: 600 }}>Start →</span>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          <div className="landing-cta-row">
-            <button className="shared-btn shared-btn-primary landing-hero-cta" onClick={onStart}>
+          <div className="lp-final-actions">
+            <button className="lp-btn-primary lp-btn-primary--xl" onClick={onStart}>
               Begin Module 1 →
             </button>
           </div>
         </div>
       </section>
+
     </div>
   )
 }

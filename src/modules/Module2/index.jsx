@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { calculateTotal, neuronFires } from '../../utils/neuronLogic'
 import ProgressRail from '../../components/ui/ProgressRail'
 import TimeIndicator from '../../components/ui/TimeIndicator'
+import HubelWieselStory from './components/HubelWieselStory'
 import { applyConvolution as _applyConvolution, toGrayscale as _toGrayscale, preprocessForClassification as _preprocessForClassification } from './utils/imageProcessing'
 import { classifyDigit as _classifyDigit } from './utils/classifier'
 import './module2.css'
@@ -937,33 +938,34 @@ function Module2({ onBack, onContinue }) {
       {/* Header */}
       <header className="module2-header">
         <div className="module2-header-row">
-          <div>
-            <p className="module2-kicker">Brain-AI-101</p>
-            <h1 className="module2-title">
-              Module 2: Perception &amp; Response
-              <TimeIndicator minutes={22} label="Perception & Response" active />
-            </h1>
-          </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <div className="module2-tabs" style={{ flex: 'unset' }}>
-              {VIEW_MODES.map(({ id, label, tooltip }) => {
-                const isEnabled = enabledViews.includes(id)
-                return (
-                  <button
-                    key={id}
-                    className={`module2-tab${viewMode === id ? ' active' : ''}`}
-                    onClick={() => isEnabled && handleViewModeChange(id)}
-                    disabled={!isEnabled}
-                    title={tooltip}
-                  >
-                    {label}
-                  </button>
-                )
-              })}
+          <div className="module2-header-left">
+            <span className="module2-header-badge">02</span>
+            <div>
+              <h1 className="module2-title">Perception &amp; Response</h1>
+              <p className="module2-header-sub">~22 min · Pattern Recognition</p>
             </div>
-            <button className="shared-btn shared-btn-ghost shared-btn-sm" onClick={handlePrevStep}>← Back</button>
-            <button className="shared-btn shared-btn-primary shared-btn-sm" onClick={handleNextStep}>Next →</button>
           </div>
+          <div className="module2-header-right">
+            <TimeIndicator minutes={22} label="Perception & Response" active />
+            <button className="shared-btn shared-btn-ghost shared-btn-sm" onClick={handlePrevStep}>Back</button>
+            <button className="shared-btn shared-btn-primary shared-btn-sm" onClick={handleNextStep}>Next</button>
+          </div>
+        </div>
+        <div className="module2-tabs">
+          {VIEW_MODES.map(({ id, label, tooltip }) => {
+            const isEnabled = enabledViews.includes(id)
+            return (
+              <button
+                key={id}
+                className={`module2-tab${viewMode === id ? ' active' : ''}`}
+                onClick={() => isEnabled && handleViewModeChange(id)}
+                disabled={!isEnabled}
+                title={tooltip}
+              >
+                {label}
+              </button>
+            )
+          })}
         </div>
         <ProgressRail currentModule="module2" />
       </header>
@@ -972,19 +974,24 @@ function Module2({ onBack, onContinue }) {
       <div className="module2-hero">
         <div className="module2-hero-inner">
           <div className="module2-hero-text">
-            <p className="shared-eyebrow" style={{ marginBottom: 10 }}>Module 2 · Perception &amp; Response</p>
+            <p className="module2-hero-kicker">Module 2</p>
             <h2>{currentStepConfig.title}</h2>
-            <p>💡 {currentStepConfig.guidance}</p>
-            <div style={{ marginTop: 14 }}>
-              <span className="shared-chip">Step {stepIndex + 1} of {STEP_REGISTRY.length}</span>
+            <p>{currentStepConfig.guidance}</p>
+            <div className="module2-hero-meta">
+              <span className="module2-hero-step-chip">Step {stepIndex + 1} of {STEP_REGISTRY.length}</span>
             </div>
           </div>
-          <Suspense fallback={<div style={{ height: 280, background: 'linear-gradient(135deg,#eff6ff,#dbeafe)', borderRadius: 16 }} />}>
+          <Suspense fallback={<div className="module2-hero-3d-fallback" />}>
             <PatternGrid3D height={280} />
           </Suspense>
         </div>
       </div>
       
+      {/* Hubel & Wiesel Story — above main content */}
+      <div style={{ margin: '0 auto', maxWidth: 1180, padding: '24px 24px 0' }}>
+        <HubelWieselStory />
+      </div>
+
       <div className="module2-main">
 
       {/* TRANSITION VIEW */}

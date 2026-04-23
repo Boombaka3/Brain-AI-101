@@ -1,14 +1,16 @@
 @import '../../styles/shared.css';
 
 .module3-page {
-  --module3-surface: rgba(255, 255, 255, 0.82);
-  --module3-surface-strong: rgba(255, 255, 255, 0.94);
-  --module3-border: var(--shared-border);
-  --module3-text: var(--shared-text);
-  --module3-text-muted: var(--shared-text-muted);
-  --module3-accent: var(--shared-accent);
+  --module3-surface: rgba(255, 255, 255, 0.88);
+  --module3-surface-strong: rgba(255, 255, 255, 0.95);
+  --module3-border: #e2e8f0;
+  --module3-text: #0f172a;
+  --module3-text-muted: #475569;
+  --module3-accent: #059669;
+  --module3-accent-strong: #047857;
+  --module3-accent-light: #ecfdf5;
 
-  background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+  background: #fafbff;
   color: var(--module3-text);
   font-family: 'Inter', system-ui, sans-serif;
   min-height: 100vh;
@@ -17,14 +19,13 @@
 /* ── Header ───────────────────────────────────────────────────────── */
 
 .module3-header {
-  align-items: stretch;
-  background-color: var(--module3-surface-strong);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--module3-border);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid #e8edf5;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 14px 24px;
+  padding: 14px 28px;
   position: sticky;
   top: 0;
   z-index: 20;
@@ -37,21 +38,44 @@
   justify-content: space-between;
 }
 
-.module3-kicker {
-  color: var(--shared-text-soft);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  margin: 0 0 2px;
-  text-transform: uppercase;
+.module3-header-left {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+}
+
+.module3-header-badge {
+  align-items: center;
+  background: #059669;
+  border-radius: 10px;
+  color: #ffffff;
+  display: flex;
+  font-size: 13px;
+  font-weight: 800;
+  height: 36px;
+  justify-content: center;
+  letter-spacing: 0.02em;
+  width: 36px;
+}
+
+.module3-header-sub {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+  margin: 2px 0 0;
+}
+
+.module3-header-right {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .module3-title {
-  align-items: center;
-  display: flex;
-  font-size: 20px;
-  font-weight: 700;
-  gap: 10px;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
@@ -65,30 +89,63 @@
 
 .module3-hero-inner {
   align-items: center;
-  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(239,246,255,0.9));
-  border: 1px solid var(--module3-border);
+  background: linear-gradient(160deg, #f0fdf4 0%, #dcfce7 40%, #d1fae5 100%);
+  border: 1px solid #a7f3d0;
   border-radius: var(--shared-radius-lg);
-  box-shadow: var(--shared-shadow);
+  box-shadow: 0 24px 64px rgba(5, 150, 105, 0.06);
   display: grid;
   gap: 32px;
   grid-template-columns: 1fr 1fr;
   overflow: hidden;
-  padding: 28px 32px;
+  padding: 48px 40px;
+}
+
+.module3-hero-kicker {
+  background: rgba(5, 150, 105, 0.1);
+  border-radius: 999px;
+  color: #059669;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin: 0 0 16px;
+  padding: 5px 14px;
+  text-transform: uppercase;
 }
 
 .module3-hero-text h2 {
-  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  line-height: 1.2;
-  margin: 0 0 10px;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.0;
+  margin: 0 0 14px;
 }
 
 .module3-hero-text p {
-  color: var(--shared-text-muted);
-  font-size: 14px;
+  color: var(--module3-text-muted);
+  font-size: 16px;
   line-height: 1.65;
   margin: 0;
+}
+
+.module3-hero-meta {
+  margin-top: 16px;
+}
+
+.module3-hero-step-chip {
+  background: rgba(5, 150, 105, 0.08);
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  color: #047857;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+}
+
+.module3-hero-3d-fallback {
+  background: linear-gradient(135deg, #dcfce7, #a7f3d0);
+  border-radius: 16px;
+  height: 260px;
 }
 
 /* ── Tab bar ──────────────────────────────────────────────────────── */
@@ -100,10 +157,10 @@
 }
 
 .module3-tabs {
-  background: rgba(255,255,255,0.82);
-  border: 1px solid var(--module3-border);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e8edf5;
   border-radius: var(--shared-radius-md);
-  box-shadow: var(--shared-shadow-card);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
   display: flex;
   gap: 4px;
   overflow-x: auto;
@@ -131,23 +188,23 @@
 }
 
 .module3-tab:hover {
-  background: #f0f7ff;
-  color: var(--shared-text);
+  background: #ecfdf5;
+  color: var(--module3-text);
 }
 
 .module3-tab.active {
-  background: linear-gradient(135deg, #eff6ff, #dbeafe);
-  border: 1px solid #bfdbfe;
-  color: var(--shared-accent-strong);
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  border: 1px solid #6ee7b7;
+  color: var(--module3-accent-strong);
 }
 
 /* ── Guidance bar ─────────────────────────────────────────────────── */
 
 .module3-guidance {
-  background: #eff6ff;
-  border-bottom: 1px solid #bfdbfe;
-  border-top: 1px solid #bfdbfe;
-  color: #1e40af;
+  background: #ecfdf5;
+  border-bottom: 1px solid #a7f3d0;
+  border-top: 1px solid #a7f3d0;
+  color: #047857;
   font-size: 13px;
   font-weight: 500;
   padding: 8px 24px;
@@ -168,11 +225,11 @@
 }
 
 .module3-section-heading h2 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  line-height: 1.15;
-  margin: 0 0 8px;
+  font-size: clamp(2.4rem, 4.5vw, 3.6rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.0;
+  margin: 0 0 12px;
 }
 
 .module3-section-heading p {
@@ -182,12 +239,12 @@
 }
 
 .module3-shell {
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid var(--module3-border);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e8edf5;
   border-radius: var(--shared-radius-lg);
-  box-shadow: var(--shared-shadow);
+  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.06);
   overflow: hidden;
-  padding: 20px;
+  padding: 24px;
 }
 
 .module3-controls {
@@ -289,13 +346,214 @@
   flex-wrap: wrap;
 }
 
+/* ── Module 3 inline buttons ─────────────────────────────────────── */
+
+.module3-inline-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #475569;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.module3-inline-btn:hover {
+  background: #ecfdf5;
+  border-color: #6ee7b7;
+  color: #047857;
+}
+
+.module3-inline-btn--active {
+  background: #d1fae5;
+  border-color: #34d399;
+  color: #047857;
+}
+
+.module3-inline-btn--primary {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+
+.module3-inline-btn--primary:hover {
+  background: #047857;
+}
+
+/* ── Car braking analogy ─────────────────────────────────────────── */
+
+.module3-car-braking {
+  margin-bottom: 16px;
+}
+
+.module3-braking-label {
+  color: var(--module3-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+}
+
+.module3-braking-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.module3-braking-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.module3-braking-card--slow {
+  border-color: #fde68a;
+}
+
+.module3-braking-card--right {
+  border-color: #86efac;
+}
+
+.module3-braking-card--fast {
+  border-color: #fca5a5;
+}
+
+.module3-braking-emoji {
+  font-size: 1.8rem;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.module3-braking-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.module3-braking-desc {
+  color: var(--module3-text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Dopamine prediction panel ───────────────────────────────────── */
+
+.module3-dopamine-panel {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--module3-border);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  margin-bottom: 16px;
+  padding: 20px;
+}
+
+.module3-dopamine-label {
+  color: var(--module3-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0 0 14px;
+  text-transform: uppercase;
+}
+
+.module3-dopamine-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.module3-dopamine-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+}
+
+.module3-dopamine-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.module3-dopamine-title {
+  font-size: 12px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.module3-dopamine-desc {
+  color: var(--module3-text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+
+.module3-dopamine-signal {
+  border-radius: 999px;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+}
+
+.module3-dopamine--positive {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.module3-dopamine--negative {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.module3-dopamine--neutral {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.module3-dopamine-bridge {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  color: #1e40af;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-top: 14px;
+  padding: 10px 14px;
+}
+
 /* ── Responsive ───────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
-  .module3-hero-inner { grid-template-columns: 1fr; }
+  .module3-hero-inner {
+    grid-template-columns: 1fr;
+    padding: 32px 24px;
+  }
   .module3-header { padding: 12px 16px; }
+  .module3-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .module3-header-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
   .module3-hero { padding: 16px 16px 0; }
+  .module3-hero-text h2 { font-size: 2rem; }
   .module3-tabs-row { padding: 12px 16px 0; }
   .module3-main { padding: 16px 16px 32px; }
   .module3-lr-curves { grid-template-columns: 1fr; }
+  .module3-braking-row { grid-template-columns: 1fr; }
+  .module3-dopamine-row { grid-template-columns: 1fr; }
 }

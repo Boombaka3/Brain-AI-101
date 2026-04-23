@@ -101,3 +101,8 @@ build/
 # Analysis reports
 react_ast_analysis_report.txt
 *.ast_analysis.txt
+CLAUDE.md
+.claude
+inspiration
+.agents
+skills*

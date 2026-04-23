@@ -18,7 +18,7 @@ const CFG = {
   transition: { label: 'Start', pageTitle: 'Module 3: Learning to Learn', headline: 'From Fixed Weights to Learning Weights', subtitle: 'Click the steps. Watch what stays the same and what changes.', takeaway: 'Learning starts when feedback changes weights.', guidance: 'Try Step 1, 2, 3. Ask: did the weights change?' },
   types: { label: '3 Ways', pageTitle: 'Module 3: Learning to Learn', headline: 'Three Ways to Learn', subtitle: 'Each lab compares, gets feedback, then changes.', takeaway: 'Same pattern. Different feedback source.', guidance: 'Try all three labs. What is being compared?' },
   training: { label: 'Practice', pageTitle: 'Module 3: Learning to Learn', headline: 'Practice Changes Weights', subtitle: 'Run a step. Misses push weights to adjust.', takeaway: 'Wrong guess -> weight shift -> better next guess.', guidance: 'Click Advance Step and watch which weight moves.' },
-  feedback: { label: 'Connections', pageTitle: 'Module 3: Learning to Learn', headline: 'How Connections Adjust', subtitle: 'If response misses the goal, the connection changes.', takeaway: 'Brains and AI both adjust after mismatch.', guidance: 'Step through: Observe, Compare, Feedback, Adjust.' },
+  feedback: { label: 'Connections', pageTitle: 'Module 3: Learning to Learn', headline: 'Dopamine as Prediction Error', subtitle: 'Dopamine doesn\'t signal pleasure — it signals "better or worse than expected."', takeaway: 'Brains and AI both adjust after mismatch.', guidance: 'Step through: Observe, Compare, Feedback, Adjust.' },
   inference: { label: 'Context', pageTitle: 'Module 3: Learning to Learn', headline: 'Feedback During Inference', subtitle: 'Context can change this decision while weights stay fixed.', takeaway: 'Training changes memory. Inference changes this choice.', guidance: 'Keep inputs and weights same. Toggle context.' },
   synthesis: { label: 'Summary', pageTitle: 'Module 3: Learning to Learn', headline: 'What Changes?', subtitle: 'Each panel shows compare -> feedback -> change.', takeaway: 'Feedback makes adaptation possible. It can change the system or just the current decision.', guidance: 'Click a panel and focus on the "Changes" box.' }
 }
@@ -646,16 +646,17 @@ function Module3({ onBack }) {
       {/* Header */}
       <header className="module3-header">
         <div className="module3-header-row">
-          <div>
-            <p className="module3-kicker">Brain-AI-101</p>
-            <h1 className="module3-title">
-              Module 3: Learning to Learn
-              <TimeIndicator minutes={26} label="Learning to Learn" active />
-            </h1>
+          <div className="module3-header-left">
+            <span className="module3-header-badge">03</span>
+            <div>
+              <h1 className="module3-title">Learning to Learn</h1>
+              <p className="module3-header-sub">~26 min · Weight Updates &amp; Feedback</p>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <button className="shared-btn shared-btn-ghost shared-btn-sm" onClick={() => { if (prevTab) setActiveTab(prevTab); else onBack?.() }}>← Back</button>
-            {nextTab && <button className="shared-btn shared-btn-primary shared-btn-sm" onClick={() => setActiveTab(nextTab)}>Next →</button>}
+          <div className="module3-header-right">
+            <TimeIndicator minutes={26} label="Learning to Learn" active />
+            <button className="shared-btn shared-btn-ghost shared-btn-sm" onClick={() => { if (prevTab) setActiveTab(prevTab); else onBack?.() }}>Back</button>
+            {nextTab && <button className="shared-btn shared-btn-primary shared-btn-sm" onClick={() => setActiveTab(nextTab)}>Next</button>}
           </div>
         </div>
         <ProgressRail currentModule="module3" />
@@ -665,14 +666,14 @@ function Module3({ onBack }) {
       <div className="module3-hero">
         <div className="module3-hero-inner">
           <div className="module3-hero-text">
-            <p className="shared-eyebrow" style={{ marginBottom: 10 }}>Module 3 · Learning to Learn</p>
+            <p className="module3-hero-kicker">Module 3</p>
             <h2>{cfg.headline}</h2>
             <p>{cfg.subtitle}</p>
-            <div style={{ marginTop: 14 }}>
-              <span className="shared-chip">Step {idx + 1} of {TABS.length}</span>
+            <div className="module3-hero-meta">
+              <span className="module3-hero-step-chip">Step {idx + 1} of {TABS.length}</span>
             </div>
           </div>
-          <Suspense fallback={<div style={{ height: 260, background: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', borderRadius: 16 }} />}>
+          <Suspense fallback={<div className="module3-hero-3d-fallback" />}>
             <NetworkGraph3D height={260} />
           </Suspense>
         </div>
@@ -704,6 +705,36 @@ function Module3({ onBack }) {
 
         {/* Learning rate explorer — only on training tab */}
         {activeTab === 'training' && <LearningRateExplorer />}
+
+        {/* Dopamine prediction panel — feedback tab only */}
+        {activeTab === 'feedback' && (
+          <div className="module3-dopamine-panel">
+            <p className="module3-dopamine-label">Dopamine prediction error — 3 cases</p>
+            <div className="module3-dopamine-row">
+              <div className="module3-dopamine-card">
+                <div className="module3-dopamine-emoji">🍽️</div>
+                <p className="module3-dopamine-title">Expected food arrives</p>
+                <p className="module3-dopamine-desc">Prediction matches reality. No surprise.</p>
+                <span className="module3-dopamine-signal module3-dopamine--neutral">Dopamine = 0</span>
+              </div>
+              <div className="module3-dopamine-card" style={{ background: '#f0fdf4', borderColor: '#86efac' }}>
+                <div className="module3-dopamine-emoji">🎁</div>
+                <p className="module3-dopamine-title">Unexpected food arrives</p>
+                <p className="module3-dopamine-desc">Better than expected — learn to repeat.</p>
+                <span className="module3-dopamine-signal module3-dopamine--positive">Dopamine ↑ spike</span>
+              </div>
+              <div className="module3-dopamine-card" style={{ background: '#fef2f2', borderColor: '#fca5a5' }}>
+                <div className="module3-dopamine-emoji">😞</div>
+                <p className="module3-dopamine-title">Predicted food missing</p>
+                <p className="module3-dopamine-desc">Worse than expected — update model.</p>
+                <span className="module3-dopamine-signal module3-dopamine--negative">Dopamine ↓ dip</span>
+              </div>
+            </div>
+            <div className="module3-dopamine-bridge">
+              This is identical to the error term in supervised learning weight updates: <strong>error = expected − actual</strong>. Positive error strengthens connections; negative error weakens them.
+            </div>
+          </div>
+        )}
 
         <div className="module3-shell">{visual}</div>
 

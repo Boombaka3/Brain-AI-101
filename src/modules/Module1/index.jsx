@@ -56,18 +56,21 @@ function Module1({ onContinue }) {
 
   return (
     <div className="module1-page">
-      <header className="module1-header" style={{ flexDirection: 'column', gap: 10, alignItems: 'stretch' }}>
-        <div style={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-          <div>
-            <p className="module1-kicker">Brain-AI-101</p>
-            <h1 className="module1-title" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              Module 1: Biological Neuron Experience
-              <TimeIndicator minutes={12} label="Neuron Fundamentals" active />
-            </h1>
+      <header className="module1-header">
+        <div className="module1-header-row">
+          <div className="module1-header-left">
+            <span className="module1-header-badge">01</span>
+            <div>
+              <h1 className="module1-title">Biological Neuron</h1>
+              <p className="module1-header-sub">~12 min · Neuron Fundamentals</p>
+            </div>
           </div>
-          <button className="module1-primary-button" onClick={() => scrollToRef(bridgeRef)}>
-            Skip to Bridge
-          </button>
+          <div className="module1-header-right">
+            <TimeIndicator minutes={12} label="Neuron Fundamentals" active />
+            <button className="module1-ghost-button" onClick={() => scrollToRef(bridgeRef)}>
+              Skip to Bridge
+            </button>
+          </div>
         </div>
         <ProgressRail currentModule="module1" />
       </header>
@@ -78,11 +81,10 @@ function Module1({ onContinue }) {
         <section ref={processRef} className="module1-anchor-section">
           <section className="module1-section module1-process-section">
             <div className="module1-section-heading module1-process-heading">
-              <p className="module1-eyebrow">B. Neuron Diagram</p>
-              <h2>Look at the parts of a neuron</h2>
+              <h2>Anatomy of a Neuron</h2>
               <p>
-                This diagram shows the main parts of a biological neuron, including the dendrites, soma, axon, and
-                terminal branches. In the next section, you'll adjust inputs and see how those parts work together.
+                Dendrites receive signals. The soma sums them. The axon carries the result.
+                Below is the architecture — in the next section, you'll put it to work.
               </p>
             </div>
 

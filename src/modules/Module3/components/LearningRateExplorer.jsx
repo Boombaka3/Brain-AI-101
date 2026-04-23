@@ -37,6 +37,28 @@ export default function LearningRateExplorer() {
 
   return (
     <div className="module3-lr-wrap">
+      {/* Car braking analogy */}
+      <div className="module3-car-braking">
+        <p className="module3-braking-label">Think of it like braking in a car</p>
+        <div className="module3-braking-row">
+          <div className="module3-braking-card module3-braking-card--slow">
+            <div className="module3-braking-emoji">🐢</div>
+            <p className="module3-braking-title">Too Low</p>
+            <p className="module3-braking-desc">Feather-light taps. You'll stop eventually — but it takes forever.</p>
+          </div>
+          <div className="module3-braking-card module3-braking-card--right">
+            <div className="module3-braking-emoji">🚗</div>
+            <p className="module3-braking-title">Just Right</p>
+            <p className="module3-braking-desc">Firm, smooth pressure. You slow down at the right rate.</p>
+          </div>
+          <div className="module3-braking-card module3-braking-card--fast">
+            <div className="module3-braking-emoji">💥</div>
+            <p className="module3-braking-title">Too High</p>
+            <p className="module3-braking-desc">Slam the brakes. You skid, overshoot, and fishtail.</p>
+          </div>
+        </div>
+      </div>
+
       <p className="module3-loss-chart-label">Learning rate explorer</p>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
