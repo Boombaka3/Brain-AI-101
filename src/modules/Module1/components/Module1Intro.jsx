@@ -1,3 +1,5 @@
+import HearingAttentionScene from './HearingAttentionScene'
+
 function Module1Intro({ onStart }) {
   return (
     <section className="module1-intro-hero">
