@@ -5,320 +5,273 @@ const VIEWBOX_WIDTH = 900
 const VIEWBOX_HEIGHT = 440
 
 const somaNodes = [
-  [447, 132],
-  [507, 136],
-  [567, 154],
-  [620, 160],
-  [652, 139],
-  [670, 98],
-  [663, 58],
-  [678, 36],
-  [688, 75],
-  [687, 123],
-  [717, 145],
-  [770, 133],
-  [818, 91],
-  [781, 145],
-  [744, 177],
-  [806, 173],
-  [779, 187],
-  [737, 180],
-  [786, 205],
-  [786, 250],
-  [766, 286],
-  [806, 291],
-  [790, 308],
-  [752, 292],
-  [706, 268],
-  [733, 320],
-  [713, 372],
-  [675, 329],
-  [632, 304],
-  [605, 316],
-  [621, 378],
-  [589, 333],
-  [540, 319],
-  [489, 313],
-  [442, 321],
-  [389, 308],
-  [340, 273],
-  [302, 239],
-  [250, 223],
-  [183, 225],
-  [126, 224],
-  [84, 222],
-  [71, 198],
-  [46, 169],
-  [25, 150],
-  [75, 162],
-  [97, 151],
-  [84, 117],
-  [52, 91],
-  [87, 110],
-  [100, 103],
-  [95, 72],
-  [116, 36],
-  [114, 96],
-  [132, 151],
-  [168, 165],
-  [232, 168],
-  [302, 168],
-  [362, 161],
-  [407, 136],
+  [404, 220],
+  [426, 186],
+  [454, 161],
+  [491, 147],
+  [530, 148],
+  [566, 160],
+  [594, 170],
+  [620, 166],
+  [644, 146],
+  [655, 116],
+  [652, 90],
+  [664, 68],
+  [674, 88],
+  [672, 122],
+  [690, 146],
+  [728, 145],
+  [766, 122],
+  [742, 150],
+  [709, 176],
+  [750, 179],
+  [782, 186],
+  [750, 190],
+  [710, 186],
+  [681, 196],
+  [651, 228],
+  [650, 258],
+  [668, 286],
+  [700, 298],
+  [730, 320],
+  [706, 318],
+  [674, 304],
+  [648, 296],
+  [630, 306],
+  [636, 336],
+  [625, 362],
+  [606, 332],
+  [576, 302],
+  [542, 294],
+  [506, 297],
+  [474, 292],
+  [445, 278],
+  [421, 256],
 ]
 
 const axonCoreNodes = [
-  [83, 221],
-  [146, 224],
-  [215, 225],
-  [292, 224],
-  [366, 223],
-  [425, 223],
-  [455, 223],
+  [110, 221],
+  [148, 220],
+  [194, 220],
+  [248, 221],
+  [304, 220],
+  [352, 217],
+  [390, 218],
+  [420, 225],
 ]
 
 const axonTerminalBranches = [
   [
-    [83, 221],
-    [72, 198],
-    [56, 180],
-    [40, 170],
+    [110, 221],
+    [89, 197],
+    [73, 180],
+    [58, 169],
   ],
   [
-    [83, 221],
-    [62, 210],
-    [41, 204],
-    [20, 201],
+    [110, 221],
+    [82, 207],
+    [61, 201],
+    [39, 196],
   ],
   [
-    [83, 221],
-    [59, 221],
-    [39, 224],
-    [21, 230],
+    [110, 221],
+    [82, 220],
+    [58, 222],
+    [37, 226],
   ],
   [
-    [83, 221],
-    [59, 237],
-    [42, 250],
-    [25, 263],
+    [110, 221],
+    [86, 239],
+    [64, 252],
+    [45, 264],
   ],
   [
-    [83, 221],
-    [70, 246],
-    [57, 270],
-    [45, 293],
+    [110, 221],
+    [95, 246],
+    [82, 268],
+    [68, 286],
   ],
 ]
 
 const dendritePrimaryBranches = [
   [
-    [620, 160],
-    [642, 136],
-    [654, 110],
-    [655, 82],
+    [596, 170],
+    [618, 151],
+    [630, 128],
+    [632, 102],
   ],
   [
-    [620, 160],
-    [646, 163],
-    [674, 156],
-    [717, 145],
+    [600, 171],
+    [628, 169],
+    [653, 160],
+    [691, 146],
   ],
   [
-    [744, 177],
-    [763, 151],
-    [791, 121],
-    [818, 91],
+    [704, 176],
+    [726, 157],
+    [748, 138],
+    [770, 122],
   ],
   [
-    [737, 180],
-    [767, 177],
-    [788, 177],
-    [806, 173],
+    [705, 184],
+    [728, 181],
+    [750, 180],
+    [780, 183],
   ],
   [
-    [706, 268],
-    [732, 278],
-    [762, 287],
-    [790, 308],
+    [676, 304],
+    [702, 310],
+    [724, 321],
+    [744, 336],
   ],
   [
-    [632, 304],
-    [651, 324],
-    [664, 349],
-    [675, 329],
+    [629, 305],
+    [642, 320],
+    [651, 338],
+    [659, 358],
   ],
   [
-    [605, 316],
-    [612, 338],
-    [618, 360],
-    [621, 378],
+    [606, 333],
+    [611, 351],
+    [616, 370],
+    [622, 390],
   ],
 ]
 
 const dendriteSecondaryBranches = [
   [
-    [655, 82],
-    [637, 61],
-    [618, 49],
-    [617, 35],
+    [632, 102],
+    [619, 80],
+    [607, 63],
+    [599, 46],
   ],
   [
-    [655, 82],
-    [656, 59],
-    [660, 41],
-    [670, 20],
+    [632, 102],
+    [633, 78],
+    [639, 58],
+    [649, 34],
   ],
   [
-    [717, 145],
-    [734, 125],
-    [751, 109],
-    [770, 92],
+    [691, 146],
+    [710, 131],
+    [728, 113],
+    [744, 98],
   ],
   [
-    [717, 145],
-    [740, 141],
-    [759, 140],
-    [781, 145],
+    [691, 146],
+    [715, 144],
+    [735, 144],
+    [754, 149],
   ],
   [
-    [790, 308],
-    [810, 311],
-    [828, 309],
-    [848, 304],
+    [744, 336],
+    [768, 337],
+    [790, 335],
+    [812, 328],
   ],
   [
-    [790, 308],
-    [805, 326],
-    [808, 344],
-    [806, 359],
+    [744, 336],
+    [759, 350],
+    [766, 367],
+    [769, 384],
   ],
   [
-    [675, 329],
-    [687, 345],
-    [698, 358],
-    [713, 372],
+    [659, 358],
+    [674, 370],
+    [690, 380],
+    [707, 390],
   ],
   [
-    [621, 378],
-    [617, 392],
-    [613, 406],
-    [611, 420],
+    [622, 390],
+    [620, 403],
+    [618, 416],
+    [614, 428],
   ],
 ]
 
 const signalGuideSeries = {
   top: [
-    [848, 125],
-    [820, 120],
-    [792, 121],
-    [764, 126],
-    [736, 130],
-    [707, 130],
-    [679, 128],
+    [840, 122],
+    [815, 122],
+    [790, 125],
+    [758, 129],
+    [720, 134],
+    [678, 139],
+    [628, 145],
   ],
   mid: [
-    [848, 214],
-    [821, 221],
-    [793, 225],
-    [765, 224],
-    [736, 219],
-    [706, 211],
-    [678, 203],
+    [840, 214],
+    [815, 221],
+    [790, 226],
+    [760, 225],
+    [724, 215],
+    [682, 197],
+    [636, 173],
   ],
   low: [
-    [848, 304],
-    [818, 309],
-    [789, 305],
-    [760, 292],
-    [733, 278],
-    [707, 270],
-    [682, 266],
+    [840, 306],
+    [814, 305],
+    [788, 302],
+    [758, 294],
+    [722, 281],
+    [680, 264],
+    [635, 236],
   ],
 }
 
-const signalTrailDots = {
-  top: [
-    [848, 125, 6.5],
-    [827, 132, 3.2],
-    [812, 136, 2.8],
-    [798, 138, 2.4],
-    [784, 139, 2.2],
-    [770, 139, 2.15],
-    [756, 138, 2.35],
-    [742, 136, 5.8],
-  ],
-  mid: [
-    [848, 214, 6.5],
-    [832, 219, 3.2],
-    [817, 222, 2.8],
-    [802, 223, 2.4],
-    [788, 221, 2.2],
-    [774, 217, 2.15],
-    [760, 211, 2.35],
-    [744, 204, 5.8],
-  ],
-  low: [
-    [848, 304, 6.5],
-    [832, 304, 3.2],
-    [817, 304, 2.8],
-    [802, 301, 2.4],
-    [788, 297, 2.2],
-    [774, 292, 2.15],
-    [760, 286, 2.35],
-    [744, 281, 5.8],
-  ],
+const signalLaneConfig = {
+  top: { count: 8, leadRadius: 7, tailRadius: 2.25, duration: '2.05s', delay: '0s' },
+  mid: { count: 8, leadRadius: 7, tailRadius: 2.25, duration: '2.2s', delay: '0.18s' },
+  low: { count: 8, leadRadius: 7, tailRadius: 2.25, duration: '2.35s', delay: '0.36s' },
 }
 
 const thresholdNodes = [
-  [474, 150],
-  [488, 174],
-  [498, 198],
-  [500, 224],
-  [496, 251],
-  [486, 274],
-  [476, 290],
+  [474, 160],
+  [486, 182],
+  [491, 205],
+  [491, 229],
+  [486, 252],
+  [478, 272],
 ]
 
 const somaFillEnvelope = {
   left: [
-    [470, 284],
-    [465, 266],
-    [466, 245],
-    [468, 223],
-    [468, 202],
-    [467, 180],
-    [466, 158],
-    [470, 140],
+    [492, 286],
+    [486, 268],
+    [484, 246],
+    [484, 224],
+    [485, 202],
+    [487, 182],
+    [490, 164],
   ],
   right: [
-    [532, 286],
-    [547, 271],
-    [561, 248],
-    [573, 220],
-    [580, 191],
-    [579, 165],
-    [568, 146],
-    [546, 138],
+    [560, 286],
+    [572, 271],
+    [581, 252],
+    [586, 229],
+    [586, 204],
+    [581, 181],
+    [570, 160],
   ],
 }
 
 const excitatoryMarkers = [
-  [709, 136],
-  [707, 203],
-  [710, 266],
+  [700, 147],
+  [688, 186],
+  [687, 247],
 ]
 
 const inhibitoryMarkers = [
-  [686, 162],
-  [686, 289],
+  [720, 176],
+  [708, 296],
 ]
 
 const terminalCaps = [
-  [40, 170],
-  [20, 201],
-  [21, 230],
-  [25, 263],
-  [45, 293],
+  [58, 169],
+  [39, 196],
+  [37, 226],
+  [45, 264],
+  [68, 286],
 ]
 
 function mirrorPoints(points, width = VIEWBOX_WIDTH) {
@@ -328,21 +281,49 @@ function mirrorPoints(points, width = VIEWBOX_WIDTH) {
   })
 }
 
-function buildSignalAnimation(index) {
-  const animations = [
-    { name: 'signalMoveTop', duration: '2.05s', delay: '0s' },
-    { name: 'signalMoveMid', duration: '2.22s', delay: '0.18s' },
-    { name: 'signalMoveLow', duration: '2.4s', delay: '0.36s' },
-  ]
+function samplePolylineDots(points, count, leadRadius, tailRadius) {
+  if (points.length < 2 || count < 2) {
+    return points.map(([x, y]) => [x, y, leadRadius])
+  }
 
-  return animations[index]
+  const segments = []
+  let totalLength = 0
+
+  for (let index = 1; index < points.length; index += 1) {
+    const [x1, y1] = points[index - 1]
+    const [x2, y2] = points[index]
+    const length = Math.hypot(x2 - x1, y2 - y1)
+    segments.push({ start: points[index - 1], end: points[index], length, offset: totalLength })
+    totalLength += length
+  }
+
+  const startPad = totalLength * 0.02
+  const endPad = totalLength * 0.3
+  const usableLength = Math.max(totalLength - startPad - endPad, totalLength * 0.3)
+
+  return Array.from({ length: count }, (_, dotIndex) => {
+    const t = dotIndex / (count - 1)
+    const distance = startPad + t * usableLength
+    const segment =
+      segments.find((candidate) => distance <= candidate.offset + candidate.length) ?? segments[segments.length - 1]
+    const localDistance = Math.max(0, distance - segment.offset)
+    const ratio = segment.length === 0 ? 0 : localDistance / segment.length
+    const [x1, y1] = segment.start
+    const [x2, y2] = segment.end
+    const radius = leadRadius - t * (leadRadius - tailRadius)
+
+    return [x1 + (x2 - x1) * ratio, y1 + (y2 - y1) * ratio, radius]
+  })
 }
 
 export default function CleanNeuronSvg({
   level = 2,
   fillPercent = 52,
+  thresholdPercent = 54,
   isFiring = false,
   mirrored = false,
+  showInputSignals = true,
+  showThreshold = true,
   showLabels = true,
   className = '',
 }) {
@@ -352,6 +333,7 @@ export default function CleanNeuronSvg({
   const fillGradientId = `clean-neuron-fill-gradient-${uid}`
   const signalGlowId = `clean-neuron-signal-glow-${uid}`
   const fireGlowId = `clean-neuron-fire-glow-${uid}`
+  const thresholdActive = fillPercent >= thresholdPercent
 
   const lineOpen = useMemo(
     () =>
@@ -404,7 +386,10 @@ export default function CleanNeuronSvg({
         Object.entries(signalGuideSeries).map(([key, points]) => [key, lineSoft(mapPoints(points)) ?? '']),
       ),
       signalDots: Object.fromEntries(
-        Object.entries(signalTrailDots).map(([key, dots]) => [key, mapPoints(dots)]),
+        Object.entries(signalGuideSeries).map(([key, points]) => {
+          const lane = signalLaneConfig[key]
+          return [key, mapPoints(samplePolylineDots(points, lane.count, lane.leadRadius, lane.tailRadius))]
+        }),
       ),
       excitatory: mapPoints(excitatoryMarkers),
       inhibitory: mapPoints(inhibitoryMarkers),
@@ -508,6 +493,10 @@ export default function CleanNeuronSvg({
           transform-origin: center;
         }
 
+        .clean-neuron-svg__signal-tail {
+          fill: var(--neuron-signal);
+        }
+
         .clean-neuron-svg__soma-fill {
           transition: d 420ms ease;
         }
@@ -561,24 +550,6 @@ export default function CleanNeuronSvg({
             transform-origin: 500px 220px;
           }
         }
-
-        @keyframes signalMoveTop {
-          0% { transform: translate(0px, 0px) scale(0.8); opacity: 0.2; }
-          18% { opacity: 1; }
-          100% { transform: translate(-145px, 8px) scale(0.92); opacity: 0; }
-        }
-
-        @keyframes signalMoveMid {
-          0% { transform: translate(0px, 0px) scale(0.8); opacity: 0.2; }
-          18% { opacity: 1; }
-          100% { transform: translate(-150px, -8px) scale(0.92); opacity: 0; }
-        }
-
-        @keyframes signalMoveLow {
-          0% { transform: translate(0px, 0px) scale(0.8); opacity: 0.2; }
-          18% { opacity: 1; }
-          100% { transform: translate(-152px, -22px) scale(0.92); opacity: 0; }
-        }
       `}</style>
 
       <rect x="0" y="0" width={VIEWBOX_WIDTH} height={VIEWBOX_HEIGHT} rx="28" fill="#ffffff" />
@@ -595,52 +566,46 @@ export default function CleanNeuronSvg({
                 stroke="rgba(39, 137, 244, 0.12)"
                 strokeWidth="2"
                 strokeLinecap="round"
+                opacity={showInputSignals ? 1 : 0}
               />
             ))}
 
-            {['top', 'mid', 'low'].map((key, index) => {
-              const motion = buildSignalAnimation(index)
+            {['top', 'mid', 'low'].map((key) => {
+              const lane = signalLaneConfig[key]
+              const dots = geometry.signalDots[key]
+              const source = dots[0]
+              const animatedDot = dots[dots.length - 1]
+
               return (
                 <g key={`dots-${key}`} id={`signal-path-${key}-dots`}>
-                  {geometry.signalDots[key].map(([x, y, r], dotIndex) => (
+                  {dots.slice(1, -1).map(([x, y, r], dotIndex) => (
                     <circle
                       key={`${key}-${x}-${y}`}
-                      id={dotIndex === geometry.signalDots[key].length - 1 ? `signal-dot-${key}` : undefined}
-                      className={dotIndex === geometry.signalDots[key].length - 1 ? 'clean-neuron-svg__signal-dot' : ''}
+                      className="clean-neuron-svg__signal-tail"
                       cx={x}
                       cy={y}
                       r={r}
-                      fill="#2789f4"
-                      opacity={dotIndex === geometry.signalDots[key].length - 1 ? 1 : 0.85 - dotIndex * 0.08}
-                      style={
-                        dotIndex === geometry.signalDots[key].length - 1
-                          ? {
-                              animation: `${motion.name} ${motion.duration} ease-in-out ${motion.delay} infinite`,
-                            }
-                          : undefined
-                      }
+                      opacity={showInputSignals ? 0.78 - dotIndex * 0.08 : 0}
                     />
                   ))}
+
+                  <circle cx={animatedDot[0]} cy={animatedDot[1]} r={animatedDot[2]} className="clean-neuron-svg__signal-dot" opacity={showInputSignals ? 1 : 0}>
+                    <animateMotion
+                      begin={lane.delay}
+                      dur={lane.duration}
+                      repeatCount="indefinite"
+                      path={geometry.signalGuides[key]}
+                    />
+                    <animate attributeName="opacity" values="0.15;1;1;0" keyTimes="0;0.18;0.84;1" dur={lane.duration} begin={lane.delay} repeatCount="indefinite" />
+                  </circle>
+
+                  <circle cx={source[0]} cy={source[1]} r={source[2]} fill="#2789f4" filter={`url(#${signalGlowId})`} opacity={showInputSignals ? 1 : 0} />
                 </g>
               )
             })}
           </g>
 
-          <g id="stimulus-source">
-            {['top', 'mid', 'low'].map((key) => {
-              const lead = geometry.signalDots[key][0]
-              return (
-                <circle
-                  key={`source-${key}`}
-                  cx={lead[0]}
-                  cy={lead[1]}
-                  r={lead[2]}
-                  fill="#2789f4"
-                  filter={`url(#${signalGlowId})`}
-                />
-              )
-            })}
-          </g>
+          <g id="stimulus-source" opacity={showInputSignals ? 1 : 0} />
 
           <g id="neuron-core">
             <g id="axon-core">
@@ -712,6 +677,7 @@ export default function CleanNeuronSvg({
                 stroke="var(--neuron-threshold)"
                 strokeWidth="4.2"
                 strokeLinecap="round"
+                opacity={showThreshold ? (thresholdActive ? 1 : 0.88) : 0}
               />
               <circle id="soma-nucleus" cx={mirrored ? 396 : 504} cy="222" r="5.5" fill="#ffffff" opacity="0.72" />
               <path
