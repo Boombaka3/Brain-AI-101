@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import BiologyDiagram from '../../components/diagrams/BiologyDiagram'
-import BridgeToAnn from './components/BridgeToAnn'
-import InteractionSection from './components/InteractionSection'
-import Module1Intro from './components/Module1Intro'
+import { BridgeToAnn, InteractionSection, Module1Intro } from './components'
 import './module1.css'
 
 function Module1({ onContinue }) {
@@ -62,7 +60,7 @@ function Module1({ onContinue }) {
           </section>
         </section>
 
-        <InteractionSection isMobile={isMobile} />
+        <InteractionSection />
 
         <section ref={bridgeRef} className="module1-anchor-section">
           <BridgeToAnn onContinue={onContinue} />

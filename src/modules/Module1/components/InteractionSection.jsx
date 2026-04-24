@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import neuronAsset from '../../../assets/neuron-svgrepo-com.svg'
+import CleanNeuronSvg from './CleanNeuronSvg'
+import { staticPayAttentionSvg } from './module1SceneAssets'
 
 const THRESHOLD_LEVEL = 0.72
 const LEAK_PER_SECOND = 0.065
 const FLOW_TRAVEL_MS = 1350
+const MAX_SELECTED_WORDS = 5
 
 const STRENGTH_OPTIONS = [
   { id: 'low', label: 'Low', multiplier: 0.7 },
@@ -17,63 +19,121 @@ const TIMING_OPTIONS = [
   { id: 'fast', label: 'Fast', spacing: 430 },
 ]
 
-const BASE_SIGNALS = [
-  { id: 'cue-1', label: 'Maya!', type: 'primary', amount: 0.32, lane: 0 },
-  { id: 'noise-1', label: 'chair scrape', type: 'secondary', amount: 0.1, lane: 1 },
-  { id: 'cue-2', label: 'Maya!', type: 'primary', amount: 0.22, lane: 0 },
-  { id: 'noise-2', label: 'paper rustle', type: 'secondary', amount: 0.1, lane: 2 },
-  { id: 'cue-3', label: 'hey!', type: 'primary', amount: 0.18, lane: 1 },
-]
+const WORD_BANK = ['Maya!', 'chair scrape', 'paper rustle', 'quiet chatter', 'HEY!', 'teacher', 'listen']
+const DEFAULT_SELECTED_WORDS = ['Maya!', 'chair scrape', 'Maya!', 'paper rustle', 'HEY!']
 
-function buildSignalPackets(strengthId, timingId) {
+function computeWordWeight(word) {
+  const letters = word.replace(/[^a-zA-Z]/g, '')
+  const lengthBoost = Math.min(letters.length, 14) * 0.014
+  const uppercaseBoost = Math.min((word.match(/[A-Z]/g) || []).length, 6) * 0.03
+  const emphasisBoost = /!/.test(word) ? 0.03 : 0
+  return 0.08 + lengthBoost + uppercaseBoost + emphasisBoost
+}
+
+function formatWordForDisplay(word) {
+  return word.trim() || '...'
+}
+
+function getWordImpactLabel(word) {
+  const cleanLength = word.replace(/\s+/g, '').length
+  const uppercaseCount = (word.match(/[A-Z]/g) || []).length
+
+  if (uppercaseCount >= 2 || cleanLength >= 10) {
+    return 'strong push'
+  }
+
+  if (cleanLength >= 6) {
+    return 'medium push'
+  }
+
+  return 'soft push'
+}
+
+function buildSignalPackets(words, strengthId, timingId) {
   const strength = STRENGTH_OPTIONS.find((option) => option.id === strengthId) ?? STRENGTH_OPTIONS[1]
   const timing = TIMING_OPTIONS.find((option) => option.id === timingId) ?? TIMING_OPTIONS[1]
 
-  return BASE_SIGNALS.map((signal, index) => ({
-    ...signal,
-    amount: signal.amount * strength.multiplier,
-    delay: index * timing.spacing,
-    duration: FLOW_TRAVEL_MS,
-  }))
+  return words.map((word, index) => {
+    const amount = computeWordWeight(word) * strength.multiplier
+
+    return {
+      id: `${word}-${index}`,
+      label: formatWordForDisplay(word),
+      type: amount >= 0.27 ? 'primary' : 'secondary',
+      amount,
+      lane: index % 3,
+      delay: index * timing.spacing,
+      duration: FLOW_TRAVEL_MS,
+    }
+  })
+}
+
+function buildSourcePreview(words) {
+  return words.map((word, index) => {
+    const amount = computeWordWeight(word)
+
+    return {
+      id: `${word}-${index}`,
+      label: formatWordForDisplay(word),
+      type: amount >= 0.27 ? 'primary' : 'secondary',
+    }
+  })
 }
 
 function getOutcomeCopy(outcome) {
   switch (outcome) {
     case 'running':
-      return 'Signals are arriving from the sound source. Watch the soma fill while the leak quietly pulls it back down.'
+      return 'Chosen words are moving through the listening scene. Watch the soma fill while the leak quietly drains it.'
     case 'fired':
-      return 'The fill crossed the threshold, the soma released, and the neuron sent an output pulse away.'
+      return 'The chosen words arrived quickly enough to cross threshold, so the neuron released an output pulse.'
     case 'leaked':
-      return 'The sounds arrived too slowly. The fill leaked away before it could trip the threshold.'
+      return 'These words arrived too slowly or too softly. The fill leaked away before it could fire.'
     default:
-      return 'Run the scene to compare a quick burst of meaningful sound with slower, weaker background noise.'
+      return 'Pick words, try different timing, and compare which combinations fill the soma fastest.'
   }
 }
 
 function InteractionSection() {
   const [strength, setStrength] = useState('medium')
   const [timing, setTiming] = useState('medium')
+  const [selectedWords, setSelectedWords] = useState(DEFAULT_SELECTED_WORDS)
+  const [customWord, setCustomWord] = useState('')
   const [fillLevel, setFillLevel] = useState(0)
   const [signals, setSignals] = useState([])
   const [runToken, setRunToken] = useState(0)
-  const [pulseToken, setPulseToken] = useState(0)
   const [isRunning, setIsRunning] = useState(false)
   const [isFiring, setIsFiring] = useState(false)
   const [hasFired, setHasFired] = useState(false)
   const [outcome, setOutcome] = useState('idle')
 
   const timersRef = useRef([])
-  const fillRef = useRef(fillLevel)
   const firedRef = useRef(false)
   const cycleRef = useRef(0)
 
-  useEffect(() => {
-    fillRef.current = fillLevel
-  }, [fillLevel])
+  const addWord = (word) => {
+    const nextWord = formatWordForDisplay(word)
 
-  useEffect(() => {
-    firedRef.current = hasFired
-  }, [hasFired])
+    setSelectedWords((current) => {
+      if (current.length >= MAX_SELECTED_WORDS) {
+        return [...current.slice(1), nextWord]
+      }
+
+      return [...current, nextWord]
+    })
+  }
+
+  const removeWord = (indexToRemove) => {
+    setSelectedWords((current) => current.filter((_, index) => index !== indexToRemove))
+  }
+
+  const handleCustomWordSubmit = () => {
+    if (!customWord.trim()) {
+      return
+    }
+
+    addWord(customWord)
+    setCustomWord('')
+  }
 
   useEffect(() => {
     const shouldLeak = isRunning || fillLevel > 0.001
@@ -88,8 +148,7 @@ function InteractionSection() {
           return 0
         }
 
-        const next = Math.max(0, current - LEAK_PER_SECOND * 0.08)
-        return next
+        return Math.max(0, current - LEAK_PER_SECOND * 0.08)
       })
     }, 80)
 
@@ -105,7 +164,6 @@ function InteractionSection() {
     setHasFired(true)
     setIsFiring(true)
     setOutcome('fired')
-    setPulseToken((current) => current + 1)
 
     const calmTimer = window.setTimeout(() => {
       setIsFiring(false)
@@ -143,7 +201,8 @@ function InteractionSection() {
     timersRef.current.forEach((timer) => window.clearTimeout(timer))
     timersRef.current = []
 
-    const nextSignals = buildSignalPackets(strength, timing)
+    const wordsForRun = selectedWords.length > 0 ? selectedWords : DEFAULT_SELECTED_WORDS
+    const nextSignals = buildSignalPackets(wordsForRun, strength, timing)
     const lastArrival = nextSignals[nextSignals.length - 1].delay + nextSignals[nextSignals.length - 1].duration
 
     setSignals([])
@@ -153,7 +212,6 @@ function InteractionSection() {
     setIsFiring(false)
     setIsRunning(true)
     firedRef.current = false
-    fillRef.current = 0
     setRunToken((current) => current + 1)
 
     window.requestAnimationFrame(() => {
@@ -187,10 +245,12 @@ function InteractionSection() {
   }
 
   const approachingThreshold = fillLevel >= THRESHOLD_LEVEL - 0.12 && !hasFired
-  const leakVisible = fillLevel > 0.04
   const outcomeCopy = getOutcomeCopy(outcome)
 
-  const predictedPackets = useMemo(() => buildSignalPackets(strength, timing), [strength, timing])
+  const predictedPackets = useMemo(
+    () => buildSourcePreview(selectedWords.length > 0 ? selectedWords : DEFAULT_SELECTED_WORDS),
+    [selectedWords],
+  )
 
   return (
     <section className="module1-section module1-interaction-section module1-section-c">
@@ -198,114 +258,71 @@ function InteractionSection() {
         <p className="module1-eyebrow">C. Scenario Interaction</p>
         <h2>Can a meaningful sound fill the neuron fast enough to make it fire?</h2>
         <p>
-          Signals start in the sound scene on the right, travel toward the neuron, and build inside the soma like water
-          in a leaky bucket.
+          Choose words on the left, watch them move through the listening scene, and see whether they fill the soma
+          fast enough to beat the leak.
         </p>
       </div>
 
       <div className="module1-section-c__grid">
-        <div className="module1-section-c__panel module1-section-c__panel--neuron">
-          <div className="module1-section-c__panel-header">
-            <p className="module1-eyebrow module1-eyebrow-tight">Neuron</p>
-            <h3 className="module1-panel-title module1-panel-title-xl">The soma is the bucket</h3>
-          </div>
-
-          <div
-            className={[
-              'module1-section-c__neuron-stage',
-              approachingThreshold ? 'is-primed' : '',
-              isFiring ? 'is-firing' : '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-          >
-            <div className="module1-section-c__output-rail" aria-hidden="true">
-              <span className="module1-section-c__output-label">output pulse</span>
-              <span className="module1-section-c__output-arrow" />
-              {hasFired && (
-                <span key={pulseToken} className="module1-section-c__output-pulse">
-                  fire
-                </span>
-              )}
-            </div>
-
-            <img className="module1-section-c__neuron-art" src={neuronAsset} alt="Biological neuron diagram" />
-
-            <div
-              className="module1-section-c__soma-overlay"
-              style={{
-                '--section-c-fill-level': `${fillLevel * 100}%`,
-                '--section-c-threshold-level': `${THRESHOLD_LEVEL * 100}%`,
-              }}
-            >
-              <div className="module1-section-c__soma-ring" />
-              <div className="module1-section-c__soma-fill" />
-              <div className="module1-section-c__soma-surface" />
-              <div className="module1-section-c__soma-threshold">
-                <span />
-                <strong>threshold</strong>
-              </div>
-              <div className="module1-section-c__soma-leak-port" />
-              <div className={`module1-section-c__soma-leak-stream ${leakVisible ? 'is-visible' : ''}`} />
-              <div className={`module1-section-c__soma-leak-drop module1-section-c__soma-leak-drop--one ${leakVisible ? 'is-visible' : ''}`} />
-              <div className={`module1-section-c__soma-leak-drop module1-section-c__soma-leak-drop--two ${leakVisible ? 'is-visible' : ''}`} />
-            </div>
-
-            <div className="module1-section-c__input-inlet" aria-hidden="true">
-              <span />
-              <small>signals enter</small>
-            </div>
-          </div>
-
-          <p className="module1-section-c__outcome-copy">{outcomeCopy}</p>
-        </div>
-
-        <div className="module1-section-c__panel module1-section-c__panel--flow">
-          <div className="module1-section-c__panel-header">
-            <p className="module1-eyebrow module1-eyebrow-tight">Signal Flow</p>
-            <h3 className="module1-panel-title">Right to left into the neuron</h3>
-          </div>
-
-          <div className="module1-section-c__flow-stage" aria-hidden="true">
-            <div className="module1-section-c__flow-current" />
-            <div className="module1-section-c__flow-lane module1-section-c__flow-lane--top" />
-            <div className="module1-section-c__flow-lane module1-section-c__flow-lane--mid" />
-            <div className="module1-section-c__flow-lane module1-section-c__flow-lane--low" />
-            <div className="module1-section-c__flow-direction-copy">sound signals move toward the soma</div>
-
-            {signals.map((signal) => (
-              <div
-                key={`${runToken}-${signal.id}`}
-                className={`module1-section-c__signal module1-section-c__signal--${signal.type}`}
-                style={{
-                  '--section-c-signal-top': `${22 + signal.lane * 23}%`,
-                  animationDelay: `${signal.delay}ms`,
-                  animationDuration: `${signal.duration}ms`,
-                }}
-              >
-                {signal.label}
-              </div>
-            ))}
-          </div>
-        </div>
-
         <div className="module1-section-c__panel module1-section-c__panel--source">
           <div className="module1-section-c__panel-header">
             <p className="module1-eyebrow module1-eyebrow-tight">Sound Scene</p>
-            <h3 className="module1-panel-title">One meaningful cue, softer background sounds</h3>
+            <h3 className="module1-panel-title">Choose words to send into the neuron</h3>
           </div>
 
           <div className="module1-section-c__source-card">
             <div className="module1-section-c__source-main">
               <span className="module1-section-c__source-main-label">important sound</span>
-              <strong>“Maya!”</strong>
-              <p>A meaningful voice is the strongest signal in the scene.</p>
+              <strong>{selectedWords[0] ?? 'Maya!'}</strong>
+              <p>Longer words and CAPITAL letters give a stronger push into the soma.</p>
             </div>
 
-            <div className="module1-section-c__source-noise">
-              <span>chair scrape</span>
-              <span>paper rustle</span>
-              <span>quiet chatter</span>
+            <div className="module1-section-c__source-builder">
+              <div className="module1-section-c__word-bank">
+                {WORD_BANK.map((word) => (
+                  <button
+                    key={word}
+                    type="button"
+                    className="module1-section-c__word-option"
+                    onClick={() => addWord(word)}
+                  >
+                    {word}
+                  </button>
+                ))}
+              </div>
+
+              <div className="module1-section-c__custom-word">
+                <input
+                  type="text"
+                  value={customWord}
+                  onChange={(event) => setCustomWord(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault()
+                      handleCustomWordSubmit()
+                    }
+                  }}
+                  placeholder="Type your own word"
+                />
+                <button type="button" onClick={handleCustomWordSubmit}>
+                  Add
+                </button>
+              </div>
+            </div>
+
+            <div className="module1-section-c__selected-words">
+              {selectedWords.map((word, index) => (
+                <button
+                  key={`${word}-${index}`}
+                  type="button"
+                  className="module1-section-c__selected-word"
+                  onClick={() => removeWord(index)}
+                  title="Remove this word"
+                >
+                  <span>{word}</span>
+                  <small>{getWordImpactLabel(word)}</small>
+                </button>
+              ))}
             </div>
 
             <div className="module1-section-c__source-preview">
@@ -357,6 +374,65 @@ function InteractionSection() {
               Replay Scene
             </button>
           </div>
+        </div>
+
+        <div className="module1-section-c__panel module1-section-c__panel--flow">
+          <div className="module1-section-c__panel-header">
+            <p className="module1-eyebrow module1-eyebrow-tight">Signal Flow</p>
+            <h3 className="module1-panel-title">Chosen words move through the listening scene</h3>
+          </div>
+
+          <div className="module1-section-c__flow-stage module1-section-c__flow-stage--scene" aria-hidden="true">
+            <div
+              className="module1-section-c__flow-scene-art"
+              dangerouslySetInnerHTML={{ __html: staticPayAttentionSvg }}
+            />
+            <div className="module1-section-c__flow-direction-copy">selected words travel toward the neuron</div>
+
+            {signals.map((signal) => (
+              <div
+                key={`${runToken}-${signal.id}`}
+                className={`module1-section-c__signal module1-section-c__signal--${signal.type}`}
+                style={{
+                  '--section-c-signal-top': `${24 + signal.lane * 16}%`,
+                  animationDelay: `${signal.delay}ms`,
+                  animationDuration: `${signal.duration}ms`,
+                }}
+              >
+                {signal.label}
+                <span className="module1-section-c__signal-bubble module1-section-c__signal-bubble--one" />
+                <span className="module1-section-c__signal-bubble module1-section-c__signal-bubble--two" />
+                <span className="module1-section-c__signal-bubble module1-section-c__signal-bubble--three" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="module1-section-c__panel module1-section-c__panel--neuron">
+          <div className="module1-section-c__panel-header">
+            <p className="module1-eyebrow module1-eyebrow-tight">Neuron</p>
+            <h3 className="module1-panel-title module1-panel-title-xl">The soma is the bucket</h3>
+          </div>
+
+          <div
+            className={[
+              'module1-section-c__neuron-stage',
+              approachingThreshold ? 'is-primed' : '',
+              isFiring ? 'is-firing' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            <CleanNeuronSvg
+              className="module1-section-c__neuron-art"
+              level={3}
+              fillPercent={fillLevel * 100}
+              isFiring={isFiring}
+              showLabels={false}
+            />
+          </div>
+
+          <p className="module1-section-c__outcome-copy">{outcomeCopy}</p>
         </div>
       </div>
     </section>
