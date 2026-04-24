@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 900 440"
+  role="img"
+  aria-labelledby="d3-neuron-title d3-neuron-desc"
+>
+  <title id="d3-neuron-title">Procedural neuron diagram</title>
+  <desc id="d3-neuron-desc">
+    A clean classroom-friendly neuron diagram generated from node geometry using D3 shape utilities.
+  </desc>
+
+  <defs>
+    <clipPath id="somaClip">
+      <path d="M372,111C393.767,111.115,423.681,122.472,438,138C451.786,152.949,460.779,179.479,458,201C454.694,226.596,432.436,266.547,408,280C382.476,294.052,331.524,294.052,306,280C281.564,266.547,254.527,225.558,256,201C257.395,177.741,288.335,151.138,309,136C327.577,122.391,350.779,110.888,372,111" />
+    </clipPath>
+
+    <filter id="signalGlow" x="-140%" y="-140%" width="380%" height="380%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="sourceGlow" x="-180%" y="-180%" width="460%" height="460%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <linearGradient id="somaBodyGradient" x1="255" y1="111" x2="460" y2="284" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f8fbff" />
+      <stop offset="100%" stop-color="#edf4fb" />
+    </linearGradient>
+
+    <linearGradient id="somaFillGradient" x1="375" y1="132" x2="375" y2="305" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#c9e2c5" />
+      <stop offset="100%" stop-color="#b8d6b6" />
+    </linearGradient>
+
+    <style>
+      :root {
+        --neuron-stroke: #5f789c;
+        --neuron-stroke-light: #dce6f2;
+        --neuron-soma: #f4f7fb;
+        --neuron-fill: #b8d6b6;
+        --neuron-threshold: #f0a533;
+        --neuron-signal: #1f86f2;
+        --neuron-bg: #ffffff;
+      }
+
+      .neuron-outline {
+        fill: none;
+        stroke: var(--neuron-stroke);
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        vector-effect: non-scaling-stroke;
+      }
+    </style>
+  </defs>
+
+  <rect width="900" height="440" rx="28" fill="var(--neuron-bg)" />
+
+  <g id="mirror-root">
+    <g id="incoming-signals-core">
+      <g id="input-lane-top">
+        <path
+          d="M835,116C835,116,786.108,120.042,760,123C731.336,126.247,700.062,133.507,670,135C640.062,136.487,605.915,135.335,580,132C559.868,129.409,527,120,527,120"
+          fill="none"
+          stroke="#d8e7f8"
+          stroke-width="2.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <circle cx="835" cy="116" r="8.2" fill="#1f86f2" filter="url(#sourceGlow)" />
+        <circle cx="813.571" cy="118" r="2.2" fill="#1f86f2" opacity="0.58" />
+        <circle cx="792.143" cy="120" r="2.3" fill="#1f86f2" opacity="0.6" />
+        <circle cx="770.714" cy="122" r="2.4" fill="#1f86f2" opacity="0.62" />
+        <circle cx="747.143" cy="124.714" r="2.5" fill="#1f86f2" opacity="0.66" />
+        <circle cx="721.429" cy="128.143" r="2.6" fill="#1f86f2" opacity="0.7" />
+        <circle cx="695.714" cy="131.571" r="2.7" fill="#1f86f2" opacity="0.72" />
+        <circle cx="670" cy="135" r="2.8" fill="#1f86f2" opacity="0.74" />
+        <circle cx="644.286" cy="134.143" r="2.9" fill="#1f86f2" opacity="0.76" />
+        <circle cx="618.571" cy="133.286" r="3" fill="#1f86f2" opacity="0.78" />
+        <circle cx="592.857" cy="132.429" r="3.1" fill="#1f86f2" opacity="0.8" />
+        <circle cx="572.429" cy="130.286" r="3.2" fill="#1f86f2" opacity="0.84" />
+        <circle cx="557.286" cy="126.857" r="3.4" fill="#1f86f2" opacity="0.88" />
+        <circle cx="542.143" cy="123.429" r="3.7" fill="#1f86f2" opacity="0.94" />
+        <circle id="signal-dot-top" cx="527" cy="120" r="5.4" fill="#1f86f2" filter="url(#signalGlow)" />
+      </g>
+
+      <g id="input-lane-mid">
+        <path
+          d="M835,211C835,211,785.906,224.049,760,226C732.675,228.058,702.887,227.756,675,222C646.19,216.054,616.082,199.957,590,190C567.685,181.481,528,166,528,166"
+          fill="none"
+          stroke="#d8e7f8"
+          stroke-width="2.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <circle cx="835" cy="211" r="8.2" fill="#1f86f2" filter="url(#sourceGlow)" />
+        <circle cx="813.571" cy="215.286" r="2.2" fill="#1f86f2" opacity="0.58" />
+        <circle cx="792.143" cy="219.571" r="2.3" fill="#1f86f2" opacity="0.6" />
+        <circle cx="770.714" cy="223.857" r="2.4" fill="#1f86f2" opacity="0.62" />
+        <circle cx="747.857" cy="225.429" r="2.5" fill="#1f86f2" opacity="0.66" />
+        <circle cx="723.571" cy="224.286" r="2.6" fill="#1f86f2" opacity="0.7" />
+        <circle cx="699.286" cy="223.143" r="2.7" fill="#1f86f2" opacity="0.72" />
+        <circle cx="675" cy="222" r="2.8" fill="#1f86f2" opacity="0.74" />
+        <circle cx="650.714" cy="212.857" r="2.9" fill="#1f86f2" opacity="0.76" />
+        <circle cx="626.429" cy="203.714" r="3" fill="#1f86f2" opacity="0.78" />
+        <circle cx="602.143" cy="194.571" r="3.1" fill="#1f86f2" opacity="0.8" />
+        <circle cx="581.143" cy="186.571" r="3.2" fill="#1f86f2" opacity="0.84" />
+        <circle cx="563.429" cy="179.714" r="3.4" fill="#1f86f2" opacity="0.88" />
+        <circle cx="545.714" cy="172.857" r="3.7" fill="#1f86f2" opacity="0.94" />
+        <circle id="signal-dot-mid" cx="528" cy="166" r="5.4" fill="#1f86f2" filter="url(#signalGlow)" />
+      </g>
+
+      <g id="input-lane-low">
+        <path
+          d="M835,304C835,304,784.191,308.348,760,304C735.862,299.662,714.631,288.037,690,278C661.712,266.473,628.825,247.079,600,238C575.125,230.165,528,224,528,224"
+          fill="none"
+          stroke="#d8e7f8"
+          stroke-width="2.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <circle cx="835" cy="304" r="8.2" fill="#1f86f2" filter="url(#sourceGlow)" />
+        <circle cx="813.571" cy="304" r="2.2" fill="#1f86f2" opacity="0.58" />
+        <circle cx="792.143" cy="304" r="2.3" fill="#1f86f2" opacity="0.6" />
+        <circle cx="770.714" cy="304" r="2.4" fill="#1f86f2" opacity="0.62" />
+        <circle cx="750" cy="300.286" r="2.5" fill="#1f86f2" opacity="0.66" />
+        <circle cx="730" cy="292.857" r="2.6" fill="#1f86f2" opacity="0.7" />
+        <circle cx="710" cy="285.429" r="2.7" fill="#1f86f2" opacity="0.72" />
+        <circle cx="690" cy="278" r="2.8" fill="#1f86f2" opacity="0.74" />
+        <circle cx="664.286" cy="266.571" r="2.9" fill="#1f86f2" opacity="0.76" />
+        <circle cx="638.571" cy="255.143" r="3" fill="#1f86f2" opacity="0.78" />
+        <circle cx="612.857" cy="243.714" r="3.1" fill="#1f86f2" opacity="0.8" />
+        <circle cx="589.714" cy="236" r="3.2" fill="#1f86f2" opacity="0.84" />
+        <circle cx="569.143" cy="232" r="3.4" fill="#1f86f2" opacity="0.88" />
+        <circle cx="548.571" cy="228" r="3.7" fill="#1f86f2" opacity="0.94" />
+        <circle id="signal-dot-low" cx="528" cy="224" r="5.4" fill="#1f86f2" filter="url(#signalGlow)" />
+      </g>
+    </g>
+
+    <g id="dendrites-core">
+      <path id="dendrite-primary-upper" d="M472,166C472,166,492.043,154.854,500,149C506.619,144.13,512.144,139.141,517,134C521.303,129.444,528,120,528,120" className="neuron-outline" stroke-width="6.8" />
+      <path id="dendrite-primary-upper-mid" d="M478,182C478,182,499.741,177.925,508,176C513.883,174.629,518.049,173.644,523,172C528.051,170.323,538,166,538,166" className="neuron-outline" stroke-width="6.8" />
+      <path id="dendrite-primary-mid" d="M480,201C480,201,500.114,201.596,508,202C513.777,202.296,517.85,202.526,523,203C528.496,203.506,540,205,540,205" className="neuron-outline" stroke-width="6.8" />
+      <path id="dendrite-primary-lower-mid" d="M476,223C476,223,494.534,230.752,502,235C508.148,238.498,512.744,242.068,518,246C523.416,250.052,534,259,534,259" className="neuron-outline" stroke-width="6.8" />
+      <path id="dendrite-primary-lower" d="M468,245C468,245,485.873,258.187,494,264C501.076,269.061,508.115,273.062,514,278C519.3,282.447,528,292,528,292" className="neuron-outline" stroke-width="6.8" />
+    </g>
+
+    <g id="dendrites-secondary">
+      <path id="dendrite-secondary-top-a" d="M528,120C528,120,538.159,109.453,541,104C543.387,99.418,544.318,94.872,545,90C545.715,84.893,543.846,80.309,545,74C546.814,64.079,559,37,559,37" className="neuron-outline" stroke-width="4.5" />
+      <path id="dendrite-secondary-top-b" d="M530,122C530,122,543.67,112.584,549,108C553.328,104.279,555.978,100.177,560,97C563.984,93.853,567.873,92.709,573,89C581.491,82.858,605,62,605,62" className="neuron-outline" stroke-width="4.5" />
+      <path id="dendrite-secondary-top-c" d="M528,120C528,120,519.065,111.588,516,107C513.243,102.873,511.336,98.337,510,94C508.769,90.003,509.719,86.801,508,82C504.959,73.506,489,49,489,49" className="neuron-outline" stroke-width="4.5" />
+      <path id="dendrite-secondary-mid-a" d="M538,166C538,166,553.081,160.064,560,158C565.976,156.217,571.305,155.002,577,154C582.639,153.008,587.059,152.324,594,152C604.873,151.492,636,153,636,153" className="neuron-outline" stroke-width="4.5" />
+      <path id="dendrite-secondary-mid-b" d="M540,205C540,205,556.691,207.746,564,209C570.157,210.056,575.23,211.495,581,212C586.892,212.516,592.046,210.358,599,212C609.962,214.588,639,232,639,232" className="neuron-outline" stroke-width="4.5" />
+      <path id="dendrite-secondary-low-a" d="M534,259C534,259,549.566,268.018,556,273C561.707,277.419,566.155,281.875,571,287C576.177,292.477,578.84,299.485,586,305C596.423,313.028,631,326,631,326" className="neuron-outline" stroke-width="4.5" />
+      <path id="dendrite-secondary-low-b" d="M528,292C528,292,540.617,302.918,546,309C551.255,314.938,555.776,321.101,560,328C564.504,335.357,564.884,347.602,572,352C580.688,357.37,612,352,612,352" className="neuron-outline" stroke-width="4.5" />
+
+      <circle cx="559" cy="37" r="5.2" fill="#ffffff" stroke="#5f789c" stroke-width="3" />
+      <circle cx="605" cy="62" r="5.2" fill="#ffffff" stroke="#5f789c" stroke-width="3" />
+      <circle cx="489" cy="49" r="5.2" fill="#ffffff" stroke="#5f789c" stroke-width="3" />
+      <circle cx="636" cy="153" r="5.2" fill="#ffffff" stroke="#5f789c" stroke-width="3" />
+      <circle cx="639" cy="232" r="5.2" fill="#ffffff" stroke="#5f789c" stroke-width="3" />
+      <circle cx="631" cy="326" r="5.2" fill="#ffffff" stroke="#5f789c" stroke-width="3" />
+      <circle cx="612" cy="352" r="5.2" fill="#ffffff" stroke="#5f789c" stroke-width="3" />
+    </g>
+
+    <g id="soma-core">
+      <g id="soma-fill-group" clip-path="url(#somaClip)">
+        <path id="soma-fill" d="M405,145C419.896,155.006,432.741,170.239,438,190C445.573,218.459,445.049,287.09,425,305C407.419,320.706,354.09,315.805,336,305C323.238,297.377,319.073,281.154,315,266C310.103,247.78,308.792,223.477,313,202C317.668,178.176,328.02,138.282,345,130C360.044,122.662,389.318,134.466,405,145" fill="url(#somaFillGradient)" opacity="0.92" />
+      </g>
+      <path id="soma-outline" d="M372,111C393.767,111.115,423.681,122.472,438,138C451.786,152.949,460.779,179.479,458,201C454.694,226.596,432.436,266.547,408,280C382.476,294.052,331.524,294.052,306,280C281.564,266.547,254.527,225.558,256,201C257.395,177.741,288.335,151.138,309,136C327.577,122.391,350.779,110.888,372,111" fill="url(#somaBodyGradient)" stroke="#5f789c" stroke-width="5.4" stroke-linejoin="round" />
+      <path id="threshold-curve" d="M324,145C324,145,336.164,163.802,340,174C343.815,184.141,346.598,195.057,347,206C347.418,217.369,342,241,342,241" fill="none" stroke="#f0a533" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+
+    <g id="axon-core">
+      <path id="axon-shaft" d="M258,205C258,205,230.78,204.437,218,205C206.195,205.52,194.937,206.429,184,208C173.645,209.488,163.821,211.966,154,214C144.499,215.968,135,217,126,220C117,223,108.392,227.628,100,232C91.734,236.306,83.662,241.659,76,246C69.056,249.934,62.371,253.375,56,257C50.078,260.369,44.592,264.256,39,267C33.939,269.483,24,273,24,273" className="neuron-outline" stroke-width="8.8" />
+    </g>
+
+    <g id="axon-terminals">
+      <path id="axon-terminal-upper" d="M24,273C24,273,0.926,237.144,-10.27,225.972C-18.141,218.119,-33.545,209.09,-33.545,209.09" className="neuron-outline" stroke-width="5.2" />
+      <path id="axon-terminal-middle" d="M24,273C24,273,-16.498,266.129,-31.56,267C-42.051,267.607,-58,273,-58,273" className="neuron-outline" stroke-width="5.2" />
+      <path id="axon-terminal-lower" d="M24,273C24,273,-9.248,299.696,-19.188,311.998C-26.176,320.647,-33.545,336.91,-33.545,336.91" className="neuron-outline" stroke-width="5.2" />
+      <path id="axon-terminal-upper-extra" d="M1,246C1,246,-9.107,218.95,-15.307,212.25C-19.139,208.109,-27.679,205.042,-27.679,205.042" className="neuron-outline" stroke-width="4.4" />
+      <path id="axon-terminal-lower-extra" d="M1,304C1,304,-20.962,322.75,-25.137,330.867C-27.718,335.884,-27.679,344.958,-27.679,344.958" className="neuron-outline" stroke-width="4.4" />
+
+      <circle cx="-33.545" cy="209.09" r="6" fill="#ffffff" stroke="#5f789c" stroke-width="3" />
+      <circle cx="-58" cy="273" r="6" fill="#ffffff" stroke="#5f789c" stroke-width="3" />
+      <circle cx="-33.545" cy="336.91" r="6" fill="#ffffff" stroke="#5f789c" stroke-width="3" />
+      <circle cx="-27.679" cy="205.042" r="6" fill="#ffffff" stroke="#5f789c" stroke-width="3" />
+      <circle cx="-27.679" cy="344.958" r="6" fill="#ffffff" stroke="#5f789c" stroke-width="3" />
+    </g>
+  </g>
+</svg>
