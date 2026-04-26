@@ -1997,21 +1997,21 @@
 
 .bridge-panel {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .bridge-panel-bio {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 248, 255, 0.98) 100%);
   border-color: #bfd5ff;
-  min-height: 420px;
+  min-height: 450px;
   padding: 20px;
 }
 
 .bridge-panel-ann {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(247, 250, 255, 0.9) 100%);
   border-color: rgba(207, 224, 247, 0.9);
-  min-height: 320px;
-  padding: 16px;
+  min-height: 390px;
+  padding: 18px;
 }
 
 .bridge-visual {
@@ -2032,110 +2032,11 @@
 }
 
 .bridge-visual-bio {
-  height: 340px;
+  height: 360px;
 }
 
 .bridge-visual-ann {
-  height: 240px;
-}
-
-.bridge-bio__dendrites path {
-  fill: none;
-  stroke: #5b9bd5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.bridge-bio__dendrites path:nth-child(1),
-.bridge-bio__dendrites path:nth-child(4),
-.bridge-bio__dendrites path:nth-child(6),
-.bridge-bio__dendrites path:nth-child(8) {
-  stroke-width: 7;
-}
-
-.bridge-bio__dendrites path:nth-child(2),
-.bridge-bio__dendrites path:nth-child(3),
-.bridge-bio__dendrites path:nth-child(5),
-.bridge-bio__dendrites path:nth-child(7),
-.bridge-bio__dendrites path:nth-child(9) {
-  stroke-width: 3.6;
-}
-
-.bridge-bio__soma path {
-  fill: #d9f5eb;
-  stroke: #0f766e;
-  stroke-width: 3.5;
-}
-
-.bridge-bio__nucleus ellipse {
-  fill: #0f766e;
-  opacity: 0.92;
-}
-
-.bridge-bio__nucleus circle {
-  fill: #115e59;
-}
-
-.bridge-bio__hillock path {
-  fill: #b7e4d7;
-  stroke: #0f766e;
-  stroke-width: 2.4;
-}
-
-.bridge-bio__axon path {
-  fill: none;
-  stroke: #5b9bd5;
-  stroke-linecap: round;
-  stroke-width: 5.5;
-}
-
-.bridge-bio__terminal path {
-  fill: none;
-  stroke: #5b9bd5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.bridge-bio__terminal path:nth-child(1) {
-  stroke-width: 3.8;
-}
-
-.bridge-bio__terminal path:nth-child(2) {
-  stroke-width: 3.4;
-}
-
-.bridge-bio__terminal path:nth-child(3) {
-  stroke-width: 3.9;
-}
-
-.bridge-bio__terminal circle {
-  fill: #059669;
-}
-
-.bridge-bio__labels text,
-.bridge-ann__labels text {
-  fill: #64748b;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.bridge-ann__inputs line,
-.bridge-ann__output line {
-  stroke: #5b9bd5;
-  stroke-linecap: round;
-  stroke-width: 4;
-}
-
-.bridge-ann__node circle {
-  fill: #ffffff;
-  stroke: #2563eb;
-  stroke-width: 4;
-}
-
-.bridge-ann__node text {
-  fill: #1d4ed8;
-  font-size: 34px;
-  font-weight: 700;
+  height: 280px;
 }
 
 .module1-card-muted {
@@ -2163,6 +2064,241 @@
 .module1-bridge-actions {
   margin-top: 18px;
   text-align: center;
+}
+
+.module1-bridge-panel-header {
+  align-items: start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.module1-bridge-current-label {
+  background: rgba(232, 240, 255, 0.9);
+  border: 1px solid rgba(191, 213, 255, 0.95);
+  border-radius: var(--module1-radius-pill);
+  color: #1d4ed8;
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  padding: 8px 12px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.module1-bridge-shell {
+  min-height: 0;
+  padding: 0;
+}
+
+.module1-bridge-shell-bio {
+  padding: 12px 18px;
+}
+
+.module1-bridge-shell-ann {
+  padding: 18px;
+}
+
+.module1-bridge-bio-art {
+  max-height: 100%;
+}
+
+.module1-bridge-panel-note {
+  max-width: 60ch;
+}
+
+.module1-bridge-mapping-panel {
+  gap: 18px;
+  margin-top: 18px;
+  padding: 20px;
+}
+
+.module1-bridge-mapping-header {
+  align-items: end;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.module1-mapping-list-bridge {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.module1-mapping-item {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #dbe7f3;
+  border-radius: 18px;
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+}
+
+.module1-mapping-item p {
+  margin: 0;
+}
+
+.module1-bridge-footer-title {
+  color: var(--module1-text-soft);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.module1-mapping-arrow {
+  color: var(--module1-accent);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.module1-mapping-target {
+  color: var(--module1-accent-strong);
+  font-weight: 600;
+}
+
+.ann-diagram-shell {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px;
+  width: 100%;
+}
+
+.ann-diagram-shell--bridge {
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.98) 0%, rgba(240, 246, 254, 0.92) 100%);
+  border-color: #dbe7f3;
+  padding: 8px;
+}
+
+.ann-diagram-svg {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.ann-diagram__wires line {
+  stroke: #8da3c3;
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+
+.ann-diagram__node circle {
+  fill: #ffffff;
+  stroke: #2563eb;
+  stroke-width: 4;
+}
+
+.ann-diagram__node text {
+  fill: #1d4ed8;
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.ann-diagram__activation-cue path {
+  fill: none;
+  stroke: #f59e0b;
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+
+.ann-diagram__activation-cue text {
+  fill: #b45309;
+  font-size: 24px;
+  font-style: italic;
+  font-weight: 700;
+}
+
+.ann-diagram__labels text,
+.ann-diagram__weight-tags text {
+  fill: #64748b;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ann-diagram__weight-tags text {
+  fill: #1d4ed8;
+  font-size: 15px;
+}
+
+.ann-diagram__bridge-grid rect {
+  fill: #f1f5f9;
+  stroke: #d8e2ef;
+  stroke-width: 2;
+}
+
+.ann-diagram__bridge-grid rect:nth-of-type(1),
+.ann-diagram__bridge-grid rect:nth-of-type(3),
+.ann-diagram__bridge-grid rect:nth-of-type(4),
+.ann-diagram__bridge-grid rect:nth-of-type(6),
+.ann-diagram__bridge-grid rect:nth-of-type(7),
+.ann-diagram__bridge-grid rect:nth-of-type(9) {
+  fill: #3b82f6;
+  stroke: #2563eb;
+}
+
+.ann-diagram__bridge-grid text {
+  fill: #94a3b8;
+  font-size: 16px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.ann-diagram__bridge-grid text:nth-of-type(1),
+.ann-diagram__bridge-grid text:nth-of-type(3),
+.ann-diagram__bridge-grid text:nth-of-type(4),
+.ann-diagram__bridge-grid text:nth-of-type(6),
+.ann-diagram__bridge-grid text:nth-of-type(7),
+.ann-diagram__bridge-grid text:nth-of-type(9) {
+  fill: #ffffff;
+}
+
+.ann-diagram__bridge-connections path {
+  fill: none;
+  stroke: #8da3c3;
+  stroke-linecap: round;
+  stroke-width: 2.5;
+}
+
+.ann-diagram__bridge-node circle:first-child {
+  fill: #ffffff;
+  stroke: #065f46;
+  stroke-width: 3;
+}
+
+.ann-diagram__bridge-node circle:last-child {
+  fill: none;
+  stroke: #d97706;
+  stroke-dasharray: 5 4;
+  stroke-width: 2;
+  opacity: 0.7;
+}
+
+.ann-diagram__bridge-node text {
+  fill: #1e293b;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.ann-diagram__activation-cue circle {
+  fill: #10b981;
+  stroke: #047857;
+  stroke-width: 2.5;
+}
+
+.ann-diagram__activation-cue text {
+  fill: #ffffff;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.ann-diagram__activation-cue path {
+  stroke: #94a3b8;
 }
 
 .module1-hero-shell-compact {
