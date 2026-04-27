@@ -1,8 +1,5 @@
 import { useState } from 'react'
-import payAttentionSvg from '../../../assets/pay-attention-not-css.svg?raw'
-import eyesSvg from '../../../assets/eyes-not-css.svg?raw'
-import '../../../assets/pay-attention-styles.css'
-import '../../../assets/eyes-styles.css'
+import { eyesSvg, payAttentionSvg } from './module1SceneAssets'
 
 const backgroundNoise = [
   { label: 'chat...', className: 'module1-attention-noise--top' },
