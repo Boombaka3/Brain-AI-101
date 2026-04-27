@@ -118,7 +118,7 @@ export default function LandingPage({ onStart }) {
         <span className="lp-hero-tag lp-hero-tag--left">Neuroscience × AI</span>
         <span className="lp-hero-tag lp-hero-tag--right">Interactive Learning Platform</span>
 
-        {/* Centered bust + brain overlay — IN FRONT of headline */}
+        {/* Centered bust + 3D brain overlay */}
         <div className="lp-hero-center">
           <img
             src={import.meta.env.BASE_URL + 'images/bust.png'}

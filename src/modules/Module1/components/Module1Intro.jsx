@@ -1,58 +1,78 @@
-import HearingAttentionScene from './HearingAttentionScene'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import GuidedAnatomyOverlay from './GuidedAnatomyOverlay'
 
 function Module1Intro({ onStart }) {
+  const [tourComplete, setTourComplete] = useState(false)
+
   return (
     <section className="module1-intro-hero">
       <div className="module1-intro-hero-inner">
         <p className="module1-intro-kicker">Module 1</p>
         <h2 className="module1-intro-headline">
-          Meet a Neuron
+          How Does a Neuron
           <br />
-          <span className="module1-intro-headline-accent">In Action</span>
+          <span className="module1-intro-headline-accent">Decide?</span>
         </h2>
         <p className="module1-intro-desc">
-          Explore how a single biological neuron receives signals through its
-          dendrites, sums them in the soma, and decides whether to fire — the
-          fundamental unit of every thought you've ever had.
+          Right now, millions of neurons are firing in your brain to let you
+          read this sentence. Each one makes a single decision: fire or stay
+          quiet. Let's zoom in on just one.
         </p>
-        <div className="module1-intro-stats">
-          <div className="module1-intro-stat">
-            <span className="module1-intro-stat-num">4</span>
-            <span className="module1-intro-stat-label">Dendrite Paths</span>
-          </div>
-          <div className="module1-intro-stat-divider" />
-          <div className="module1-intro-stat">
-            <span className="module1-intro-stat-num">1</span>
-            <span className="module1-intro-stat-label">Soma Decision</span>
-          </div>
-          <div className="module1-intro-stat-divider" />
-          <div className="module1-intro-stat">
-            <span className="module1-intro-stat-num">
-              ~35
-              <span className="module1-intro-stat-unit">ms</span>
-            </span>
-            <span className="module1-intro-stat-label">Reaction Time</span>
-          </div>
-        </div>
-        <button className="module1-intro-cta" onClick={onStart}>
-          Start exploring
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M3 8h10M9 4l4 4-4 4"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
       </div>
+
+      <div className="module1-intro-tour">
+        <AnimatePresence mode="wait">
+          {!tourComplete ? (
+            <motion.div
+              key="tour"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.3 }}
+            >
+              <GuidedAnatomyOverlay onComplete={() => setTourComplete(true)} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="ready"
+              className="module1-intro-ready"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, delay: 0.1 }}
+            >
+              <div className="module1-intro-ready-card">
+                <h3 className="module1-intro-ready-title">
+                  You've met the parts.
+                </h3>
+                <p className="module1-intro-ready-desc">
+                  Dendrites receive. Soma adds. Axon carries. Terminals pass it on.
+                  Now let's put a neuron to work and see if it fires.
+                </p>
+                <button className="module1-intro-cta" onClick={onStart}>
+                  Start the experiment
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3 8h10M9 4l4 4-4 4"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       <div className="module1-intro-orb" aria-hidden="true" />
     </section>
   )

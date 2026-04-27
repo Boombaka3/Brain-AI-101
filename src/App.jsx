@@ -3,6 +3,7 @@ import useSmoothScroll from './hooks/useSmoothScroll'
 import Module1 from './modules/Module1'
 import Module2 from './modules/Module2'
 import Module3 from './modules/Module3'
+import CompletionScreen from './pages/CompletionScreen'
 
 const LandingPage = lazy(() => import('./pages/LandingPage'))
 
@@ -54,11 +55,13 @@ function App() {
       </Suspense>
     )
   } else if (currentView === 'module1') {
-    content = <Module1 onContinue={() => goTo('module2')} />
+    content = <Module1 onBack={() => goTo('landing')} onContinue={() => goTo('module2')} />
   } else if (currentView === 'module2') {
     content = <Module2 onBack={() => goTo('module1')} onContinue={() => goTo('module3')} />
   } else if (currentView === 'module3') {
-    content = <Module3 onBack={() => goTo('module2')} />
+    content = <Module3 onBack={() => goTo('module2')} onContinue={() => goTo('completion')} />
+  } else if (currentView === 'completion') {
+    content = <CompletionScreen onGoToModule={(key) => goTo(key)} onBackToHome={() => goTo('landing')} />
   }
 
   return <AppErrorBoundary>{content}</AppErrorBoundary>

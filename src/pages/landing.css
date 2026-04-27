@@ -30,10 +30,12 @@
   position: relative;
 }
 
+
 /* Headline BEHIND the bust — like "Core Guard" in reference */
 .lp-hero-bg-text {
   color: #0f172a;
   font-family: var(--font-display);
+  color: #0f172a;
   font-size: clamp(3.2rem, 7.5vw, 7.5rem);
   font-weight: 800;
   left: 50%;
@@ -44,25 +46,25 @@
   pointer-events: none;
   position: absolute;
   text-align: center;
-  top: 12%;
+  top: 8%;
   transform: translateX(-50%);
   user-select: none;
   z-index: 1;
 }
 
-/* Centered bust + brain container — sits IN FRONT of the headline */
+/* Centered bust + brain container */
 .lp-hero-center {
   align-self: end;
   position: relative;
   z-index: 2;
 }
 
-/* Bust image — large, anchored to bottom */
+/* Bust image */
 .lp-bust {
   display: block;
   filter: grayscale(1) contrast(1.1);
-  max-height: 82vh;
-  max-width: 55vw;
+  max-height: 90vh;
+  max-width: 60vw;
   object-fit: contain;
   object-position: bottom;
   position: relative;
@@ -71,13 +73,13 @@
 
 /* Brain canvas overlaying the head area */
 .lp-hero-canvas-wrap {
-  height: 50%;
+  height: 42%;
   left: 50%;
   pointer-events: none;
   position: absolute;
-  top: 0;
-  transform: translateX(-50%);
-  width: 55%;
+  top: 2%;
+  transform: translateX(-45%);
+  width: 48%;
   z-index: 3;
 }
 
