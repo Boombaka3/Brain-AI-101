@@ -31,55 +31,56 @@
 }
 
 
-/* Headline BEHIND the bust — like "Core Guard" in reference */
+/* Headline BEHIND the bust */
 .lp-hero-bg-text {
   color: #0f172a;
   font-family: var(--font-display);
-  color: #0f172a;
-  font-size: clamp(3.2rem, 7.5vw, 7.5rem);
+  font-size: clamp(2.6rem, 5.8vw, 6rem);
   font-weight: 800;
   left: 50%;
   letter-spacing: -0.04em;
-  line-height: 0.95;
+  line-height: 1.0;
   margin: 0;
-  max-width: 90vw;
+  max-width: 80vw;
   pointer-events: none;
   position: absolute;
   text-align: center;
-  top: 8%;
+  top: 5%;
   transform: translateX(-50%);
   user-select: none;
-  z-index: 1;
+  white-space: nowrap;
+  z-index: 10;
 }
 
 /* Centered bust + brain container */
 .lp-hero-center {
   align-self: end;
   position: relative;
-  z-index: 2;
+  z-index: 1;
 }
 
 /* Bust image */
 .lp-bust {
   display: block;
-  filter: grayscale(1) contrast(1.1);
-  max-height: 90vh;
-  max-width: 60vw;
+  filter: grayscale(1) contrast(0.7) brightness(1.6);
+  height: 100vh;
+  max-height: 100vh;
+  max-width: 80vw;
   object-fit: contain;
   object-position: bottom;
   position: relative;
-  z-index: 2;
+  z-index: 1;
 }
 
 /* Brain canvas overlaying the head area */
 .lp-hero-canvas-wrap {
-  height: 42%;
+  height: 50%;
   left: 50%;
   pointer-events: none;
   position: absolute;
-  top: 2%;
-  transform: translateX(-45%);
-  width: 48%;
+  top: 1%;
+  transform: translateX(-42%);
+  width: 52%;
   z-index: 3;
 }
 
