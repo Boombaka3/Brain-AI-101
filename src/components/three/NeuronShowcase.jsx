@@ -25,11 +25,11 @@ function NeuronModel() {
     if (!groupRef.current) return
     const t = clock.getElapsedTime()
     groupRef.current.rotation.y = t * 0.18
-    groupRef.current.rotation.x = Math.sin(t * 0.3) * 0.08
+    groupRef.current.rotation.x = Math.PI / 4 + Math.sin(t * 0.3) * 0.06
   })
 
   return (
-    <group ref={groupRef} scale={0.03} rotation={[-Math.PI / 2, 0, 0]}>
+    <group ref={groupRef} scale={0.03}>
       <primitive object={scene} />
     </group>
   )
