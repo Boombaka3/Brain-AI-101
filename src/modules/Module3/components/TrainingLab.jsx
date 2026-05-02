@@ -130,7 +130,7 @@ function TrainingLab() {
             </text>
           </motion.g>
 
-          <text x="356" y="172" fontSize="11" fill="#64748B">Weight deltas</text>
+          <text x="356" y="172" fontSize="11" fill="#64748B">Weight deltas — backpropagation</text>
           {delta.map((d, i) => (
             <g key={`d-${i}`} transform={`translate(${436 + i * 84},154)`}>
               <rect width="74" height="30" rx="8" fill={d !== 0 ? '#EFF6FF' : '#fff'} stroke={d !== 0 ? '#93C5FD' : '#CBD5E1'} />
@@ -155,6 +155,10 @@ function TrainingLab() {
             </g>
           ))}
         </svg>
+
+        <div className="m3-backprop-callout">
+          <strong>Backpropagation</strong> — the algorithm that distributes blame for a wrong answer back through every weight that contributed to it.
+        </div>
 
         <div className="m3-controls">
           <button className="m3-btn m3-btn--primary" onClick={advance}>Advance Step</button>

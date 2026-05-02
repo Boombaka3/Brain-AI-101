@@ -83,9 +83,18 @@ function ScanningSection() {
   return (
     <section className="m2-section">
       <div className="m2-section-heading">
-        <p className="m2-eyebrow">D. Scanning</p>
-        <h2>Same Weights, Different Locations</h2>
-        <p className="m2-section-subtitle">The same kernel (weights) slides across the image — this is scanning.</p>
+        <p className="m2-eyebrow">D. CNNs</p>
+        <h2>CNNs: Seeing in Patches</h2>
+        <p className="m2-section-subtitle">A convolutional neural network slides a filter across the image, producing a feature map — one value for every patch it scans.</p>
+      </div>
+
+      <div className="m2-cnn-pipeline">
+        {['Conv Layer', 'Activation', 'Pooling', '× Repeat', 'Classifier'].map((label, i, arr) => (
+          <span key={label} className="m2-cnn-pipeline-item">
+            <span className="m2-cnn-stage-box">{label}</span>
+            {i < arr.length - 1 && <span className="m2-cnn-arrow"> → </span>}
+          </span>
+        ))}
       </div>
 
       <div className="m2-section-card">

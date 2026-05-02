@@ -26,6 +26,11 @@ function LearningProblem() {
         </p>
       </div>
 
+      <div className="m3-human-framing">
+        <p>Think about learning to ride a bike. You fell, adjusted, tried again. That's the core loop: <strong>predict → fail → correct</strong>.</p>
+        <p>The same loop runs inside every learning system — including the one you're about to see.</p>
+      </div>
+
       <div className="m3-section-card">
         <motion.div ref={pulseRef}>
           <svg viewBox="0 0 880 340" className="m3-svg-block">

@@ -90,6 +90,7 @@ function LearningTypes({ isMobile }) {
             <button className="m3-btn" onClick={() => { setSupWeights([1, 1, 1]); setSupTarget(1); setSupShowFeedback(false); setSupChanged([false, false, false]) }}>Reset</button>
           </div>
           <p className="m3-type-desc">Compare target vs prediction, then update.</p>
+          <p className="m3-human-parallel"><em>Human parallel:</em> Like a teacher correcting your spelling — you get explicit right/wrong feedback.</p>
         </div>
 
         {/* Unsupervised */}
@@ -126,6 +127,7 @@ function LearningTypes({ isMobile }) {
             }}>Reset</button>
           </div>
           <p className="m3-type-desc">No targets. Similar points form groups.</p>
+          <p className="m3-human-parallel"><em>Human parallel:</em> Like noticing you keep seeing the same faces at the coffee shop — no one told you they're regulars.</p>
         </div>
 
         {/* Reinforcement */}
@@ -155,6 +157,7 @@ function LearningTypes({ isMobile }) {
             <button className="m3-btn" onClick={() => { setRlState(1); setRlPrefs({ left: 0.5, up: 0.5, right: 0.5 }); setRlReward(null); setRlLastAction(null) }}>Reset</button>
           </div>
           <p className="m3-type-desc">Reward shifts action preference.</p>
+          <p className="m3-human-parallel"><em>Human parallel:</em> Like a toddler learning to walk — each tumble is feedback, each step forward is reward.</p>
         </div>
       </div>
     </section>

@@ -3,8 +3,8 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ModuleNav from '../../components/ui/ModuleNav'
 import useScrollProgress from '../../hooks/useScrollProgress'
-import TransitionSection from './components/TransitionSection'
-import WeightsSection from './components/WeightsSection'
+import ANNSection from './components/ANNSection'
+import ActivationSection from './components/ActivationSection'
 import SpecialistsSection from './components/SpecialistsSection'
 import ScanningSection from './components/ScanningSection'
 import LabSection from './components/LabSection'
@@ -13,11 +13,11 @@ import './module2.css'
 gsap.registerPlugin(ScrollTrigger)
 
 const SECTIONS = [
-  { label: 'Same Sum, Different Shapes' },
-  { label: 'Weights = Selectivity' },
-  { label: 'Specialist Neurons' },
-  { label: 'Sliding Window' },
-  { label: 'Image Lab' },
+  { label: 'Neural Networks' },
+  { label: 'Activation Functions' },
+  { label: 'Selectivity & Dropout' },
+  { label: 'CNNs' },
+  { label: 'Lab' },
 ]
 
 function Module2({ onBack, onContinue }) {
@@ -55,8 +55,8 @@ function Module2({ onBack, onContinue }) {
       />
 
       <main className="m2-main">
-        <div ref={setRef(0)}><TransitionSection /></div>
-        <div ref={setRef(1)}><WeightsSection /></div>
+        <div ref={setRef(0)}><ANNSection /></div>
+        <div ref={setRef(1)}><ActivationSection /></div>
         <div ref={setRef(2)}><SpecialistsSection /></div>
         <div ref={setRef(3)}><ScanningSection /></div>
         <div ref={setRef(4)}><LabSection /></div>

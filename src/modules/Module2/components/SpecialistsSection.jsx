@@ -88,9 +88,9 @@ function SpecialistsSection() {
   return (
     <section className="m2-section">
       <div className="m2-section-heading">
-        <p className="m2-eyebrow">C. Specialists</p>
-        <h2>Three Neurons, Different Weights</h2>
-        <p className="m2-section-subtitle">Each neuron has different weights → responds to different patterns.</p>
+        <p className="m2-eyebrow">C. Selectivity & Dropout</p>
+        <h2>Neural Selectivity: Weights Create Preferences</h2>
+        <p className="m2-section-subtitle">Each neuron has different weights, so each responds to different patterns. Toggle dropout to see why redundancy matters.</p>
       </div>
 
       <HubelWieselStory />
@@ -224,12 +224,19 @@ function SpecialistsSection() {
           ))}
         </div>
 
+        {/* Dropout callout */}
+        {dropoutMode && (
+          <div className="m2-dropout-callout">
+            <strong>Dropout:</strong> Randomly silencing neurons during training forces the network to build redundant pathways — like training with one hand behind your back. The network learns to never rely on any single neuron.
+          </div>
+        )}
+
         {/* Observation */}
         <div className="m2-observation">
           <p>
             {!hasInteracted
               ? <>Same inputs, different weights → different selectivity.</>
-              : <>Each neuron's weights determine what pattern it responds to best.</>
+              : <>Each neuron&apos;s weights determine what pattern it responds to best.</>
             }
           </p>
         </div>

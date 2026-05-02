@@ -565,6 +565,177 @@
   }
 }
 
+/* ── Shared controls row (new sections) ─────────────────────────── */
+
+.m2-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+/* ── ANN Section ─────────────────────────────────────────────────── */
+
+.m2-ann-stage-info {
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.m2-ann-stage-label {
+  color: var(--module2-accent);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.m2-ann-stage-desc {
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0;
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+/* ── Activation Section ──────────────────────────────────────────── */
+
+.m2-act-slider-wrap {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 12px auto 8px;
+  max-width: 420px;
+}
+
+.m2-act-slider-wrap label {
+  color: #475569;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.m2-act-slider-wrap input[type='range'] {
+  accent-color: var(--module2-accent);
+  flex: 1;
+}
+
+.m2-act-output-row {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.m2-act-output-box {
+  background: #f5f3ff;
+  border: 1px solid #c4b5fd;
+  border-radius: 10px;
+  min-width: 130px;
+  padding: 10px 18px;
+  text-align: center;
+}
+
+.m2-act-output-box strong {
+  color: var(--module2-accent);
+  display: block;
+  font-size: 11px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.m2-act-output-box span {
+  color: #1e293b;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* ── CNN Pipeline ────────────────────────────────────────────────── */
+
+.m2-cnn-pipeline {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.m2-cnn-pipeline-item {
+  align-items: center;
+  display: inline-flex;
+  gap: 4px;
+}
+
+.m2-cnn-stage-box {
+  background: #f5f3ff;
+  border: 1px solid #c4b5fd;
+  border-radius: 8px;
+  color: #5b21b6;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+}
+
+.m2-cnn-arrow {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* ── Dropout Callout ─────────────────────────────────────────────── */
+
+.m2-dropout-callout {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  color: #7c2d12;
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: 4px;
+  padding: 12px 16px;
+}
+
+.m2-dropout-callout strong {
+  font-weight: 700;
+}
+
+/* ── Lab Section ─────────────────────────────────────────────────── */
+
+.m2-lab-iframe {
+  border: none;
+  border-radius: 14px;
+  display: block;
+  height: 600px;
+  width: 100%;
+}
+
+.m2-lab-fallback-note {
+  color: #64748b;
+  font-size: 13px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.m2-lab-fallback-note a {
+  color: var(--module2-accent);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.m2-lab-tips {
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 10px;
+  color: #4c1d95;
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: 12px;
+  padding: 12px 16px;
+}
+
 @media (max-width: 640px) {
   .m2-section-heading h2 {
     font-size: 1.6rem;
@@ -572,5 +743,9 @@
 
   .m2-continue-card {
     padding: 28px 20px;
+  }
+
+  .m2-lab-iframe {
+    height: 400px;
   }
 }
