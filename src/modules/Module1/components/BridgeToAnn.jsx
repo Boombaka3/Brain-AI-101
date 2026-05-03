@@ -165,7 +165,7 @@ function BridgeToAnn({ onContinue }) {
 
       <div className="bridge-summary">
         An artificial neuron is the same idea, minus the biology:{' '}
-        <strong>inputs × weights -> sum -> threshold -> output</strong>.
+        <strong>{'inputs × weights -> sum -> threshold -> output'}</strong>.
       </div>
 
       <div className="module1-bridge-actions">
