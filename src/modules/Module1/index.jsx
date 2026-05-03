@@ -1,12 +1,24 @@
-import { useEffect, useRef, useState } from 'react'
-import BiologyDiagram from '../../components/diagrams/BiologyDiagram'
-import { BridgeToAnn, InteractionSection, Module1Intro } from './components'
+import { useEffect, useState } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import ModuleNav from '../../components/ui/ModuleNav'
+import useScrollProgress from '../../hooks/useScrollProgress'
+import BridgeToAnn from './components/BridgeToAnn'
+import InteractionSection from './components/InteractionSection'
+import Module1Intro from './components/Module1Intro'
 import './module1.css'
 
-function Module1({ onContinue }) {
+gsap.registerPlugin(ScrollTrigger)
+
+const SECTIONS = [
+  { label: 'Introduction' },
+  { label: 'How Neurons Work' },
+  { label: 'Bridge to AI' },
+]
+
+function Module1({ onBack, onContinue }) {
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 900 : false)
-  const processRef = useRef(null)
-  const bridgeRef = useRef(null)
+  const { activeIndex, visitedIndices, setRef, scrollTo, refs } = useScrollProgress(SECTIONS.length)
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 900)
@@ -14,55 +26,40 @@ function Module1({ onContinue }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  const scrollToRef = (ref) => {
-    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      refs.current.forEach((el) => {
+        if (!el) return
+        gsap.from(el, {
+          scrollTrigger: { trigger: el, start: 'top 80%', once: true },
+          y: 24, opacity: 0, duration: 0.65, ease: 'power2.out',
+        })
+      })
+    })
+    return () => ctx.revert()
+  }, [])
 
   return (
     <div className="module1-page">
-      <header className="module1-header">
-        <div>
-          <p className="module1-kicker">Brain-AI-101</p>
-          <h1 className="module1-title">Module 1: Biological Neuron Experience</h1>
-        </div>
-        <button className="module1-primary-button" onClick={() => scrollToRef(bridgeRef)}>
-          Skip to Bridge
-        </button>
-      </header>
+      <ModuleNav
+        current="module1"
+        sections={SECTIONS}
+        activeIndex={activeIndex}
+        visitedIndices={visitedIndices}
+        onSectionClick={scrollTo}
+        onBack={onBack}
+      />
 
       <main className="module1-main">
-        <Module1Intro onStart={() => scrollToRef(processRef)} />
+        <div ref={setRef(0)}>
+          <Module1Intro onStart={() => scrollTo(1)} />
+        </div>
 
-        <section ref={processRef} className="module1-anchor-section">
-          <section className="module1-section module1-process-section">
-            <div className="module1-section-heading module1-process-heading">
-              <p className="module1-eyebrow">B. Neuron Diagram</p>
-              <h2>Look at the parts of a neuron</h2>
-              <p>
-                This diagram shows the main parts of a biological neuron, including the dendrites, soma, axon, and
-                terminal branches. In the next section, you'll adjust inputs and see how those parts work together.
-              </p>
-            </div>
+        <div ref={setRef(1)} className="module1-anchor-section">
+          <InteractionSection isMobile={isMobile} />
+        </div>
 
-            <div className="module1-process-storyboard" aria-label="Neuron structure reference">
-              <div className="module1-hero-shell module1-process-visual">
-                <div className="module1-process-diagram-frame">
-                  <BiologyDiagram isMobile={isMobile} mode="static" />
-                </div>
-              </div>
-            </div>
-
-            <div className="module1-process-summary">
-              <p className="module1-card-muted module1-process-summary-body">
-                The diagram is a visual reference for the neuron parts you'll use in the interaction below.
-              </p>
-            </div>
-          </section>
-        </section>
-
-        <InteractionSection />
-
-        <section ref={bridgeRef} className="module1-anchor-section">
+        <section ref={setRef(2)} className="module1-anchor-section">
           <BridgeToAnn onContinue={onContinue} />
         </section>
       </main>

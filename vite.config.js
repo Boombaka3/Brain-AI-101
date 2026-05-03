@@ -3,5 +3,8 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/Brain-AI-101/'
+  base: '/Brain-AI-101/',
+  optimizeDeps: {
+    exclude: ['onnxruntime-web'],
+  },
 })

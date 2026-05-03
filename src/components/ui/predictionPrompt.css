@@ -1,0 +1,143 @@
+.pp {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px 24px;
+  text-align: center;
+}
+
+.pp--revealed {
+  border-color: #cbd5e1;
+}
+
+.pp-question {
+  color: #1e293b;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+  margin: 0 0 14px;
+}
+
+.pp-options {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.pp-option {
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 999px;
+  color: #475569;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 90px;
+  padding: 10px 20px;
+  transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.1s;
+}
+
+.pp-option:hover:not(:disabled) {
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
+.pp-option:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.pp-option--selected {
+  background: #dbeafe;
+  border-color: #3b82f6;
+  color: #1e40af;
+}
+
+.pp-option--correct {
+  background: #dcfce7;
+  border-color: #22c55e;
+  color: #166534;
+}
+
+.pp-option--wrong {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #991b1b;
+}
+
+.pp-option:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.pp-status {
+  color: #64748b;
+  font-size: 13px;
+  margin: 12px 0 0;
+}
+
+.pp-result {
+  align-items: flex-start;
+  border-radius: 12px;
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 14px 18px;
+  text-align: left;
+}
+
+.pp-result--correct {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+}
+
+.pp-result--wrong {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.pp-result-icon {
+  flex-shrink: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pp-result--correct .pp-result-icon {
+  color: #16a34a;
+}
+
+.pp-result--wrong .pp-result-icon {
+  color: #dc2626;
+}
+
+.pp-result-text {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.pp-result--correct .pp-result-text {
+  color: #166534;
+}
+
+.pp-result--wrong .pp-result-text {
+  color: #991b1b;
+}
+
+.pp-explanation {
+  margin: 6px 0 0;
+  opacity: 0.85;
+}
+
+@media (max-width: 900px) {
+  .pp {
+    padding: 16px 18px;
+  }
+
+  .pp-option {
+    min-width: 72px;
+    padding: 8px 16px;
+  }
+}

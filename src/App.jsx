@@ -1,7 +1,11 @@
-import { Component, useState } from 'react'
+import { Component, lazy, Suspense, useState } from 'react'
+import useSmoothScroll from './hooks/useSmoothScroll'
 import Module1 from './modules/Module1'
 import Module2 from './modules/Module2'
 import Module3 from './modules/Module3'
+import CompletionScreen from './pages/CompletionScreen'
+
+const LandingPage = lazy(() => import('./pages/LandingPage'))
 
 class AppErrorBoundary extends Component {
   constructor(props) {
@@ -29,45 +33,35 @@ class AppErrorBoundary extends Component {
         </div>
       )
     }
-
     return this.props.children
   }
 }
 
-/**
- * App.jsx - Navigation Router
- * 
- * This file handles navigation between modules:
- * - Module 1: Meet the Neuron (Module1.jsx)
- * - Module 2: Seeing and Thinking (Module2.jsx)
- * - Module 3: Learning to Learn (Module3.jsx)
- */
 function App() {
-  const [currentView, setCurrentView] = useState('module1')
+  const [currentView, setCurrentView] = useState('landing')
+  useSmoothScroll()
 
-  const handleGoToModule2 = () => {
-    setCurrentView('module2')
+  const goTo = (view) => {
+    setCurrentView(view)
+    window.scrollTo({ top: 0 })
   }
 
-  const handleGoToModule3 = () => {
-    setCurrentView('module3')
-  }
+  let content
 
-  const handleBackToModule1 = () => {
-    setCurrentView('module1')
-  }
-
-  const handleBackToModule2 = () => {
-    setCurrentView('module2')
-  }
-
-  // Render Module 3 if selected
-  let content = <Module1 onContinue={handleGoToModule2} />
-
-  if (currentView === 'module3') {
-    content = <Module3 onBack={handleBackToModule2} />
+  if (currentView === 'landing') {
+    content = (
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#F8FBFF' }} />}>
+        <LandingPage onStart={() => goTo('module1')} />
+      </Suspense>
+    )
+  } else if (currentView === 'module1') {
+    content = <Module1 onBack={() => goTo('landing')} onContinue={() => goTo('module2')} />
   } else if (currentView === 'module2') {
-    content = <Module2 onBack={handleBackToModule1} onContinue={handleGoToModule3} />
+    content = <Module2 onBack={() => goTo('module1')} onContinue={() => goTo('module3')} />
+  } else if (currentView === 'module3') {
+    content = <Module3 onBack={() => goTo('module2')} onContinue={() => goTo('completion')} />
+  } else if (currentView === 'completion') {
+    content = <CompletionScreen onGoToModule={(key) => goTo(key)} onBackToHome={() => goTo('landing')} />
   }
 
   return <AppErrorBoundary>{content}</AppErrorBoundary>

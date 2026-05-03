@@ -1,440 +1,515 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import CleanNeuronSvg from './CleanNeuronSvg'
-import { staticPayAttentionSvg } from './module1SceneAssets'
+import { useMemo, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import BiologyDiagram from '../../../components/diagrams/BiologyDiagram'
+import PredictionPrompt from '../../../components/ui/PredictionPrompt'
+import { calculateTotal, neuronFires } from '../../../utils/neuronLogic'
+import {
+  DEFAULT_SIGNAL_LEVELS,
+  DEFAULT_SYNAPSE_STRENGTHS,
+  DEFAULT_THRESHOLD,
+  PROCESS_PHASES,
+  SCENARIOS,
+  getProcessPhaseSummary,
+} from '../module1Config'
+import LiveExplanationPanel from './LiveExplanationPanel'
+import NeuronExperimentPanel from './NeuronExperimentPanel'
+import ScenarioPicker from './ScenarioPicker'
+import DownstreamCallout from './DownstreamCallout'
+import LeakyBucket from './LeakyBucket'
 
-const THRESHOLD_LEVEL = 0.72
-const LEAK_PER_SECOND = 0.065
-const FLOW_TRAVEL_MS = 1350
-const MAX_SELECTED_WORDS = 5
+const roundValue = (value) => Number(value.toFixed(1))
+const getWeightedInputs = (signals, strengths) =>
+  signals.map((signal, index) => roundValue(signal * strengths[index]))
 
-const STRENGTH_OPTIONS = [
-  { id: 'low', label: 'Low', multiplier: 0.7 },
-  { id: 'medium', label: 'Medium', multiplier: 0.9 },
-  { id: 'high', label: 'High', multiplier: 1.08 },
-]
+const HOT_SURFACE = SCENARIOS[0]
 
-const TIMING_OPTIONS = [
-  { id: 'slow', label: 'Slow', spacing: 1200 },
-  { id: 'medium', label: 'Medium', spacing: 760 },
-  { id: 'fast', label: 'Fast', spacing: 430 },
-]
+function InteractionSection({ isMobile = false }) {
+  // Phase: 'scaffolded' → 'threshold' → 'free'
+  const [phase, setPhase] = useState('scaffolded')
 
-const WORD_BANK = ['Maya!', 'chair scrape', 'paper rustle', 'quiet chatter', 'HEY!', 'teacher', 'listen']
-const DEFAULT_SELECTED_WORDS = ['Maya!', 'chair scrape', 'Maya!', 'paper rustle', 'HEY!']
+  // Scaffolded phase state
+  const [scaffoldPrediction, setScaffoldPrediction] = useState(null)
+  const [scaffoldRan, setScaffoldRan] = useState(false)
+  const [thresholdExplored, setThresholdExplored] = useState(false)
 
-function computeWordWeight(word) {
-  const letters = word.replace(/[^a-zA-Z]/g, '')
-  const lengthBoost = Math.min(letters.length, 14) * 0.014
-  const uppercaseBoost = Math.min((word.match(/[A-Z]/g) || []).length, 6) * 0.03
-  const emphasisBoost = /!/.test(word) ? 0.03 : 0
-  return 0.08 + lengthBoost + uppercaseBoost + emphasisBoost
-}
+  // Free exploration state
+  const [selectedScenario, setSelectedScenario] = useState(HOT_SURFACE)
+  const [signalLevels, setSignalLevels] = useState(HOT_SURFACE.signalLevels)
+  const [synapseStrengths, setSynapseStrengths] = useState(HOT_SURFACE.synapseStrengths)
+  const [draftThreshold, setDraftThreshold] = useState(HOT_SURFACE.threshold)
 
-function formatWordForDisplay(word) {
-  return word.trim() || '...'
-}
-
-function getWordImpactLabel(word) {
-  const cleanLength = word.replace(/\s+/g, '').length
-  const uppercaseCount = (word.match(/[A-Z]/g) || []).length
-
-  if (uppercaseCount >= 2 || cleanLength >= 10) {
-    return 'strong push'
-  }
-
-  if (cleanLength >= 6) {
-    return 'medium push'
-  }
-
-  return 'soft push'
-}
-
-function buildSignalPackets(words, strengthId, timingId) {
-  const strength = STRENGTH_OPTIONS.find((option) => option.id === strengthId) ?? STRENGTH_OPTIONS[1]
-  const timing = TIMING_OPTIONS.find((option) => option.id === timingId) ?? TIMING_OPTIONS[1]
-
-  return words.map((word, index) => {
-    const amount = computeWordWeight(word) * strength.multiplier
-
-    return {
-      id: `${word}-${index}`,
-      label: formatWordForDisplay(word),
-      type: amount >= 0.27 ? 'primary' : 'secondary',
-      amount,
-      lane: index % 3,
-      delay: index * timing.spacing,
-      duration: FLOW_TRAVEL_MS,
-    }
-  })
-}
-
-function buildSourcePreview(words) {
-  return words.map((word, index) => {
-    const amount = computeWordWeight(word)
-
-    return {
-      id: `${word}-${index}`,
-      label: formatWordForDisplay(word),
-      type: amount >= 0.27 ? 'primary' : 'secondary',
-    }
-  })
-}
-
-function getOutcomeCopy(outcome) {
-  switch (outcome) {
-    case 'running':
-      return 'Chosen words are moving through the listening scene. Watch the soma fill while the leak quietly drains it.'
-    case 'fired':
-      return 'The chosen words arrived quickly enough to cross threshold, so the neuron released an output pulse.'
-    case 'leaked':
-      return 'These words arrived too slowly or too softly. The fill leaked away before it could fire.'
-    default:
-      return 'Pick words, try different timing, and compare which combinations fill the soma fastest.'
-  }
-}
-
-function InteractionSection() {
-  const [strength, setStrength] = useState('medium')
-  const [timing, setTiming] = useState('medium')
-  const [selectedWords, setSelectedWords] = useState(DEFAULT_SELECTED_WORDS)
-  const [customWord, setCustomWord] = useState('')
-  const [fillLevel, setFillLevel] = useState(0)
-  const [signals, setSignals] = useState([])
-  const [runToken, setRunToken] = useState(0)
-  const [isRunning, setIsRunning] = useState(false)
-  const [isFiring, setIsFiring] = useState(false)
-  const [hasFired, setHasFired] = useState(false)
-  const [outcome, setOutcome] = useState('idle')
-
-  const timersRef = useRef([])
-  const firedRef = useRef(false)
-  const cycleRef = useRef(0)
-
-  const addWord = (word) => {
-    const nextWord = formatWordForDisplay(word)
-
-    setSelectedWords((current) => {
-      if (current.length >= MAX_SELECTED_WORDS) {
-        return [...current.slice(1), nextWord]
-      }
-
-      return [...current, nextWord]
-    })
-  }
-
-  const removeWord = (indexToRemove) => {
-    setSelectedWords((current) => current.filter((_, index) => index !== indexToRemove))
-  }
-
-  const handleCustomWordSubmit = () => {
-    if (!customWord.trim()) {
-      return
-    }
-
-    addWord(customWord)
-    setCustomWord('')
-  }
-
-  useEffect(() => {
-    const shouldLeak = isRunning || fillLevel > 0.001
-
-    if (!shouldLeak) {
-      return undefined
-    }
-
-    const interval = window.setInterval(() => {
-      setFillLevel((current) => {
-        if (current <= 0) {
-          return 0
-        }
-
-        return Math.max(0, current - LEAK_PER_SECOND * 0.08)
-      })
-    }, 80)
-
-    return () => window.clearInterval(interval)
-  }, [fillLevel, isRunning])
-
-  useEffect(() => {
-    if (firedRef.current || fillLevel < THRESHOLD_LEVEL) {
-      return undefined
-    }
-
-    firedRef.current = true
-    setHasFired(true)
-    setIsFiring(true)
-    setOutcome('fired')
-
-    const calmTimer = window.setTimeout(() => {
-      setIsFiring(false)
-    }, 900)
-
-    const dropTimer = window.setTimeout(() => {
-      setFillLevel((current) => Math.min(current, 0.14))
-    }, 620)
-
-    const clearTimer = window.setTimeout(() => {
-      setFillLevel(0)
-      setIsRunning(false)
-    }, 1650)
-
-    timersRef.current.push(calmTimer, dropTimer, clearTimer)
-
-    return () => {
-      window.clearTimeout(calmTimer)
-      window.clearTimeout(dropTimer)
-      window.clearTimeout(clearTimer)
-    }
-  }, [fillLevel])
-
-  useEffect(() => {
-    return () => {
-      timersRef.current.forEach((timer) => window.clearTimeout(timer))
-      timersRef.current = []
-    }
-  }, [])
-
-  const handleRun = () => {
-    cycleRef.current += 1
-    const cycleId = cycleRef.current
-
-    timersRef.current.forEach((timer) => window.clearTimeout(timer))
-    timersRef.current = []
-
-    const wordsForRun = selectedWords.length > 0 ? selectedWords : DEFAULT_SELECTED_WORDS
-    const nextSignals = buildSignalPackets(wordsForRun, strength, timing)
-    const lastArrival = nextSignals[nextSignals.length - 1].delay + nextSignals[nextSignals.length - 1].duration
-
-    setSignals([])
-    setFillLevel(0)
-    setOutcome('running')
-    setHasFired(false)
-    setIsFiring(false)
-    setIsRunning(true)
-    firedRef.current = false
-    setRunToken((current) => current + 1)
-
-    window.requestAnimationFrame(() => {
-      if (cycleRef.current !== cycleId) {
-        return
-      }
-
-      setSignals(nextSignals)
-    })
-
-    nextSignals.forEach((signal) => {
-      const timer = window.setTimeout(() => {
-        if (firedRef.current || cycleRef.current !== cycleId) {
-          return
-        }
-
-        setFillLevel((current) => Math.min(1, current + signal.amount))
-      }, signal.delay + signal.duration)
-
-      timersRef.current.push(timer)
-    })
-
-    const settleTimer = window.setTimeout(() => {
-      if (!firedRef.current && cycleRef.current === cycleId) {
-        setOutcome('leaked')
-        setIsRunning(false)
-      }
-    }, lastArrival + 1700)
-
-    timersRef.current.push(settleTimer)
-  }
-
-  const approachingThreshold = fillLevel >= THRESHOLD_LEVEL - 0.12 && !hasFired
-  const outcomeCopy = getOutcomeCopy(outcome)
-
-  const predictedPackets = useMemo(
-    () => buildSourcePreview(selectedWords.length > 0 ? selectedWords : DEFAULT_SELECTED_WORDS),
-    [selectedWords],
+  // Shared animation state
+  const [activeInputs, setActiveInputs] = useState(
+    getWeightedInputs(DEFAULT_SIGNAL_LEVELS, DEFAULT_SYNAPSE_STRENGTHS),
   )
+  const [activeThreshold, setActiveThreshold] = useState(DEFAULT_THRESHOLD)
+  const [currentPhase, setCurrentPhase] = useState(PROCESS_PHASES.IDLE)
+  const [replaySignal, setReplaySignal] = useState(0)
+  const [activeNeuronFires, setActiveNeuronFires] = useState(false)
 
-  return (
-    <section className="module1-section module1-interaction-section module1-section-c">
-      <div className="module1-section-heading">
-        <p className="module1-eyebrow">C. Scenario Interaction</p>
-        <h2>Can a meaningful sound fill the neuron fast enough to make it fire?</h2>
-        <p>
-          Choose words on the left, watch them move through the listening scene, and see whether they fill the soma
-          fast enough to beat the leak.
-        </p>
-      </div>
+  // Prediction tracking (free phase)
+  const [freePrediction, setFreePrediction] = useState(null)
+  const [freeResult, setFreeResult] = useState(null)
+  const [predictions, setPredictions] = useState({ correct: 0, total: 0 })
+  const [scenariosRun, setScenariosRun] = useState(new Set())
+  const [showDiscovery, setShowDiscovery] = useState(false)
 
-      <div className="module1-section-c__grid">
-        <div className="module1-section-c__panel module1-section-c__panel--source">
-          <div className="module1-section-c__panel-header">
-            <p className="module1-eyebrow module1-eyebrow-tight">Sound Scene</p>
-            <h3 className="module1-panel-title">Choose words to send into the neuron</h3>
-          </div>
+  // ── Computed values ─────────────────────────────────────────────
+  const weightedInputs = useMemo(
+    () => getWeightedInputs(signalLevels, synapseStrengths),
+    [signalLevels, synapseStrengths],
+  )
+  const totalInput = useMemo(() => roundValue(calculateTotal(weightedInputs)), [weightedInputs])
+  const activeTotalInput = useMemo(() => roundValue(calculateTotal(activeInputs)), [activeInputs])
 
-          <div className="module1-section-c__source-card">
-            <div className="module1-section-c__source-main">
-              <span className="module1-section-c__source-main-label">important sound</span>
-              <strong>{selectedWords[0] ?? 'Maya!'}</strong>
-              <p>Longer words and CAPITAL letters give a stronger push into the soma.</p>
-            </div>
+  const explanation = getProcessPhaseSummary(currentPhase, {
+    totalInput: activeTotalInput,
+    threshold: activeThreshold,
+    neuronFires: activeNeuronFires,
+    weightedInputs: activeInputs,
+  })
 
-            <div className="module1-section-c__source-builder">
-              <div className="module1-section-c__word-bank">
-                {WORD_BANK.map((word) => (
-                  <button
-                    key={word}
-                    type="button"
-                    className="module1-section-c__word-option"
-                    onClick={() => addWord(word)}
-                  >
-                    {word}
-                  </button>
-                ))}
-              </div>
+  // ── Scaffolded phase: Hot Surface ──────────────────────────────
+  const scaffoldInputs = getWeightedInputs(HOT_SURFACE.signalLevels, HOT_SURFACE.synapseStrengths)
+  const scaffoldTotal = roundValue(calculateTotal(scaffoldInputs))
+  const scaffoldFires = neuronFires(scaffoldTotal, draftThreshold)
 
-              <div className="module1-section-c__custom-word">
-                <input
-                  type="text"
-                  value={customWord}
-                  onChange={(event) => setCustomWord(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      event.preventDefault()
-                      handleCustomWordSubmit()
-                    }
-                  }}
-                  placeholder="Type your own word"
-                />
-                <button type="button" onClick={handleCustomWordSubmit}>
-                  Add
-                </button>
-              </div>
-            </div>
+  const handleScaffoldPredict = (value) => {
+    setScaffoldPrediction(value)
+  }
 
-            <div className="module1-section-c__selected-words">
-              {selectedWords.map((word, index) => (
-                <button
-                  key={`${word}-${index}`}
-                  type="button"
-                  className="module1-section-c__selected-word"
-                  onClick={() => removeWord(index)}
-                  title="Remove this word"
-                >
-                  <span>{word}</span>
-                  <small>{getWordImpactLabel(word)}</small>
-                </button>
-              ))}
-            </div>
+  const handleScaffoldRun = () => {
+    setActiveInputs(scaffoldInputs)
+    setActiveThreshold(draftThreshold)
+    setActiveNeuronFires(scaffoldFires)
+    setCurrentPhase(PROCESS_PHASES.IDLE)
+    setReplaySignal((t) => t + 1)
+    setScaffoldRan(true)
+  }
 
-            <div className="module1-section-c__source-preview">
-              {predictedPackets.map((signal) => (
-                <span
-                  key={signal.id}
-                  className={`module1-section-c__source-preview-chip module1-section-c__source-preview-chip--${signal.type}`}
-                >
-                  {signal.label}
+  const handleThresholdChange = (value) => {
+    setDraftThreshold(value)
+    if (!thresholdExplored) setThresholdExplored(true)
+  }
+
+  const handleAdvanceToFree = () => {
+    setPhase('free')
+    setSelectedScenario(SCENARIOS[0])
+    setSignalLevels(SCENARIOS[0].signalLevels)
+    setSynapseStrengths(SCENARIOS[0].synapseStrengths)
+    setDraftThreshold(SCENARIOS[0].threshold)
+    setCurrentPhase(PROCESS_PHASES.IDLE)
+    setReplaySignal(0)
+    setActiveNeuronFires(false)
+    setFreePrediction(null)
+    setFreeResult(null)
+  }
+
+  // ── Free exploration phase ─────────────────────────────────────
+  const handleScenarioSelect = (scenario) => {
+    setSelectedScenario(scenario)
+    setSignalLevels(scenario.signalLevels)
+    setSynapseStrengths(scenario.synapseStrengths)
+    setDraftThreshold(scenario.threshold)
+    setCurrentPhase(PROCESS_PHASES.IDLE)
+    setReplaySignal(0)
+    setFreePrediction(null)
+    setFreeResult(null)
+  }
+
+  const handleFreePredict = (value) => {
+    setFreePrediction(value)
+  }
+
+  const handleFreeRun = () => {
+    const nextInputs = getWeightedInputs(signalLevels, synapseStrengths)
+    const nextTotal = roundValue(calculateTotal(nextInputs))
+    const fires = neuronFires(nextTotal, draftThreshold)
+
+    setActiveInputs(nextInputs)
+    setActiveThreshold(draftThreshold)
+    setActiveNeuronFires(fires)
+    setCurrentPhase(PROCESS_PHASES.IDLE)
+    setReplaySignal((t) => t + 1)
+
+    setFreeResult(fires)
+
+    const isCorrect = freePrediction === fires
+    setPredictions((p) => ({
+      correct: p.correct + (isCorrect ? 1 : 0),
+      total: p.total + 1,
+    }))
+
+    const newRun = new Set(scenariosRun)
+    newRun.add(selectedScenario.id)
+    setScenariosRun(newRun)
+    if (newRun.size >= 3 && !showDiscovery) {
+      setTimeout(() => setShowDiscovery(true), 1500)
+    }
+  }
+
+  const handleReplay = () => {
+    setReplaySignal((t) => t + 1)
+  }
+
+  const handleReset = () => {
+    const scenario = selectedScenario ?? SCENARIOS[0]
+    setSignalLevels(scenario.signalLevels)
+    setSynapseStrengths(scenario.synapseStrengths)
+    setDraftThreshold(scenario.threshold)
+    setActiveInputs(getWeightedInputs(scenario.signalLevels, scenario.synapseStrengths))
+    setActiveThreshold(scenario.threshold)
+    setActiveNeuronFires(false)
+    setCurrentPhase(PROCESS_PHASES.IDLE)
+    setReplaySignal(0)
+    setFreePrediction(null)
+    setFreeResult(null)
+  }
+
+  // ── Scaffolded view ────────────────────────────────────────────
+  if (phase === 'scaffolded' || phase === 'threshold') {
+    const showThresholdSlider = scaffoldRan
+    const canRun = scaffoldPrediction !== null
+
+    return (
+      <section className="module1-section module1-interaction-section">
+        <div className="module1-section-heading">
+          <p className="module1-eyebrow">B. First Experiment</p>
+          <h2>A hot pan touches your finger</h2>
+          <p>
+            Four signals reach this neuron. The temperature receptor fires hard.
+            The pain signal is strong. Skin pressure is faint, and touch is silent.
+          </p>
+        </div>
+
+        {/* Input display (read-only) */}
+        <div className="module1-scaffold-inputs">
+          {HOT_SURFACE.dendriteLabelS.map((label, i) => (
+            <div key={label} className="module1-scaffold-input-card">
+              <span className="module1-scaffold-input-label">{label}</span>
+              <div className="module1-scaffold-input-values">
+                <span className="module1-scaffold-input-signal">
+                  Signal: {HOT_SURFACE.signalLevels[i]}
                 </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="module1-section-c__controls">
-            <div className="module1-section-c__control-group">
-              <span className="module1-section-c__control-label">Input strength</span>
-              <div className="module1-section-c__toggle-row">
-                {STRENGTH_OPTIONS.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    className={strength === option.id ? 'is-selected' : ''}
-                    onClick={() => setStrength(option.id)}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+                <span className="module1-scaffold-input-strength">
+                  Strength: {HOT_SURFACE.synapseStrengths[i]}
+                </span>
+                <span className="module1-scaffold-input-contrib">
+                  = {scaffoldInputs[i]}
+                </span>
               </div>
             </div>
+          ))}
+        </div>
 
-            <div className="module1-section-c__control-group">
-              <span className="module1-section-c__control-label">Input timing</span>
-              <div className="module1-section-c__toggle-row">
-                {TIMING_OPTIONS.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    className={timing === option.id ? 'is-selected' : ''}
-                    onClick={() => setTiming(option.id)}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+        {/* Prediction gate */}
+        {!scaffoldRan && (
+          <PredictionPrompt
+            question="Will this neuron fire?"
+            options={[
+              { label: 'Yes, it will fire', value: true },
+              { label: 'No, it stays quiet', value: false },
+            ]}
+            onPredict={handleScaffoldPredict}
+            result={scaffoldRan ? scaffoldFires : undefined}
+            resultLabel={scaffoldFires ? 'It fires!' : 'It stays quiet'}
+            explanation={`The total was ${scaffoldTotal}, ${scaffoldFires ? 'above' : 'below'} the threshold of ${HOT_SURFACE.threshold}.`}
+          />
+        )}
 
-            <button type="button" className="module1-primary-button module1-section-c__run-button" onClick={handleRun}>
-              Replay Scene
+        {/* Run button — only active after prediction */}
+        {!scaffoldRan && (
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <button
+              className={`shared-btn ${canRun ? 'shared-btn-primary' : 'shared-btn-ghost'}`}
+              onClick={handleScaffoldRun}
+              disabled={!canRun}
+            >
+              {canRun ? 'Run the neuron' : 'Make your prediction first'}
             </button>
           </div>
-        </div>
+        )}
 
-        <div className="module1-section-c__panel module1-section-c__panel--flow">
-          <div className="module1-section-c__panel-header">
-            <p className="module1-eyebrow module1-eyebrow-tight">Signal Flow</p>
-            <h3 className="module1-panel-title">Chosen words move through the listening scene</h3>
-          </div>
-
-          <div className="module1-section-c__flow-stage module1-section-c__flow-stage--scene" aria-hidden="true">
-            <div
-              className="module1-section-c__flow-scene-art"
-              dangerouslySetInnerHTML={{ __html: staticPayAttentionSvg }}
-            />
-            <div className="module1-section-c__flow-direction-copy">selected words travel toward the neuron</div>
-
-            {signals.map((signal) => (
-              <div
-                key={`${runToken}-${signal.id}`}
-                className={`module1-section-c__signal module1-section-c__signal--${signal.type}`}
-                style={{
-                  '--section-c-signal-top': `${24 + signal.lane * 16}%`,
-                  animationDelay: `${signal.delay}ms`,
-                  animationDuration: `${signal.duration}ms`,
-                }}
-              >
-                {signal.label}
-                <span className="module1-section-c__signal-bubble module1-section-c__signal-bubble--one" />
-                <span className="module1-section-c__signal-bubble module1-section-c__signal-bubble--two" />
-                <span className="module1-section-c__signal-bubble module1-section-c__signal-bubble--three" />
+        {/* Diagram + result */}
+        <div className="module1-two-column module1-interaction-layout" style={{ marginTop: 20 }}>
+          <div className="module1-interaction-visual-column">
+            <div className="module1-hero-shell module1-process-visual module1-interaction-visual">
+              <div className="module1-process-diagram-frame">
+                <BiologyDiagram
+                  isMobile={isMobile}
+                  mode="interactive"
+                  weightedInputs={activeInputs}
+                  totalInput={activeTotalInput}
+                  threshold={activeThreshold}
+                  didFire={activeNeuronFires}
+                  currentPhase={currentPhase}
+                  replaySignal={replaySignal}
+                  onPhaseChange={setCurrentPhase}
+                />
               </div>
-            ))}
+            </div>
+
+            {scaffoldRan && (
+              <LiveExplanationPanel
+                currentPhase={currentPhase}
+                neuronBFires={activeNeuronFires}
+                neuronFires={activeNeuronFires}
+                summary={explanation}
+                threshold={activeThreshold}
+                totalInput={activeTotalInput}
+              />
+            )}
           </div>
+
+          {scaffoldRan && (
+            <div className="module1-interaction-stack">
+              <div className="module1-panel module1-interaction-panel">
+                {/* Result summary */}
+                <motion.div
+                  className="module1-scaffold-result"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <p className="module1-eyebrow module1-eyebrow-tight">Result</p>
+                  <p className="module1-scaffold-result-text">
+                    Total: <strong>{scaffoldTotal}</strong> | Threshold: <strong>{draftThreshold}</strong> |{' '}
+                    <strong className={scaffoldFires ? 'module1-status-success' : 'module1-status-warn'}>
+                      {scaffoldFires ? 'Fires!' : 'Quiet'}
+                    </strong>
+                  </p>
+
+                  <div className="module1-scaffold-insight">
+                    <strong>Key insight:</strong> The neuron adds signal x strength for each path,
+                    then compares the total to a threshold.
+                  </div>
+                </motion.div>
+
+                {/* Threshold slider */}
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="module1-scaffold-threshold"
+                >
+                  <p className="module1-eyebrow module1-eyebrow-tight">Try it</p>
+                  <h3 className="module1-panel-title">What if the threshold was different?</h3>
+                  <p className="module1-card-muted">
+                    Raise it to make firing harder. Lower it to make the neuron more sensitive.
+                  </p>
+
+                  <div className="module1-threshold-block module1-threshold-card">
+                    <label className="module1-form-label">
+                      <span className="module1-threshold-label">Threshold: {draftThreshold}</span>
+                      <input
+                        className="module1-slider"
+                        type="range"
+                        min="1"
+                        max="20"
+                        step="0.5"
+                        value={draftThreshold}
+                        onChange={(e) => handleThresholdChange(Number(e.target.value))}
+                      />
+                    </label>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                    <button className="shared-btn shared-btn-secondary shared-btn-sm" onClick={handleScaffoldRun}>
+                      Run again
+                    </button>
+                  </div>
+
+                  <LeakyBucket
+                    totalInput={scaffoldTotal}
+                    threshold={draftThreshold}
+                    didFire={scaffoldFires}
+                    currentPhase={currentPhase}
+                  />
+
+                  <DownstreamCallout
+                    scenario={HOT_SURFACE}
+                    isVisible={scaffoldFires}
+                  />
+                </motion.div>
+
+                {/* Advance to free exploration */}
+                {thresholdExplored && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    style={{ textAlign: 'center', marginTop: 16 }}
+                  >
+                    <button className="shared-btn shared-btn-primary" onClick={handleAdvanceToFree}>
+                      Try more scenarios
+                    </button>
+                  </motion.div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  // ── Free exploration view ──────────────────────────────────────
+  const freeCanRun = freePrediction !== null && freeResult === null
+
+  return (
+    <section className="module1-section module1-interaction-section">
+      <div className="module1-section-heading">
+        <p className="module1-eyebrow">C. Explore</p>
+        <h2>Pick a scenario and predict the outcome</h2>
+        <p>
+          Choose a real biological event. Before you run it, predict: will the
+          neuron fire? Then see if you're right.
+        </p>
+        {predictions.total > 0 && (
+          <p className="module1-prediction-score">
+            Predictions: {predictions.correct}/{predictions.total} correct
+          </p>
+        )}
+      </div>
+
+      <ScenarioPicker
+        selectedId={selectedScenario?.id}
+        onSelect={(s) => {
+          handleScenarioSelect(s)
+        }}
+      />
+
+      {/* Prediction gate for each scenario */}
+      {freeResult === null && (
+        <PredictionPrompt
+          key={selectedScenario?.id}
+          question={`${selectedScenario?.label}: will this neuron fire?`}
+          options={[
+            { label: 'Yes, it fires', value: true },
+            { label: 'No, stays quiet', value: false },
+          ]}
+          onPredict={handleFreePredict}
+          result={freeResult}
+        />
+      )}
+
+      {freeResult !== null && (
+        <motion.div
+          className={`module1-free-result ${freePrediction === freeResult ? 'module1-free-result--correct' : 'module1-free-result--wrong'}`}
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.25 }}
+        >
+          <strong>{freePrediction === freeResult ? 'Correct!' : 'Not quite.'}</strong>{' '}
+          The neuron {freeResult ? 'fired' : 'stayed quiet'}.
+          Total: {activeTotalInput} | Threshold: {activeThreshold}
+        </motion.div>
+      )}
+
+      {/* Run / New scenario controls */}
+      <div style={{ textAlign: 'center', margin: '12px 0' }}>
+        {freeResult === null ? (
+          <button
+            className={`shared-btn ${freeCanRun ? 'shared-btn-primary' : 'shared-btn-ghost'}`}
+            onClick={handleFreeRun}
+            disabled={!freeCanRun}
+          >
+            {freeCanRun ? 'Run the neuron' : 'Make your prediction first'}
+          </button>
+        ) : (
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+            <button className="shared-btn shared-btn-secondary shared-btn-sm" onClick={handleReplay}>
+              Replay animation
+            </button>
+            <button
+              className="shared-btn shared-btn-ghost shared-btn-sm"
+              onClick={() => {
+                setFreePrediction(null)
+                setFreeResult(null)
+              }}
+            >
+              Try new settings
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="module1-two-column module1-interaction-layout">
+        <div className="module1-interaction-visual-column">
+          <div className="module1-hero-shell module1-process-visual module1-interaction-visual">
+            <div className="module1-process-diagram-frame">
+              <BiologyDiagram
+                isMobile={isMobile}
+                mode="interactive"
+                weightedInputs={activeInputs}
+                totalInput={activeTotalInput}
+                threshold={activeThreshold}
+                didFire={activeNeuronFires}
+                currentPhase={currentPhase}
+                replaySignal={replaySignal}
+                onPhaseChange={setCurrentPhase}
+              />
+            </div>
+          </div>
+
+          <LiveExplanationPanel
+            currentPhase={currentPhase}
+            neuronBFires={activeNeuronFires}
+            neuronFires={activeNeuronFires}
+            summary={explanation}
+            threshold={activeThreshold}
+            totalInput={activeTotalInput}
+          />
         </div>
 
-        <div className="module1-section-c__panel module1-section-c__panel--neuron">
-          <div className="module1-section-c__panel-header">
-            <p className="module1-eyebrow module1-eyebrow-tight">Neuron</p>
-            <h3 className="module1-panel-title module1-panel-title-xl">The soma is the bucket</h3>
-          </div>
-
-          <div
-            className={[
-              'module1-section-c__neuron-stage',
-              approachingThreshold ? 'is-primed' : '',
-              isFiring ? 'is-firing' : '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-          >
-            <CleanNeuronSvg
-              className="module1-section-c__neuron-art"
-              level={3}
-              fillPercent={fillLevel * 100}
-              isFiring={isFiring}
-              showLabels={false}
-            />
-          </div>
-
-          <p className="module1-section-c__outcome-copy">{outcomeCopy}</p>
+        <div className="module1-interaction-stack">
+          <NeuronExperimentPanel
+            contributions={weightedInputs}
+            currentPhase={currentPhase}
+            didFire={activeNeuronFires}
+            onReplay={handleReplay}
+            onResetLesson={handleReset}
+            onRun={() => {
+              if (freeResult !== null) {
+                setFreePrediction(null)
+                setFreeResult(null)
+              }
+              handleFreeRun()
+            }}
+            pathLabels={selectedScenario?.dendriteLabelS ?? ['Path 1', 'Path 2', 'Path 3', 'Path 4']}
+            selectedScenario={selectedScenario}
+            setSignalLevels={setSignalLevels}
+            setSynapseStrengths={setSynapseStrengths}
+            setThreshold={setDraftThreshold}
+            signalLevels={signalLevels}
+            synapseStrengths={synapseStrengths}
+            threshold={draftThreshold}
+            totalInput={totalInput}
+          />
         </div>
       </div>
+
+      {/* Discovery callout */}
+      <AnimatePresence>
+        {showDiscovery && (
+          <motion.div
+            className="module1-discovery-callout"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <p className="module1-discovery-title">Did you notice?</p>
+            <p className="module1-discovery-text">
+              The neuron doesn't care <em>where</em> the signal comes from — only the <em>total</em> matters.
+              A temperature signal of 5 and a sound signal of 5 look identical to the soma.
+            </p>
+            <p className="module1-discovery-tease">
+              That's a problem. Module 2 shows how the brain solves it.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }

@@ -1,0 +1,231 @@
+/* shared.css — cross-module component classes built on shared tokens */
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+
+.shared-btn {
+  align-items: center;
+  border: none;
+  border-radius: var(--shared-radius-pill);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: inherit;
+  font-weight: 600;
+  gap: 6px;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 22px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.shared-btn:active {
+  transform: scale(0.97);
+}
+
+.shared-btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+  color: #fff;
+  font-size: 15px;
+}
+
+.shared-btn-primary:hover {
+  box-shadow: 0 6px 24px rgba(37, 99, 235, 0.45);
+  transform: translateY(-1px);
+}
+
+.shared-btn-secondary {
+  background: #e8f0ff;
+  border: 1.5px solid #bfdbfe;
+  color: #1d4ed8;
+  font-size: 14px;
+}
+
+.shared-btn-secondary:hover {
+  background: #dbeafe;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+}
+
+.shared-btn-ghost {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1.5px solid var(--shared-border);
+  color: var(--shared-text-muted);
+  font-size: 14px;
+}
+
+.shared-btn-ghost:hover {
+  background: #fff;
+  border-color: #b0c8e8;
+  color: var(--shared-text);
+}
+
+.shared-btn-sm {
+  font-size: 13px;
+  min-height: 36px;
+  padding: 7px 16px;
+}
+
+/* ── Chips / Tags ─────────────────────────────────────────────────── */
+
+.shared-chip {
+  align-items: center;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--shared-radius-pill);
+  color: #1d4ed8;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 600;
+  gap: 5px;
+  padding: 5px 11px;
+}
+
+.shared-chip-green {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.shared-chip-amber {
+  background: #fff7ed;
+  border-color: #fdba74;
+  color: #9a3412;
+}
+
+.shared-chip-purple {
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+  color: #5b21b6;
+}
+
+/* ── Section card ─────────────────────────────────────────────────── */
+
+.shared-section-card {
+  background-color: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--shared-border);
+  border-radius: var(--shared-radius-lg);
+  box-shadow: var(--shared-shadow);
+  padding: 24px;
+}
+
+.shared-inner-card {
+  background: var(--shared-surface);
+  border: 1px solid var(--shared-border-soft);
+  border-radius: var(--shared-radius-card);
+  box-shadow: var(--shared-shadow-card);
+  padding: 16px;
+}
+
+/* ── Typography helpers ───────────────────────────────────────────── */
+
+.shared-eyebrow {
+  color: var(--shared-accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.shared-section-title {
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0 0 8px;
+}
+
+.shared-section-body {
+  color: var(--shared-text-muted);
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+/* ── Time indicator pill ──────────────────────────────────────────── */
+
+.shared-time-pill {
+  align-items: center;
+  background: #f0f7ff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--shared-radius-pill);
+  color: #2563eb;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 600;
+  gap: 4px;
+  padding: 4px 10px;
+}
+
+.shared-time-pill::before {
+  content: '⏱';
+  font-size: 11px;
+}
+
+/* ── Status banners ───────────────────────────────────────────────── */
+
+.shared-status-fires {
+  background: #ecfdf5;
+  border: 1.5px solid #86efac;
+  border-radius: var(--shared-radius-sm);
+  color: #166534;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 14px;
+}
+
+.shared-status-silent {
+  background: #fff7ed;
+  border: 1.5px solid #fdba74;
+  border-radius: var(--shared-radius-sm);
+  color: #9a3412;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 14px;
+}
+
+/* ── Scroll reveal (initial state; GSAP drives the animation) ─────── */
+
+.reveal-up {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+/* ── Progress rail ────────────────────────────────────────────────── */
+
+.progress-rail {
+  background: var(--shared-border-soft);
+  border-radius: var(--shared-radius-pill);
+  display: flex;
+  gap: 4px;
+  height: 4px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progress-rail-segment {
+  background: var(--shared-border);
+  border-radius: var(--shared-radius-pill);
+  flex: 1;
+  height: 100%;
+  transition: background 0.4s var(--scroll-ease);
+}
+
+.progress-rail-segment.active {
+  background: var(--shared-accent);
+}
