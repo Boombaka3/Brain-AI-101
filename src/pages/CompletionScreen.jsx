@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import './completionScreen.css'
 
@@ -58,11 +58,26 @@ function CompletionScreen({ onGoToModule, onBackToHome }) {
   const cardsRef = useRef(null)
   const nextRef = useRef(null)
 
-  useEffect(() => {
-    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } })
-    tl.from(heroRef.current, { y: 30, opacity: 0, duration: 0.6 })
-    tl.from(cardsRef.current?.children || [], { y: 20, opacity: 0, duration: 0.4, stagger: 0.12 }, '-=0.2')
-    tl.from(nextRef.current, { y: 20, opacity: 0, duration: 0.5 }, '-=0.1')
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const cardNodes = cardsRef.current ? Array.from(cardsRef.current.children) : []
+      const animatedNodes = [heroRef.current, ...cardNodes, nextRef.current].filter(Boolean)
+
+      gsap.set(animatedNodes, { opacity: 1, y: 0, clearProps: 'transform' })
+
+      const tl = gsap.timeline({
+        defaults: { ease: 'power2.out' },
+        onComplete: () => {
+          gsap.set(animatedNodes, { clearProps: 'opacity,transform' })
+        },
+      })
+
+      tl.from(heroRef.current, { y: 18, duration: 0.45 })
+      tl.from(cardNodes, { y: 14, duration: 0.32, stagger: 0.1 }, '-=0.14')
+      tl.from(nextRef.current, { y: 14, duration: 0.36 }, '-=0.08')
+    })
+
+    return () => ctx.revert()
   }, [])
 
   return (
