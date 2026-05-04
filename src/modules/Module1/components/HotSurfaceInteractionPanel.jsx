@@ -220,10 +220,10 @@ function HotSurfaceInteractionPanel() {
   const approachingThreshold = fillLevel >= THRESHOLD_LEVEL - 0.12 && !hasFired
   const outcomeCopy = getOutcomeCopy(outcome)
   return (
-    <section className="module1-panel module1-section-c-preview">
+    <div className="module1-panel module1-interaction-panel module1-section-c-preview">
       <div className="module1-section-c-preview__header">
         <div>
-          <p className="module1-eyebrow module1-eyebrow-tight">B. SOUND EXPERIMENT</p>
+          <p className="module1-eyebrow module1-eyebrow-tight">Interactive lab</p>
           <h3 className="module1-panel-title">Which sounds grab attention fastest?</h3>
         </div>
         <p className="module1-card-muted module1-text-reset">
@@ -406,7 +406,7 @@ function HotSurfaceInteractionPanel() {
           <p className="module1-section-c__outcome-copy">{outcomeCopy}</p>
         </div>
       </div>
-    </section>
+    </div>
   )
 }
 

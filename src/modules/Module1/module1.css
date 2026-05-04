@@ -339,6 +339,72 @@
   margin: 0 0 20px;
 }
 
+.module1-anatomy-section {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 248, 255, 0.98) 100%);
+  border: 1px solid #dbe7f5;
+  box-shadow: 0 20px 52px rgba(37, 99, 235, 0.05);
+}
+
+.module1-anatomy-grid {
+  align-items: start;
+  display: grid;
+  gap: 22px;
+  grid-template-columns: minmax(280px, 0.86fr) minmax(0, 1.14fr);
+}
+
+.module1-anatomy-copy {
+  display: grid;
+  gap: 16px;
+  position: sticky;
+  top: 24px;
+}
+
+.module1-anatomy-title {
+  color: #0f172a;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  margin: 0;
+}
+
+.module1-anatomy-body {
+  color: #475569;
+  font-size: 16px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.module1-anatomy-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.module1-anatomy-pill {
+  background: #eef4ff;
+  border: 1px solid #cddfff;
+  border-radius: 999px;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 8px 12px;
+  text-transform: uppercase;
+}
+
+.module1-anatomy-note {
+  background: linear-gradient(135deg, #eff6ff, #f8fbff);
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+
+.module1-anatomy-stage {
+  min-width: 0;
+}
+
 .module1-intro-panel-scene {
   display: grid;
   gap: 12px;
@@ -3124,7 +3190,8 @@
 
   .module1-two-column,
   .module1-bridge-grid,
-  .module1-bridge-grid-reveal {
+  .module1-bridge-grid-reveal,
+  .module1-anatomy-grid {
     grid-template-columns: 1fr;
   }
 
@@ -3193,6 +3260,10 @@
 
   .module1-intro-orb {
     display: none;
+  }
+
+  .module1-anatomy-copy {
+    position: static;
   }
 }
 

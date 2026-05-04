@@ -5,6 +5,7 @@ import ModuleNav from '../../components/ui/ModuleNav'
 import useScrollProgress from '../../hooks/useScrollProgress'
 import BridgeToAnn from './components/BridgeToAnn'
 import InteractionSection from './components/InteractionSection'
+import Module1AnatomySection from './components/Module1AnatomySection'
 import Module1Intro from './components/Module1Intro'
 import './module1.css'
 
@@ -12,7 +13,8 @@ gsap.registerPlugin(ScrollTrigger)
 
 const SECTIONS = [
   { label: 'Introduction' },
-  { label: 'How Neurons Work' },
+  { label: 'Neuron Anatomy' },
+  { label: 'Sound Experiment' },
   { label: 'Bridge to AI' },
 ]
 
@@ -56,10 +58,14 @@ function Module1({ onBack, onContinue }) {
         </div>
 
         <div ref={setRef(1)} className="module1-anchor-section">
+          <Module1AnatomySection onContinue={() => scrollTo(2)} />
+        </div>
+
+        <div ref={setRef(2)} className="module1-anchor-section">
           <InteractionSection isMobile={isMobile} />
         </div>
 
-        <section ref={setRef(2)} className="module1-anchor-section">
+        <section ref={setRef(3)} className="module1-anchor-section">
           <BridgeToAnn onContinue={onContinue} />
         </section>
       </main>

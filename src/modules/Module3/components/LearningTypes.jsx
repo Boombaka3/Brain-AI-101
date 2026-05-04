@@ -14,11 +14,6 @@ function LearningTypes({ isMobile }) {
     { id: 5, x: 0.45, y: 0.58, g: null }
   ])
 
-  const [rlState, setRlState] = useState(1)
-  const [rlPrefs, setRlPrefs] = useState({ left: 0.5, up: 0.5, right: 0.5 })
-  const [rlReward, setRlReward] = useState(null)
-  const [rlLastAction, setRlLastAction] = useState(null)
-
   const sCalc = useMemo(() => {
     const c = [2, 3, 1].map((v, i) => v * supWeights[i])
     const sum = c.reduce((a, b) => a + b, 0)
@@ -36,17 +31,6 @@ function LearningTypes({ isMobile }) {
     setSupWeights(prev => prev.map((w, i) => Number((w + d[i]).toFixed(2))))
   }
 
-  const act = (dir) => {
-    const reward = ({ left: 1, up: 0.4, right: -0.6 }[dir]) ?? 0
-    setRlLastAction(dir)
-    setRlReward(reward)
-    setRlPrefs(p => ({ ...p, [dir]: Math.max(0, Math.min(1.35, Number((p[dir] + reward * 0.25).toFixed(2)))) }))
-    setRlState(s => (dir === 'left' ? Math.max(0, s - 1) : dir === 'right' ? Math.min(2, s + 1) : s))
-  }
-
-  const prefMax = Math.max(1, rlPrefs.left, rlPrefs.up, rlPrefs.right)
-  const strongest = Object.entries(rlPrefs).sort((a, b) => b[1] - a[1])[0]?.[0]
-
   return (
     <section className="m3-section">
       <div className="m3-section-heading">
@@ -55,7 +39,7 @@ function LearningTypes({ isMobile }) {
         <p className="m3-section-subtitle">Each lab compares, gets feedback, then changes.</p>
       </div>
 
-      <div className="m3-types-grid" style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))' }}>
+      <div className="m3-types-grid" style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, minmax(0, 1fr))' }}>
         {/* Supervised */}
         <div className="m3-type-card">
           <div className="m3-type-title">Supervised</div>
@@ -130,35 +114,10 @@ function LearningTypes({ isMobile }) {
           <p className="m3-human-parallel"><em>Human parallel:</em> Like noticing you keep seeing the same faces at the coffee shop — no one told you they're regulars.</p>
         </div>
 
-        {/* Reinforcement */}
-        <div className="m3-type-card">
-          <div className="m3-type-title">Reinforcement</div>
-          <svg viewBox="0 0 300 180" className="m3-svg-block">
-            <rect x="6" y="6" width="288" height="168" rx="10" fill="#F8FAFC" stroke="#E2E8F0" />
-            {[0, 1, 2].map(c => <rect key={c} x={22 + c * 46} y="40" width="38" height="32" rx="8" fill={c === rlState ? '#DBEAFE' : '#fff'} stroke={c === rlState ? '#60A5FA' : '#CBD5E1'} />)}
-            <motion.g key={`${rlLastAction}-${rlReward}`} initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.2 }}>
-              <rect x="170" y="32" width="112" height="38" rx="8" fill="#fff" stroke="#CBD5E1" />
-              <text x="182" y="49" fontSize="10" fill="#64748B">Reward</text>
-              <text x="182" y="63" fontSize="14" fontWeight="700" fill={rlReward === null ? '#64748B' : rlReward > 0 ? '#166534' : '#B91C1C'}>{rlReward === null ? '--' : rlReward.toFixed(1)}</text>
-            </motion.g>
-            {['left', 'up', 'right'].map((d, i) => (
-              <g key={d} transform={`translate(${18 + i * 92},98)`}>
-                <text x="0" y="0" fontSize="10" fill="#64748B">{d.toUpperCase()}</text>
-                <rect x="0" y="8" width="74" height="10" rx="5" fill="#E2E8F0" />
-                <motion.rect x="0" y="8" height="10" rx="5" fill={d === strongest ? '#2563EB' : d === 'left' ? '#60A5FA' : d === 'up' ? '#4ADE80' : '#FBBF24'} animate={{ width: (rlPrefs[d] / prefMax) * 74 }} transition={{ duration: 0.25 }} />
-                {rlLastAction === d && <rect x="-3" y="5" width="80" height="16" rx="7" fill="none" stroke="#3B82F6" strokeWidth="1.4" />}
-              </g>
-            ))}
-          </svg>
-          <div className="m3-controls">
-            <button className="m3-btn" onClick={() => act('left')}>Left</button>
-            <button className="m3-btn" onClick={() => act('up')}>Up</button>
-            <button className="m3-btn" onClick={() => act('right')}>Right</button>
-            <button className="m3-btn" onClick={() => { setRlState(1); setRlPrefs({ left: 0.5, up: 0.5, right: 0.5 }); setRlReward(null); setRlLastAction(null) }}>Reset</button>
-          </div>
-          <p className="m3-type-desc">Reward shifts action preference.</p>
-          <p className="m3-human-parallel"><em>Human parallel:</em> Like a toddler learning to walk — each tumble is feedback, each step forward is reward.</p>
-        </div>
+      </div>
+
+      <div className="m3-human-framing">
+        <p><strong>Next comes reinforcement learning:</strong> instead of being given labels or only spotting clusters, the agent learns by trying actions and feeling the result.</p>
       </div>
     </section>
   )

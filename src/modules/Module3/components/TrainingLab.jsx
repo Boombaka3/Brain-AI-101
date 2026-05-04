@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import LossChart from './LossChart'
 import LearningRateExplorer from './LearningRateExplorer'
+import ReinforcementLab from './ReinforcementLab'
 
 const TRAINING_THRESHOLD = 5
 const TRAINING_INPUTS = [[2, 3, 1], [1, 2, 2], [3, 1, 2], [2, 2, 1]]
@@ -52,7 +53,7 @@ function TrainingLab() {
       <div className="m3-section-heading">
         <p className="m3-eyebrow">C. Training</p>
         <h2>Practice Changes Weights</h2>
-        <p className="m3-section-subtitle">Run a step. Misses push weights to adjust.</p>
+        <p className="m3-section-subtitle">Training can come from labels, hidden structure, or rewards. This section zooms in on the third path: learning from consequences.</p>
       </div>
 
       <LossChart trainingStep={step} mismatch={tCalc.mismatch} />
@@ -167,6 +168,8 @@ function TrainingLab() {
 
         <p className="m3-takeaway">Wrong guess → weight shift → better next guess.</p>
       </div>
+
+      <ReinforcementLab embedded />
     </section>
   )
 }
