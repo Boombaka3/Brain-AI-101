@@ -2,6 +2,8 @@ import KMeansControls from './KMeansControls'
 import KMeansPlot from './KMeansPlot'
 import useKMeansDemo from '../clustering/useKMeansDemo'
 
+const KMEANS_REPO_URL = 'https://github.com/thinkphp/k-means-clustering'
+
 function ClusteringLab() {
   const {
     clusterCount,
@@ -108,6 +110,13 @@ function ClusteringLab() {
           </div>
         </div>
       </div>
+
+      <p className="m3-source-note">
+        Source and attribution:{' '}
+        <a href={KMEANS_REPO_URL} target="_blank" rel="noopener noreferrer">
+          thinkphp/k-means-clustering on GitHub
+        </a>
+      </p>
     </div>
   )
 }

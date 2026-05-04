@@ -4,6 +4,8 @@ import useReinforcementLearning from '../rl/useReinforcementLearning'
 import { getActionValues, getGreedyAction } from '../rl/algorithms'
 import { serializeState } from '../rl/environment'
 
+const RL_PLAYGROUND_REPO_URL = 'https://github.com/awjuliani/web-rl-playground'
+
 const ACTION_LABELS = {
   up: 'Up',
   right: 'Right',
@@ -179,6 +181,13 @@ function ReinforcementLab({ embedded = false }) {
           </div>
         </div>
       </div>
+
+      <p className="m3-source-note">
+        Source and attribution:{' '}
+        <a href={RL_PLAYGROUND_REPO_URL} target="_blank" rel="noopener noreferrer">
+          awjuliani/web-rl-playground on GitHub
+        </a>
+      </p>
     </div>
   )
 }

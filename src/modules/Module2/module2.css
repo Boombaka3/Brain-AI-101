@@ -702,6 +702,75 @@
   font-weight: 700;
 }
 
+/* ── CNN Explainer ───────────────────────────────────────────────── */
+
+.m2-explainer-card {
+  gap: 14px;
+}
+
+.m2-explainer-intro {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid var(--module2-accent);
+  border-radius: 12px;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.65;
+  padding: 16px 20px;
+}
+
+.m2-explainer-intro p {
+  margin: 0;
+}
+
+.m2-explainer-intro p + p {
+  margin-top: 8px;
+}
+
+.m2-explainer-iframe {
+  border: none;
+  border-radius: 18px;
+  display: block;
+  height: 680px;
+  width: 100%;
+}
+
+.m2-explainer-fallback-note {
+  color: #64748b;
+  font-size: 13px;
+  margin: 0;
+  text-align: center;
+}
+
+.m2-explainer-fallback-note a {
+  color: var(--module2-accent-strong);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.m2-explainer-prompts {
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 12px;
+  color: #4c1d95;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 12px 16px;
+}
+
+.m2-source-note {
+  color: #64748b;
+  font-size: 12px;
+  margin: 0;
+  text-align: center;
+}
+
+.m2-source-note a {
+  color: var(--module2-accent-strong);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
 @media (max-width: 640px) {
   .m2-section-heading h2 {
     font-size: 1.6rem;
@@ -709,5 +778,9 @@
 
   .m2-continue-card {
     padding: 28px 20px;
+  }
+
+  .m2-explainer-iframe {
+    height: 460px;
   }
 }
