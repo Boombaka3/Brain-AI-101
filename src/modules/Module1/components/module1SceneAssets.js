@@ -9,3 +9,7 @@ export const eyesSvg = eyesSvgRaw
 export const staticPayAttentionSvg = payAttentionSvgRaw
   .replace('class="animated"', 'class="section-c-static-scene"')
   .replaceAll('animator-active', '')
+
+export const staticEyesSvg = eyesSvgRaw
+  .replace('class="animated"', 'class="section-c-static-scene"')
+  .replaceAll('animator-active', '')

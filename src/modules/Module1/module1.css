@@ -210,6 +210,25 @@
   max-width: 480px;
 }
 
+.module1-intro-scene {
+  display: grid;
+  gap: 14px;
+  max-width: 700px;
+}
+
+.module1-intro-scene-copy {
+  display: grid;
+  gap: 6px;
+  max-width: 54ch;
+}
+
+.module1-intro-scene-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .module1-intro-stats {
   align-items: center;
   display: flex;
@@ -880,11 +899,11 @@
 .module1-section-c__grid {
   align-items: stretch;
   display: grid;
-  gap: 20px;
-  grid-template-columns:
-    minmax(clamp(280px, 24vw, 460px), 0.98fr)
-    minmax(clamp(170px, 15vw, 250px), 0.58fr)
-    minmax(clamp(420px, 32vw, 680px), 1.34fr);
+  gap: 18px;
+  grid-template-areas:
+    'source source'
+    'flow neuron';
+  grid-template-columns: minmax(320px, 0.92fr) minmax(360px, 1.08fr);
 }
 
 .module1-section-c__panel {
@@ -895,13 +914,308 @@
   padding: 20px;
 }
 
+.module1-section-c-preview {
+  display: grid;
+  gap: 18px;
+}
+
+.module1-section-c-preview__header {
+  align-items: end;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+}
+
+.module1-section-c-preview__grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+}
+
+.module1-section-c-preview .module1-section-c__panel {
+  padding: 16px;
+}
+
+.module1-section-c-preview .module1-section-c__flow-stage,
+.module1-section-c-preview .module1-section-c__neuron-stage {
+  min-height: 360px;
+}
+
+.module1-section-c-preview__generic-scene {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(219, 234, 254, 0.7) 0%, rgba(219, 234, 254, 0.08) 28%, rgba(255, 255, 255, 0) 42%),
+    linear-gradient(180deg, rgba(247, 251, 255, 0.92) 0%, rgba(236, 245, 255, 0.94) 100%);
+  inset: 0;
+  position: absolute;
+}
+
+.module1-section-c-preview__generic-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  left: 16px;
+  position: absolute;
+  right: 16px;
+  top: 54px;
+}
+
+.module1-section-c__touch-scene {
+  background:
+    radial-gradient(circle at 22% 28%, rgba(255, 237, 213, 0.88) 0%, rgba(255, 237, 213, 0.24) 20%, rgba(255, 255, 255, 0) 42%),
+    linear-gradient(180deg, rgba(255, 251, 235, 0.94) 0%, rgba(254, 242, 242, 0.9) 52%, rgba(239, 246, 255, 0.88) 100%);
+  inset: 0;
+  overflow: hidden;
+  position: absolute;
+}
+
+.module1-section-c__touch-glow,
+.module1-section-c__touch-surface,
+.module1-section-c__touch-hand,
+.module1-section-c__touch-receptors {
+  position: absolute;
+}
+
+.module1-section-c__touch-glow {
+  animation: module1-touch-glow 3.8s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(251, 146, 60, 0.28) 0%, rgba(251, 146, 60, 0) 72%);
+  border-radius: 50%;
+  height: 180px;
+  left: 4%;
+  top: 20%;
+  width: 180px;
+}
+
+.module1-section-c__touch-glow--two {
+  animation-delay: -1.7s;
+  height: 220px;
+  left: 10%;
+  opacity: 0.65;
+  top: 10%;
+  width: 220px;
+}
+
+.module1-section-c__touch-surface {
+  height: 128px;
+  left: 6%;
+  top: 49%;
+  width: 206px;
+}
+
+.module1-section-c__touch-surface-rim {
+  background: linear-gradient(180deg, #374151 0%, #111827 100%);
+  border-radius: 999px;
+  box-shadow: 0 18px 28px rgba(15, 23, 42, 0.2);
+  height: 42px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 26px;
+}
+
+.module1-section-c__touch-surface-core {
+  background: radial-gradient(circle at 50% 48%, rgba(254, 215, 170, 0.96) 0%, rgba(251, 146, 60, 0.96) 28%, rgba(185, 28, 28, 0.94) 76%, rgba(127, 29, 29, 0.98) 100%);
+  border: 5px solid rgba(255, 255, 255, 0.52);
+  border-radius: 999px;
+  box-shadow: inset 0 6px 22px rgba(255, 255, 255, 0.24), 0 0 30px rgba(248, 113, 113, 0.28);
+  height: 76px;
+  left: 18px;
+  position: absolute;
+  top: 0;
+  width: 170px;
+}
+
+.module1-section-c__touch-heat {
+  animation: module1-touch-heat-rise 2.7s ease-in-out infinite;
+  background: linear-gradient(180deg, rgba(251, 146, 60, 0.82) 0%, rgba(251, 191, 36, 0.42) 56%, rgba(251, 191, 36, 0) 100%);
+  border-radius: 999px;
+  filter: blur(0.4px);
+  height: 72px;
+  opacity: 0;
+  position: absolute;
+  top: -10px;
+  width: 16px;
+}
+
+.module1-section-c__touch-heat--one {
+  animation-delay: 0s;
+  left: 52px;
+}
+
+.module1-section-c__touch-heat--two {
+  animation-delay: 0.55s;
+  left: 92px;
+}
+
+.module1-section-c__touch-heat--three {
+  animation-delay: 1.1s;
+  left: 132px;
+}
+
+.module1-section-c__touch-hand {
+  height: 140px;
+  right: 10%;
+  top: 22%;
+  transform: rotate(-7deg);
+  width: 230px;
+}
+
+.module1-section-c__touch-arm {
+  background: linear-gradient(180deg, #fed7aa 0%, #fdba74 100%);
+  border-radius: 999px;
+  box-shadow: 0 10px 20px rgba(249, 115, 22, 0.12);
+  height: 34px;
+  left: 0;
+  position: absolute;
+  top: 56px;
+  width: 138px;
+}
+
+.module1-section-c__touch-finger {
+  background: linear-gradient(180deg, #ffedd5 0%, #fdba74 100%);
+  border-radius: 999px;
+  box-shadow: inset 0 -3px 8px rgba(194, 65, 12, 0.1);
+  height: 24px;
+  position: absolute;
+}
+
+.module1-section-c__touch-finger--one {
+  right: 22px;
+  top: 32px;
+  width: 126px;
+}
+
+.module1-section-c__touch-finger--two {
+  right: 18px;
+  top: 62px;
+  width: 144px;
+}
+
+.module1-section-c__touch-finger--three {
+  right: 28px;
+  top: 92px;
+  width: 112px;
+}
+
+.module1-section-c__touch-receptors {
+  bottom: 20px;
+  left: 18px;
+  right: 18px;
+  top: 18px;
+}
+
+.module1-section-c__touch-receptor {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  position: absolute;
+}
+
+.module1-section-c__touch-receptor small {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(251, 191, 36, 0.42);
+  border-radius: 999px;
+  color: #9a3412;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 4px 8px;
+}
+
+.module1-section-c__touch-receptor-dot {
+  animation: module1-touch-receptor-pulse 2.1s ease-in-out infinite;
+  background: #f97316;
+  border: 3px solid rgba(255, 255, 255, 0.92);
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.2);
+  height: 12px;
+  width: 12px;
+}
+
+.module1-section-c__touch-receptor--1 {
+  left: 53%;
+  top: 18%;
+}
+
+.module1-section-c__touch-receptor--2 {
+  left: 58%;
+  top: 34%;
+}
+
+.module1-section-c__touch-receptor--3 {
+  left: 47%;
+  top: 54%;
+}
+
+.module1-section-c__touch-receptor--4 {
+  left: 51%;
+  top: 70%;
+}
+
 @media (max-width: 1320px) {
   .module1-section-c__grid {
-    grid-template-columns: minmax(260px, 0.9fr) minmax(160px, 0.5fr) minmax(340px, 1.16fr);
+    grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+  }
+
+  .module1-section-c-preview__header,
+  .module1-section-c-preview__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes module1-touch-glow {
+  0%,
+  100% {
+    opacity: 0.34;
+    transform: scale(0.92);
+  }
+
+  50% {
+    opacity: 0.58;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes module1-touch-heat-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scaleY(0.78);
+  }
+
+  24% {
+    opacity: 0.72;
+  }
+
+  72% {
+    opacity: 0.22;
+    transform: translateY(-12px) scaleY(1.08);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) scaleY(1.14);
+  }
+}
+
+@keyframes module1-touch-receptor-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0);
+    transform: scale(0.92);
+  }
+
+  38% {
+    box-shadow: 0 0 0 8px rgba(249, 115, 22, 0.08);
+    transform: scale(1.08);
+  }
+
+  70% {
+    box-shadow: 0 0 0 14px rgba(249, 115, 22, 0);
+    transform: scale(1);
   }
 }
 
 .module1-section-c__panel--neuron {
+  grid-area: neuron;
   display: grid;
   gap: 14px;
   background:
@@ -910,6 +1224,7 @@
 }
 
 .module1-section-c__panel--flow {
+  grid-area: flow;
   display: grid;
   gap: 14px;
   overflow: hidden;
@@ -918,6 +1233,7 @@
 }
 
 .module1-section-c__panel--source {
+  grid-area: source;
   display: grid;
   gap: 14px;
   background:
@@ -928,6 +1244,7 @@
 .module1-section-c__panel-header {
   display: grid;
   gap: 4px;
+  min-height: 0;
 }
 
 .module1-section-c__neuron-stage {
@@ -1235,6 +1552,52 @@
   overflow: visible;
 }
 
+.module1-section-c__flow-scene-art--touch {
+  background:
+    radial-gradient(circle at 18% 24%, rgba(251, 191, 36, 0.26) 0%, rgba(251, 191, 36, 0) 22%),
+    radial-gradient(circle at 32% 58%, rgba(248, 113, 113, 0.14) 0%, rgba(248, 113, 113, 0) 24%),
+    linear-gradient(180deg, rgba(255, 250, 245, 0.98) 0%, rgba(255, 243, 236, 0.95) 100%);
+}
+
+.module1-section-c__touch-scene {
+  inset: 0;
+  position: absolute;
+}
+
+.module1-section-c__touch-scene-chip {
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 8px 12px;
+  position: absolute;
+  text-transform: uppercase;
+}
+
+.module1-section-c__touch-scene-chip--hot {
+  background: rgba(254, 243, 199, 0.98);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #b45309;
+  left: 14%;
+  top: 24%;
+}
+
+.module1-section-c__touch-scene-chip--pain {
+  background: rgba(254, 226, 226, 0.98);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #b91c1c;
+  left: 24%;
+  top: 50%;
+}
+
+.module1-section-c__touch-scene-chip--pressure {
+  background: rgba(241, 245, 249, 0.98);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  color: #475569;
+  left: 18%;
+  top: 72%;
+}
+
 .module1-section-c__flow-current {
   background:
     linear-gradient(270deg, rgba(37, 99, 235, 0.02) 0%, rgba(96, 165, 250, 0.15) 36%, rgba(14, 165, 233, 0.06) 72%, rgba(37, 99, 235, 0.01) 100%);
@@ -1316,38 +1679,22 @@
   border: 1px solid rgba(191, 219, 254, 0.3);
   border-radius: 20px;
   display: grid;
-  gap: 14px;
-  padding: 16px;
-}
-
-.module1-section-c__source-main {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(239, 246, 255, 0.84) 100%);
-  border: 1px solid rgba(191, 219, 254, 0.34);
-  border-radius: 18px;
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.06);
-  display: grid;
-  gap: 6px;
+  gap: 12px;
   padding: 14px;
 }
 
-.module1-section-c__source-main-label,
+.module1-section-c__field-group {
+  display: grid;
+  gap: 8px;
+}
+
+.module1-section-c__field-label,
 .module1-section-c__control-label {
   color: #1d4ed8;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-}
-
-.module1-section-c__source-main strong {
-  color: #0f172a;
-  font-size: 30px;
-  letter-spacing: -0.03em;
-}
-
-.module1-section-c__source-main p {
-  color: var(--module1-text-muted);
-  margin: 0;
 }
 
 .module1-section-c__source-builder {
@@ -1369,6 +1716,8 @@
   color: #1e293b;
   cursor: pointer;
   font: inherit;
+  white-space: nowrap;
+  width: auto;
 }
 
 .module1-section-c__word-option {
@@ -1377,9 +1726,9 @@
 }
 
 .module1-section-c__custom-word {
-  display: grid;
+  align-items: center;
+  display: flex;
   gap: 8px;
-  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .module1-section-c__custom-word input {
@@ -1390,6 +1739,7 @@
   font: inherit;
   min-height: 42px;
   padding: 0 12px;
+  width: 100%;
 }
 
 .module1-section-c__custom-word button {
@@ -1409,25 +1759,32 @@
   gap: 8px;
 }
 
+.module1-section-c__selected-words-label {
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.module1-section-c__selected-words-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .module1-section-c__selected-word {
   align-items: center;
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
+  display: inline-flex;
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  padding: 6px 10px;
   text-align: left;
+  white-space: nowrap;
 }
 
 .module1-section-c__selected-word span {
   font-weight: 800;
-}
-
-.module1-section-c__selected-word small {
-  color: #64748b;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
 .module1-section-c__source-noise,
@@ -1464,23 +1821,27 @@
 }
 
 .module1-section-c__controls {
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(219, 234, 254, 0.84);
-  border-radius: 18px;
   display: grid;
-  gap: 14px;
-  padding: 14px;
+  gap: 8px;
+}
+
+.module1-section-c__controls-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .module1-section-c__control-group {
-  display: grid;
+  align-items: center;
+  display: flex;
   gap: 8px;
 }
 
 .module1-section-c__toggle-row {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .module1-section-c__toggle-row button {
@@ -1492,7 +1853,10 @@
   font: inherit;
   font-weight: 700;
   min-height: 42px;
+  padding: 0 14px;
   transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  white-space: nowrap;
+  width: auto;
 }
 
 .module1-section-c__toggle-row button:hover {
@@ -1507,7 +1871,8 @@
 }
 
 .module1-section-c__run-button {
-  width: 100%;
+  min-width: 112px;
+  width: auto;
 }
 
 @keyframes module1-section-c-signal-travel {
@@ -2768,6 +3133,15 @@
   }
 
   .module1-section-c__grid {
+    gap: 14px;
+    grid-template-areas:
+      'source'
+      'flow'
+      'neuron';
+    grid-template-columns: 1fr;
+  }
+
+  .module1-section-c-preview__grid {
     grid-template-columns: 1fr;
   }
 
@@ -2921,6 +3295,10 @@
     padding: 14px;
   }
 
+  .module1-section-c-preview__header {
+    grid-template-columns: 1fr;
+  }
+
   .module1-section-c__neuron-stage,
   .module1-section-c__flow-stage {
     min-height: 340px;
@@ -2934,7 +3312,7 @@
   .module1-section-c__output-label,
   .module1-section-c__flow-direction-copy,
   .module1-section-c__input-inlet small,
-  .module1-section-c__source-main-label,
+  .module1-section-c__field-label,
   .module1-section-c__control-label {
     font-size: 10px;
   }
@@ -2946,16 +3324,8 @@
     width: 20%;
   }
 
-  .module1-section-c__source-main strong {
-    font-size: 24px;
-  }
-
   .module1-section-c__custom-word {
-    grid-template-columns: 1fr;
-  }
-
-  .module1-section-c__toggle-row {
-    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
   .module1-attention-scene {

@@ -1,25 +1,35 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import gsap from 'gsap'
 import { PROCESS_PHASES } from '../module1Config'
+import {
+  BUCKET_BOTTOM,
+  BUCKET_LEFT,
+  BUCKET_PATH,
+  BUCKET_RIGHT,
+  BUCKET_TOP,
+  DRIP_XS,
+  DRIP_Y_END,
+  DRIP_Y_START,
+  THRESHOLD_Y,
+  getBucketFillMetrics,
+} from './bucketMetrics'
 import './leakyBucket.css'
 
-const BUCKET_TOP = 40
-const BUCKET_BOTTOM = 190
-const MAX_FILL_HEIGHT = BUCKET_BOTTOM - BUCKET_TOP - 4
-const BUCKET_LEFT = 50
-const BUCKET_RIGHT = 150
-const BUCKET_BOTTOM_LEFT = 60
-const BUCKET_BOTTOM_RIGHT = 140
-
-// Trapezoid bucket path: wider at top, narrower at bottom
-const BUCKET_PATH = `M ${BUCKET_LEFT} ${BUCKET_TOP} L ${BUCKET_RIGHT} ${BUCKET_TOP} L ${BUCKET_BOTTOM_RIGHT} ${BUCKET_BOTTOM} L ${BUCKET_BOTTOM_LEFT} ${BUCKET_BOTTOM} Z`
-
-// Threshold y position (70% up the bucket = fires at threshold)
-const THRESHOLD_Y = BUCKET_BOTTOM - MAX_FILL_HEIGHT * 0.85
-
-const DRIP_Y_START = 20
-const DRIP_Y_END = BUCKET_TOP + 6
-const DRIP_XS = [80, 100, 120]
+function renderDrips(dripsRef) {
+  return DRIP_XS.map((x, index) => (
+    <circle
+      key={x}
+      ref={(element) => {
+        dripsRef.current[index] = element
+      }}
+      cx={x}
+      cy={DRIP_Y_START}
+      r={4}
+      fill="#67e8f9"
+      opacity={0}
+    />
+  ))
+}
 
 export default function LeakyBucket({ totalInput, threshold, didFire, currentPhase }) {
   const fillRef = useRef(null)
@@ -27,51 +37,63 @@ export default function LeakyBucket({ totalInput, threshold, didFire, currentPha
   const dripsRef = useRef([])
   const dripTlRef = useRef(null)
 
-  // Animate fill level when totalInput or threshold changes
+  const { ratio, fillHeight, targetY } = useMemo(
+    () => getBucketFillMetrics(totalInput, threshold),
+    [threshold, totalInput],
+  )
+
   useEffect(() => {
-    if (!fillRef.current) return
-    const ratio = Math.min(totalInput / Math.max(threshold, 1), 1.1)
-    const fillHeight = Math.max(0, Math.min(ratio * MAX_FILL_HEIGHT, MAX_FILL_HEIGHT + 8))
-    const targetY = BUCKET_BOTTOM - fillHeight
+    if (!fillRef.current) {
+      return
+    }
+
     gsap.to(fillRef.current, {
       attr: { y: targetY, height: fillHeight },
       duration: 0.45,
       ease: 'power2.out',
     })
-  }, [totalInput, threshold])
+  }, [fillHeight, targetY])
 
-  // Overflow flash when firing
   useEffect(() => {
-    if (!overflowRef.current) return
+    if (!overflowRef.current) {
+      return
+    }
+
     if (didFire) {
       gsap.fromTo(
         overflowRef.current,
         { opacity: 0, scale: 0.5 },
         { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2)', transformOrigin: 'center bottom' },
       )
-    } else {
-      gsap.to(overflowRef.current, { opacity: 0, duration: 0.2 })
+      return
     }
+
+    gsap.to(overflowRef.current, { opacity: 0, duration: 0.2 })
   }, [didFire])
 
-  // Drip animation on receive phase
   useEffect(() => {
-    if (currentPhase !== PROCESS_PHASES.RECEIVE) return
-    if (dripTlRef.current) dripTlRef.current.kill()
+    if (currentPhase !== PROCESS_PHASES.RECEIVE) {
+      return
+    }
 
-    const tl = gsap.timeline()
-    dripTlRef.current = tl
+    dripTlRef.current?.kill()
 
-    dripsRef.current.forEach((el, i) => {
-      if (!el) return
-      gsap.set(el, { cy: DRIP_Y_START, opacity: 1 })
-      tl.to(el, { cy: DRIP_Y_END, opacity: 0, duration: 0.4, ease: 'power1.in' }, i * 0.12)
+    const timeline = gsap.timeline()
+    dripTlRef.current = timeline
+
+    dripsRef.current.forEach((element, index) => {
+      if (!element) {
+        return
+      }
+
+      gsap.set(element, { cy: DRIP_Y_START, opacity: 1 })
+      timeline.to(element, { cy: DRIP_Y_END, opacity: 0, duration: 0.4, ease: 'power1.in' }, index * 0.12)
     })
-  }, [currentPhase])
 
-  const ratio = Math.min(totalInput / Math.max(threshold, 1), 1.1)
-  const initialFillHeight = Math.max(0, Math.min(ratio * MAX_FILL_HEIGHT, MAX_FILL_HEIGHT + 8))
-  const initialY = BUCKET_BOTTOM - initialFillHeight
+    return () => {
+      timeline.kill()
+    }
+  }, [currentPhase])
 
   return (
     <div className="leaky-bucket">
@@ -91,41 +113,21 @@ export default function LeakyBucket({ totalInput, threshold, didFire, currentPha
           </clipPath>
         </defs>
 
-        {/* Drip circles above bucket */}
-        {DRIP_XS.map((x, i) => (
-          <circle
-            key={i}
-            ref={(el) => { dripsRef.current[i] = el }}
-            cx={x}
-            cy={DRIP_Y_START}
-            r={4}
-            fill="#67e8f9"
-            opacity={0}
-          />
-        ))}
+        {renderDrips(dripsRef)}
 
-        {/* Water fill (clipped to bucket shape) */}
         <rect
           ref={fillRef}
           x={BUCKET_LEFT}
-          y={initialY}
+          y={targetY}
           width={BUCKET_RIGHT - BUCKET_LEFT}
-          height={initialFillHeight}
+          height={fillHeight}
           fill="url(#lbFillGrad)"
           opacity={0.85}
           clipPath="url(#lbBucketClip)"
         />
 
-        {/* Bucket outline */}
-        <path
-          d={BUCKET_PATH}
-          fill="none"
-          stroke="#94a3b8"
-          strokeWidth={2}
-          strokeLinejoin="round"
-        />
+        <path d={BUCKET_PATH} fill="none" stroke="#94a3b8" strokeWidth={2} strokeLinejoin="round" />
 
-        {/* Threshold dashed line */}
         <line
           x1={BUCKET_LEFT - 6}
           y1={THRESHOLD_Y}
@@ -135,19 +137,11 @@ export default function LeakyBucket({ totalInput, threshold, didFire, currentPha
           strokeWidth={1.5}
           strokeDasharray="4 3"
         />
-        <text
-          x={BUCKET_RIGHT + 10}
-          y={THRESHOLD_Y + 4}
-          fontSize={9}
-          fill="#f59e0b"
-          fontWeight="600"
-        >
+        <text x={BUCKET_RIGHT + 10} y={THRESHOLD_Y + 4} fontSize={9} fill="#f59e0b" fontWeight="600">
           threshold
         </text>
 
-        {/* Overflow splash (only when fired) */}
         <g ref={overflowRef} opacity={0}>
-          {/* Splash arcs */}
           <path
             d={`M ${BUCKET_LEFT + 10} ${BUCKET_TOP} Q ${(BUCKET_LEFT + BUCKET_RIGHT) / 2 - 20} ${BUCKET_TOP - 22} ${(BUCKET_LEFT + BUCKET_RIGHT) / 2} ${BUCKET_TOP - 28}`}
             fill="none"
@@ -177,7 +171,6 @@ export default function LeakyBucket({ totalInput, threshold, didFire, currentPha
           </text>
         </g>
 
-        {/* Label at bottom */}
         <text
           x={(BUCKET_LEFT + BUCKET_RIGHT) / 2}
           y={BUCKET_BOTTOM + 16}
