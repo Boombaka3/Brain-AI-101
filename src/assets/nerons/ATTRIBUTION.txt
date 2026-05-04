@@ -1,0 +1,12 @@
+Source artwork: Complete neuron cell diagram en.svg
+Source page: https://commons.wikimedia.org/wiki/File:Complete_neuron_cell_diagram_en.svg
+Original file: https://upload.wikimedia.org/wikipedia/commons/a/a9/Complete_neuron_cell_diagram_en.svg
+Author: LadyofHats
+Date listed on Wikimedia Commons: 12 July 2007
+License: Public domain
+
+Note:
+These SVG files in this folder are refined region-based crops derived from
+the original flattened source SVG. They are visually tighter than the first
+pass, but they are still not clean semantic part extractions from named
+source groups.

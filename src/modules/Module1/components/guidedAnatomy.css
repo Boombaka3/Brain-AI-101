@@ -214,6 +214,36 @@
   margin: 0;
 }
 
+.ga-attribution {
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+  padding-top: 10px;
+}
+
+.ga-attribution-line {
+  margin: 0;
+}
+
+.ga-attribution code {
+  background: rgba(148, 163, 184, 0.12);
+  border-radius: 4px;
+  color: #334155;
+  padding: 1px 4px;
+}
+
+.ga-attribution a {
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+.ga-attribution a:hover {
+  text-decoration: underline;
+}
+
 .ga-zoom-control {
   display: grid;
   gap: 8px;

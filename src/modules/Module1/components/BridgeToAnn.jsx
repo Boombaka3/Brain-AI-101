@@ -5,7 +5,7 @@ function BridgeToAnn({ onContinue }) {
   return (
     <section className="module1-section module1-bridge-section">
       <div className="module1-section-heading module1-bridge-heading">
-        <p className="module1-eyebrow">C. Bridge</p>
+        <p className="module1-eyebrow">D. Bridge</p>
         <h2>From a living neuron to a simpler model</h2>
         <p>
           We are not copying biology part-for-part. We are keeping one useful idea: signals come in, they combine, and

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 
-function LearningTypes({ isMobile }) {
+function LearningTypes({ isMobile, onJumpToSectionC }) {
   const [supWeights, setSupWeights] = useState([1, 1, 1])
   const [supTarget, setSupTarget] = useState(1)
   const [supShowFeedback, setSupShowFeedback] = useState(false)
@@ -95,6 +95,7 @@ function LearningTypes({ isMobile }) {
             ))}
           </svg>
           <div className="m3-controls">
+            <button className="m3-btn" onClick={onJumpToSectionC}>Open K-Means Lab</button>
             <button className="m3-btn" onClick={() => setUnsupStage(1)}>Show Similarity</button>
             <button className="m3-btn" onClick={() => {
               setUnsupStage(2)
@@ -118,6 +119,7 @@ function LearningTypes({ isMobile }) {
 
       <div className="m3-human-framing">
         <p><strong>Next comes reinforcement learning:</strong> instead of being given labels or only spotting clusters, the agent learns by trying actions and feeling the result.</p>
+        <p><button type="button" className="m3-btn m3-btn--primary" onClick={onJumpToSectionC}>Jump to Section C</button></p>
       </div>
     </section>
   )

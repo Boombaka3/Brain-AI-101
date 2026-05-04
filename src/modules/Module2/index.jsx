@@ -7,7 +7,6 @@ import ANNSection from './components/ANNSection'
 import ActivationSection from './components/ActivationSection'
 import SpecialistsSection from './components/SpecialistsSection'
 import ScanningSection from './components/ScanningSection'
-import LabSection from './components/LabSection'
 import './module2.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -17,7 +16,6 @@ const SECTIONS = [
   { label: 'Activation Functions' },
   { label: 'Selectivity & Dropout' },
   { label: 'CNNs' },
-  { label: 'Lab' },
 ]
 
 function Module2({ onBack, onContinue }) {
@@ -59,7 +57,6 @@ function Module2({ onBack, onContinue }) {
         <div ref={setRef(1)}><ActivationSection /></div>
         <div ref={setRef(2)}><SpecialistsSection /></div>
         <div ref={setRef(3)}><ScanningSection /></div>
-        <div ref={setRef(4)}><LabSection /></div>
 
         <section className="m2-section m2-continue-section">
           <div className="m2-continue-card" onClick={onContinue} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onContinue?.()}>

@@ -67,16 +67,16 @@ function ReinforcementLab({ embedded = false }) {
   return (
     <div className={`m3-rl-block${embedded ? ' m3-rl-block--embedded' : ''}`}>
       <div className="m3-human-framing">
-        <p><strong>Part 3. Reinforcement learning:</strong> there is no answer key on each move. The agent only feels rewards, penalties, and time pressure, then changes the actions it prefers.</p>
-        <p>That makes this the third training story: supervised uses labels, unsupervised uses structure, and reinforcement uses consequences.</p>
+        <p><strong>Part 2. Reinforcement learning:</strong> now the answer key is gone. The agent has to try moves, feel the result, and slowly figure out which path pays off.</p>
+        <p>This is the most trial-and-error version of learning in the section.</p>
       </div>
 
       <div className="m3-rl-layout">
         <div className="m3-rl-stage">
           <div className="m3-rl-stage-header">
             <div>
-              <p className="m3-rl-control-label">Part 3 · Reinforcement</p>
-              <h3>Teach the robot with rewards and penalties</h3>
+              <p className="m3-rl-control-label">Part 2 · Reinforcement</p>
+              <h3>Learn by rewards, penalties, and retries</h3>
             </div>
             <div className="m3-rl-legend">
               <span className="m3-rl-legend-chip m3-rl-legend-chip--start">🤖 Start</span>

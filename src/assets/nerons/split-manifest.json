@@ -1,0 +1,41 @@
+{
+  "source": "src/assets/complete-neuron-cell-diagram-en.svg",
+  "sourcePage": "https://commons.wikimedia.org/wiki/File:Complete_neuron_cell_diagram_en.svg",
+  "sourceOriginalFile": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Complete_neuron_cell_diagram_en.svg",
+  "author": "LadyofHats",
+  "license": "Public domain",
+  "sourceDescription": "Complete neuron cell diagram.",
+  "note": "These are refined region-based splits from a flattened SVG. They are visually tighter than the first pass, but they are still not semantic layer extractions from named source groups.",
+  "files": [
+    {
+      "file": "complete-neuron-dendrites.svg",
+      "viewBox": "0 120 360 420",
+      "label": "Dendrites"
+    },
+    {
+      "file": "complete-neuron-soma.svg",
+      "viewBox": "120 145 420 360",
+      "label": "Soma"
+    },
+    {
+      "file": "complete-neuron-axon.svg",
+      "viewBox": "650 135 169 180",
+      "label": "Axon"
+    },
+    {
+      "file": "complete-neuron-terminals.svg",
+      "viewBox": "685 95 110 105",
+      "label": "Axon terminals"
+    },
+    {
+      "file": "complete-neuron-synapse.svg",
+      "viewBox": "395 0 355 265",
+      "label": "Synapse inset"
+    },
+    {
+      "file": "complete-neuron-myelin-inset.svg",
+      "viewBox": "545 335 274 261",
+      "label": "Myelin inset"
+    }
+  ]
+}

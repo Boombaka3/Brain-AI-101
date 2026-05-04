@@ -389,6 +389,20 @@ export default function GuidedAnatomyOverlay({ onComplete, finishLabel = "Got it
               ? `${activeStep.label} in close-up. Slide to zoom, and drag the image to pan when zoomed in.`
               : 'The zoom panel updates as you explore each part.'}
           </p>
+          <div className="ga-attribution" aria-label="Image attribution">
+            <p className="ga-attribution-line">
+              Overview image:{' '}
+              <a href="https://www.vecteezy.com/free-vector/neuron" target="_blank" rel="noreferrer">
+                Neuron Vectors by Vecteezy
+              </a>
+            </p>
+            <p className="ga-attribution-line">
+              Zoom image:{' '}
+              <a href="https://upload.wikimedia.org/wikipedia/commons/a/a9/Complete_neuron_cell_diagram_en.svg" target="_blank" rel="noreferrer">
+                Complete neuron cell diagram (English) via Wikimedia Commons
+              </a>
+            </p>
+          </div>
         </motion.div>
       </AnimatePresence>
     </div>

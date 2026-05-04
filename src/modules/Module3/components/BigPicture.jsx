@@ -21,7 +21,7 @@ function BigPicture() {
   return (
     <section className="m3-section">
       <div className="m3-section-heading">
-        <p className="m3-eyebrow">E. Big Picture</p>
+        <p className="m3-eyebrow">F. Big Picture</p>
         <h2>Context, Inference, and What Changes</h2>
         <p className="m3-section-subtitle">
           Training changes memory. Inference changes this choice. Context shifts the threshold without touching weights.

@@ -36,7 +36,7 @@ function BrainConnection() {
   return (
     <section className="m3-section">
       <div className="m3-section-heading">
-        <p className="m3-eyebrow">D. Brain Connection</p>
+        <p className="m3-eyebrow">E. Brain Connection</p>
         <h2>Dopamine as Prediction Error</h2>
         <p className="m3-section-subtitle">
           Dopamine doesn't signal pleasure — it signals "better or worse than expected."
