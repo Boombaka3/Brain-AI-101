@@ -30,7 +30,7 @@ function KMeansPlot({ points, centroids, onAddPoint }) {
       ))}
 
       <text x="40" y="26" className="m3-kmeans-plot-label">feature space</text>
-      <text x="400" y="334" className="m3-kmeans-plot-caption">click inside the white box to add points</text>
+      <text x="400" y="334" className="m3-kmeans-plot-caption">Add points to see groups form.</text>
 
       {points.map((point) => {
         const centroid = point.clusterId != null ? centroids[point.clusterId] : null

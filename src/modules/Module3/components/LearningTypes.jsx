@@ -1,125 +1,176 @@
-import { useState, useMemo } from 'react'
-import { motion } from 'framer-motion'
+import { useMemo, useState } from 'react'
+
+const UNSUPERVISED_ITEMS = [
+  { label: 'Point A', group: 'group1' },
+  { label: 'Point B', group: 'group1' },
+  { label: 'Point C', group: 'group1' },
+  { label: 'Point D', group: 'group2' },
+  { label: 'Point E', group: 'group2' },
+  { label: 'Point F', group: 'group2' },
+]
+
+const RL_STEPS = [
+  { label: 'Move up → safe path', reward: '+1', nextValues: { up: 0.1, right: 0.4, down: 0.0, left: 0.0 } },
+  { label: 'Move right → blocked path', reward: '-1', nextValues: { up: 0.1, right: 0.4, down: -0.5, left: 0.0 } },
+  { label: 'Reach goal → success', reward: '+10', nextValues: { up: 0.1, right: 0.9, down: -0.5, left: 0.0 } },
+]
 
 function LearningTypes({ isMobile, onJumpToSectionC }) {
-  const [supWeights, setSupWeights] = useState([1, 1, 1])
-  const [supTarget, setSupTarget] = useState(1)
-  const [supShowFeedback, setSupShowFeedback] = useState(false)
-  const [supChanged, setSupChanged] = useState([false, false, false])
+  const [supervisedStage, setSupervisedStage] = useState(0)
+  const [unsupervisedGrouped, setUnsupervisedGrouped] = useState(false)
+  const [reinforcementStage, setReinforcementStage] = useState(0)
 
-  const [unsupStage, setUnsupStage] = useState(0)
-  const [unsupPoints, setUnsupPoints] = useState([
-    { id: 1, x: 0.2, y: 0.3, g: null }, { id: 2, x: 0.28, y: 0.39, g: null },
-    { id: 3, x: 0.68, y: 0.72, g: null }, { id: 4, x: 0.62, y: 0.56, g: null },
-    { id: 5, x: 0.45, y: 0.58, g: null }
-  ])
+  const reinforcementValues = useMemo(() => {
+    if (reinforcementStage === 0) {
+      return { up: 0.1, right: 0.2, down: 0.0, left: 0.0 }
+    }
 
-  const sCalc = useMemo(() => {
-    const c = [2, 3, 1].map((v, i) => v * supWeights[i])
-    const sum = c.reduce((a, b) => a + b, 0)
-    const pred = sum >= 5 ? 1 : 0
-    return { c, sum, pred, mismatch: pred !== supTarget }
-  }, [supWeights, supTarget])
+    return RL_STEPS[reinforcementStage - 1].nextValues
+  }, [reinforcementStage])
 
-  const applySup = () => {
-    setSupShowFeedback(true)
-    if (!sCalc.mismatch) { setSupChanged([false, false, false]); return }
-    const dir = supTarget === 1 ? 1 : -1
-    const max = Math.max(...sCalc.c.map(v => Math.abs(v)), 1)
-    const d = sCalc.c.map(v => Number(((0.08 + (Math.abs(v) / max) * 0.12) * dir).toFixed(2)))
-    setSupChanged(d.map(v => Math.abs(v) > 0))
-    setSupWeights(prev => prev.map((w, i) => Number((w + d[i]).toFixed(2))))
-  }
+  const bestMove = Object.entries(reinforcementValues).sort((a, b) => b[1] - a[1])[0][0]
 
   return (
     <section className="m3-section">
       <div className="m3-section-heading">
-        <p className="m3-eyebrow">B. Three Ways to Learn</p>
-        <h2>Same Pattern, Different Feedback</h2>
-        <p className="m3-section-subtitle">Each lab compares, gets feedback, then changes.</p>
+        <p className="m3-eyebrow">B. LEARNING SIGNALS</p>
+        <h2>Same pattern, different feedback.</h2>
+        <p className="m3-section-subtitle">Each learning type uses a different signal.</p>
       </div>
 
-      <div className="m3-types-grid" style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, minmax(0, 1fr))' }}>
-        {/* Supervised */}
-        <div className="m3-type-card">
-          <div className="m3-type-title">Supervised</div>
-          <svg viewBox="0 0 300 180" className="m3-svg-block">
-            <rect x="6" y="6" width="288" height="168" rx="10" fill="#F8FAFC" stroke="#E2E8F0" />
-            {[2, 3, 1].map((v, i) => (
-              <g key={i} transform={`translate(${18 + i * 52},28)`}>
-                <rect width="44" height="56" rx="8" fill="#fff" stroke={supChanged[i] ? '#60A5FA' : '#CBD5E1'} />
-                <text x="22" y="18" textAnchor="middle" fontSize="10" fill="#64748B">x{i + 1}</text>
-                <text x="22" y="34" textAnchor="middle" fontSize="14" fontWeight="700" fill="#1E293B">{v}</text>
-                <text x="22" y="48" textAnchor="middle" fontSize="10" fill="#334155">w{supWeights[i].toFixed(1)}</text>
-              </g>
-            ))}
-            <rect x="174" y="28" width="54" height="56" rx="8" fill="#fff" stroke="#CBD5E1" />
-            <text x="201" y="45" textAnchor="middle" fontSize="10" fill="#64748B">Target</text>
-            <text x="201" y="66" textAnchor="middle" fontSize="16" fontWeight="700" fill="#1E293B">{supTarget}</text>
-            <rect x="236" y="28" width="46" height="56" rx="8" fill="#fff" stroke="#CBD5E1" />
-            <text x="259" y="45" textAnchor="middle" fontSize="10" fill="#64748B">Pred</text>
-            <motion.text key={sCalc.pred} x="259" y="66" textAnchor="middle" fontSize="16" fontWeight="700" fill="#1E293B" initial={{ opacity: 0.5, y: 69 }} animate={{ opacity: 1, y: 66 }} transition={{ duration: 0.22 }}>{sCalc.pred}</motion.text>
-            {supShowFeedback && (
-              <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-                <rect x="18" y="100" width="264" height="26" rx="8" fill={sCalc.mismatch ? '#FEF3C7' : '#DCFCE7'} stroke={sCalc.mismatch ? '#F59E0B' : '#22C55E'} />
-                <text x="150" y="117" textAnchor="middle" fontSize="11" fontWeight="700" fill={sCalc.mismatch ? '#B45309' : '#166534'}>
-                  {sCalc.mismatch ? 'Mismatch shown. Weights changed.' : 'Match. Weights stayed.'}
-                </text>
-              </motion.g>
-            )}
-          </svg>
-          <div className="m3-controls">
-            <button className="m3-btn" onClick={() => { setSupTarget(t => t === 1 ? 0 : 1); setSupShowFeedback(false); setSupChanged([false, false, false]) }}>Change Target</button>
-            <button className="m3-btn" onClick={applySup}>Apply Feedback</button>
-            <button className="m3-btn" onClick={() => { setSupWeights([1, 1, 1]); setSupTarget(1); setSupShowFeedback(false); setSupChanged([false, false, false]) }}>Reset</button>
-          </div>
-          <p className="m3-type-desc">Compare target vs prediction, then update.</p>
-          <p className="m3-human-parallel"><em>Human parallel:</em> Like a teacher correcting your spelling — you get explicit right/wrong feedback.</p>
-        </div>
+      <div
+        className="m3-types-grid m3-types-grid--three m3-types-grid--mechanisms"
+        style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))' }}
+      >
+        <article className="m3-type-card m3-type-card--story">
+          <div className="m3-type-title">Supervised Learning</div>
+          <p>Signal: target answer</p>
+          <p>The model compares its prediction with the correct answer.</p>
 
-        {/* Unsupervised */}
-        <div className="m3-type-card">
-          <div className="m3-type-title">Unsupervised</div>
-          <svg viewBox="0 0 300 180" className="m3-svg-block">
-            <rect x="6" y="6" width="288" height="168" rx="10" fill="#F8FAFC" stroke="#E2E8F0" />
-            <rect x="18" y="20" width="264" height="140" rx="8" fill="#fff" stroke="#CBD5E1" />
-            {unsupStage >= 1 && unsupStage < 2 && unsupPoints.map(p => {
-              let n = null, m = Infinity
-              unsupPoints.forEach(q => { if (q.id === p.id) return; const d = (p.x - q.x) ** 2 + (p.y - q.y) ** 2; if (d < m) { m = d; n = q } })
-              if (!n) return null
-              return <line key={`n-${p.id}`} x1={28 + p.x * 240} y1={30 + p.y * 120} x2={28 + n.x * 240} y2={30 + n.y * 120} stroke="#93C5FD" strokeWidth="2" strokeDasharray="4 3" />
-            })}
-            {unsupStage >= 2 && <><circle cx="98" cy="82" r="40" fill="none" stroke="#93C5FD" strokeDasharray="5 4" /><circle cx="214" cy="104" r="40" fill="none" stroke="#86EFAC" strokeDasharray="5 4" /></>}
-            {unsupPoints.map(p => (
-              <motion.circle key={p.id} cx={28 + p.x * 240} cy={30 + p.y * 120} r="9" fill={p.g === 'A' ? '#3B82F6' : p.g === 'B' ? '#16A34A' : '#94A3B8'} animate={{ cx: 28 + p.x * 240, cy: 30 + p.y * 120 }} transition={{ duration: 0.28 }} />
-            ))}
-          </svg>
-          <div className="m3-controls">
-            <button className="m3-btn" onClick={onJumpToSectionC}>Open K-Means Lab</button>
-            <button className="m3-btn" onClick={() => setUnsupStage(1)}>Show Similarity</button>
-            <button className="m3-btn" onClick={() => {
-              setUnsupStage(2)
-              setUnsupPoints(pts => pts.map(v => {
-                const g = v.x + v.y > 1.08 ? 'B' : 'A'
-                const tx = g === 'A' ? 0.2 + (v.id % 2) * 0.06 : 0.67 + (v.id % 2) * 0.06
-                const ty = g === 'A' ? 0.36 + (v.id % 3) * 0.07 : 0.5 + (v.id % 3) * 0.07
-                return { ...v, g, x: tx, y: ty }
-              }))
-            }}>Find Groups</button>
-            <button className="m3-btn" onClick={() => {
-              setUnsupStage(0)
-              setUnsupPoints([{ id: 1, x: 0.2, y: 0.3, g: null }, { id: 2, x: 0.28, y: 0.39, g: null }, { id: 3, x: 0.68, y: 0.72, g: null }, { id: 4, x: 0.62, y: 0.56, g: null }, { id: 5, x: 0.45, y: 0.58, g: null }])
-            }}>Reset</button>
+          <div className="m3-feedback-stack">
+            <div className="m3-feedback-box">
+              <span>Prediction</span>
+              <strong>{supervisedStage >= 1 ? '1' : '...'}</strong>
+            </div>
+            <div className="m3-feedback-box">
+              <span>Target</span>
+              <strong>{supervisedStage >= 2 ? '0' : '...'}</strong>
+            </div>
+            <div className="m3-feedback-box">
+              <span>Error</span>
+              <strong>{supervisedStage >= 2 ? '-1' : '...'}</strong>
+            </div>
           </div>
-          <p className="m3-type-desc">No targets. Similar points form groups.</p>
-          <p className="m3-human-parallel"><em>Human parallel:</em> Like noticing you keep seeing the same faces at the coffee shop — no one told you they're regulars.</p>
-        </div>
 
+          <div className="m3-mini-weights">
+            <div className="m3-mini-weights__row">
+              <span>w1</span>
+              <strong>{supervisedStage >= 3 ? '0.4 → 0.3' : '0.4'}</strong>
+            </div>
+            <div className="m3-mini-weights__row">
+              <span>w2</span>
+              <strong>{supervisedStage >= 3 ? '0.7 → 0.7' : '0.7'}</strong>
+            </div>
+            <div className="m3-mini-weights__row">
+              <span>w3</span>
+              <strong>{supervisedStage >= 3 ? '0.2 → 0.1' : '0.2'}</strong>
+            </div>
+          </div>
+
+          <div className="m3-controls">
+            <button className="m3-btn" onClick={() => setSupervisedStage(1)}>Show Prediction</button>
+            <button className="m3-btn" onClick={() => setSupervisedStage(2)}>Show Target</button>
+            <button className="m3-btn" onClick={() => setSupervisedStage(3)}>Update Weights</button>
+            <button className="m3-btn" onClick={() => setSupervisedStage(0)}>Reset</button>
+          </div>
+
+          <p className="m3-type-desc">Weights update after feedback. Target answers guide the update.</p>
+        </article>
+
+        <article className="m3-type-card m3-type-card--story">
+          <div className="m3-type-title">Unsupervised Learning</div>
+          <p>Signal: similarity</p>
+          <p>The model finds groups without target answers.</p>
+
+          <div className={`m3-pattern-board ${unsupervisedGrouped ? 'is-grouped' : ''}`}>
+            {UNSUPERVISED_ITEMS.map((item) => (
+              <span
+                key={item.label}
+                className={`m3-pattern-chip ${unsupervisedGrouped ? `is-${item.group}` : ''}`}
+              >
+                {item.label}
+              </span>
+            ))}
+          </div>
+
+          <div className="m3-before-after">
+            <div className="m3-before-after__card">
+              <span>Before</span>
+              <strong>Mixed items</strong>
+            </div>
+            <div className="m3-before-after__arrow">→</div>
+            <div className="m3-before-after__card is-good">
+              <span>After</span>
+              <strong>{unsupervisedGrouped ? 'Grouped by similarity' : 'Waiting'}</strong>
+            </div>
+          </div>
+
+          <div className="m3-controls">
+            <button className="m3-btn" onClick={() => setUnsupervisedGrouped(true)}>Show Distance</button>
+            <button className="m3-btn" onClick={() => setUnsupervisedGrouped(true)}>Find Groups</button>
+            <button className="m3-btn" onClick={() => setUnsupervisedGrouped(true)}>Move Centers</button>
+            <button className="m3-btn" onClick={() => setUnsupervisedGrouped(false)}>Reset</button>
+          </div>
+
+          <p className="m3-type-desc">Similar points form groups. Distance shows which points belong together.</p>
+        </article>
+
+        <article className="m3-type-card m3-type-card--story">
+          <div className="m3-type-title">Reinforcement Learning</div>
+          <p>Signal: reward</p>
+          <p>The system tries actions and learns from results.</p>
+
+          <div className="m3-reward-track">
+            {RL_STEPS.map((item, index) => (
+              <div
+                key={item.label}
+                className={`m3-reward-step${reinforcementStage >= index + 1 ? ` is-active ${item.reward.startsWith('+') ? 'is-good' : 'is-bad'}` : ''}`}
+              >
+                <strong>{item.label}</strong>
+                <span>{reinforcementStage >= index + 1 ? item.reward : '...'}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="m3-mini-weights">
+            {Object.entries(reinforcementValues).map(([action, value]) => (
+              <div key={action} className={`m3-mini-weights__row${bestMove === action ? ' is-best' : ''}`}>
+                <span>{action}</span>
+                <strong>{value.toFixed(1)}</strong>
+              </div>
+            ))}
+          </div>
+
+          <div className="m3-mini-callout">
+            <strong>Best Action</strong>
+            <span>{bestMove}</span>
+          </div>
+
+          <div className="m3-controls">
+            <button className="m3-btn" onClick={() => setReinforcementStage(1)}>Try Action</button>
+            <button className="m3-btn" onClick={() => setReinforcementStage(2)}>Show Reward</button>
+            <button className="m3-btn" onClick={() => setReinforcementStage(3)}>Update Choice</button>
+            <button className="m3-btn" onClick={() => setReinforcementStage(0)}>Reset</button>
+          </div>
+
+          <p className="m3-type-desc">Rewards shape future actions.</p>
+        </article>
       </div>
 
-      <div className="m3-human-framing">
-        <p><strong>Next comes reinforcement learning:</strong> instead of being given labels or only spotting clusters, the agent learns by trying actions and feeling the result.</p>
-        <p><button type="button" className="m3-btn m3-btn--primary" onClick={onJumpToSectionC}>Jump to Section C</button></p>
+      <div className="m3-controls">
+        <button type="button" className="m3-btn m3-btn--primary" onClick={onJumpToSectionC}>
+          Open the hands-on labs
+        </button>
       </div>
     </section>
   )

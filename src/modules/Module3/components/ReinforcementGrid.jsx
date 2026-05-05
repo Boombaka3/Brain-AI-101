@@ -189,7 +189,7 @@ function ReinforcementGrid({
               </div>
               <div className="m3-rl-cell-bottom">
                 <span>{x},{y}</span>
-                <span>{isEditable ? 'Click to edit' : 'Agent start'}</span>
+                {!isEditable && <span>Agent start</span>}
               </div>
             </motion.button>
           )

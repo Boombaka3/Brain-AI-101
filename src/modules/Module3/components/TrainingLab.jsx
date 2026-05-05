@@ -51,8 +51,8 @@ function TrainingLab() {
     <section className="m3-section">
       <div className="m3-section-heading">
         <p className="m3-eyebrow">D. Training</p>
-        <h2>Practice Changes Weights</h2>
-        <p className="m3-section-subtitle">This section zooms in on weight updates: compare a prediction to a target, measure the miss, and nudge the model toward a better answer next time.</p>
+        <h2>Practice changes weights</h2>
+        <p className="m3-section-subtitle">Run one example at a time. Wrong guesses shift the active weights.</p>
       </div>
 
       <LossChart trainingStep={step} mismatch={tCalc.mismatch} />
@@ -130,7 +130,7 @@ function TrainingLab() {
             </text>
           </motion.g>
 
-          <text x="356" y="172" fontSize="11" fill="#64748B">Weight deltas — backpropagation</text>
+          <text x="356" y="172" fontSize="11" fill="#64748B">Weight updates</text>
           {delta.map((d, i) => (
             <g key={`d-${i}`} transform={`translate(${436 + i * 84},154)`}>
               <rect width="74" height="30" rx="8" fill={d !== 0 ? '#EFF6FF' : '#fff'} stroke={d !== 0 ? '#93C5FD' : '#CBD5E1'} />
@@ -157,7 +157,7 @@ function TrainingLab() {
         </svg>
 
         <div className="m3-backprop-callout">
-          <strong>Backpropagation</strong> — the algorithm that distributes blame for a wrong answer back through every weight that contributed to it.
+          <strong>Update rule:</strong> if the guess is wrong, active weights shift. Bigger contributions shift more.
         </div>
 
         <div className="m3-controls">

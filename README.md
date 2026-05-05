@@ -1,16 +1,98 @@
-# React + Vite
+# AIweb
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interactive learning site for biological neurons, neural networks, and AI concepts, built with React and Vite.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React
+- Vite
+- ESLint
+- Framer Motion
+- React Three Fiber
 
-## React Compiler
+## Main App Areas
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `src/modules/Module1`
+  Biological neuron concepts, anatomy, threshold, and the sound experiment.
+- `src/modules/Module2`
+  Pattern recognition and visual feature learning.
+- `src/modules/Module3`
+  Supervised, unsupervised, and reinforcement learning activities.
 
-## Expanding the ESLint configuration
+## Local Development
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the dev server:
+
+```bash
+npm run dev
+```
+
+Build for production:
+
+```bash
+npm run build
+```
+
+Deploy:
+
+```bash
+npm run deploy
+```
+
+## Project Notes
+
+### Module 1 Section C
+
+The sound experiment in Module 1 is driven by shared React state so the word-flow scene, threshold state, and neuron panel stay coordinated.
+
+Relevant files:
+
+- `src/modules/Module1/components/HotSurfaceInteractionPanel.jsx`
+- `src/modules/Module1/hooks/useSoundNeuronExperiment.js`
+- `src/modules/Module1/components/PhetNeuronPanel.jsx`
+- `src/modules/Module1/components/PhetNeuronEmbed.jsx`
+- `src/modules/Module1/hooks/usePhetNeuronController.js`
+
+### PhET neuron integration
+
+Module 1 Section C is being integrated with the upstream PhET neuron simulator:
+
+- Source repo: `https://github.com/phetsims/neuron`
+- Current app behavior: the lesson shell is in this app, and the neuron simulator is embedded on the right side
+- Current limitation: exact iframe-driven firing sync needs a same-origin local PhET build plus a small message bridge
+
+Helper scripts:
+
+- `scripts/setup-phet-neuron.ps1`
+- `scripts/build-phet-neuron.ps1`
+
+Current Windows caveat:
+
+- the upstream PhET build currently breaks when the workspace path contains spaces, such as `D:\Qixuan Wu\Web\AIweb\AIweb`
+- if needed, build the PhET vendor tree from a no-spaces path before copying the output back into `public/vendor/phet/neuron`
+
+## Repository Structure
+
+```text
+src/
+  components/
+  modules/
+    Module1/
+    Module2/
+    Module3/
+  pages/
+public/
+scripts/
+```
+
+## Attribution
+
+Attribution links used by the app are recorded in:
+
+- `src/assets/attribute.txt`

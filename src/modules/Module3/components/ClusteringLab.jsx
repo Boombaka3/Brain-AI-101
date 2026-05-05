@@ -2,8 +2,6 @@ import KMeansControls from './KMeansControls'
 import KMeansPlot from './KMeansPlot'
 import useKMeansDemo from '../clustering/useKMeansDemo'
 
-const KMEANS_REPO_URL = 'https://github.com/thinkphp/k-means-clustering'
-
 function ClusteringLab() {
   const {
     clusterCount,
@@ -33,8 +31,7 @@ function ClusteringLab() {
         <div className="m3-kmeans-stage">
           <div className="m3-rl-stage-header">
             <div>
-              <p className="m3-rl-control-label">Part 1. Unsupervised learning</p>
-              <h3>Let the data sort itself into groups</h3>
+              <p className="m3-rl-control-label">Unsupervised Learning: Find Groups</p>
             </div>
             <div className="m3-rl-legend">
               <span className="m3-rl-legend-chip m3-kmeans-chip">No labels</span>
@@ -65,11 +62,7 @@ function ClusteringLab() {
           </div>
 
           <div className="m3-rl-insight">
-            <strong>What k-means is doing:</strong> {statusCopy}
-          </div>
-
-          <div className="m3-rl-insight m3-rl-insight--soft">
-            <strong>Human parallel:</strong> this is like noticing which people naturally sit together before anyone tells you who is friends with whom.
+            <strong>Signal:</strong> {statusCopy}
           </div>
         </div>
 
@@ -93,30 +86,23 @@ function ClusteringLab() {
 
       <div className="m3-kmeans-bottom-grid">
         <div className="m3-rl-q-card">
-          <p className="m3-rl-control-label">Read the picture</p>
+          <p className="m3-rl-control-label">How to Read It</p>
           <div className="m3-rl-copy-list">
-            <p><strong>Gray points</strong> mean the algorithm has not assigned clusters yet.</p>
-            <p><strong>Colored points</strong> belong to the centroid with the shortest distance.</p>
-            <p><strong>Crosshair markers</strong> are centroids. They slide toward the average location of their assigned points each round.</p>
+            <p><strong>Gray points:</strong> not assigned</p>
+            <p><strong>Colored points:</strong> assigned to a group</p>
+            <p><strong>Center point:</strong> moves toward the group average</p>
           </div>
         </div>
 
         <div className="m3-rl-q-card">
-          <p className="m3-rl-control-label">Why this comes before RL</p>
+          <p className="m3-rl-control-label">Learning Signal</p>
           <div className="m3-rl-copy-list">
-            <p><strong>Unsupervised learning</strong> finds structure without reward labels or right answers.</p>
-            <p><strong>Supervised learning</strong> adds an answer key and checks each guess against it.</p>
-            <p><strong>Reinforcement learning</strong> comes after that and replaces the answer key with consequences over time.</p>
+            <p><strong>No target answer</strong></p>
+            <p><strong>No reward</strong></p>
+            <p><strong>Distance guides the grouping</strong></p>
           </div>
         </div>
       </div>
-
-      <p className="m3-source-note">
-        Source and attribution:{' '}
-        <a href={KMEANS_REPO_URL} target="_blank" rel="noopener noreferrer">
-          thinkphp/k-means-clustering on GitHub
-        </a>
-      </p>
     </div>
   )
 }

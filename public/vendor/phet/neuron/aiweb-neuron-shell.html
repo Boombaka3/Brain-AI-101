@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AIweb Neuron Shell</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --shell-blue: #2563eb;
+      --shell-cyan: #06b6d4;
+      --shell-gold: #f59e0b;
+      --shell-ink: #0f172a;
+      --shell-soft: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% 16%, rgba(219, 234, 254, 0.42) 0%, rgba(219, 234, 254, 0) 28%),
+        linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
+      color: var(--shell-ink);
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .shell {
+      inset: 0;
+      position: absolute;
+    }
+
+    .shell__frame {
+      border: 0;
+      height: 100%;
+      inset: 0;
+      position: absolute;
+      width: 100%;
+    }
+
+    .shell__veil {
+      background: linear-gradient(180deg, rgba(248, 251, 255, 0.16) 0%, rgba(248, 251, 255, 0.04) 100%);
+      inset: 0;
+      pointer-events: none;
+      position: absolute;
+    }
+
+    .shell__hud {
+      display: grid;
+      gap: 10px;
+      inset: 14px;
+      pointer-events: none;
+      position: absolute;
+    }
+
+    .shell__topbar {
+      align-items: start;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .shell__pill {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(191, 219, 254, 0.95);
+      border-radius: 999px;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
+      color: var(--shell-blue);
+      display: inline-flex;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 8px 12px;
+      text-transform: uppercase;
+    }
+
+    .shell__status {
+      align-items: center;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(203, 213, 225, 0.95);
+      border-radius: 18px;
+      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+      display: inline-flex;
+      gap: 10px;
+      padding: 10px 12px;
+    }
+
+    .shell__status-dot {
+      background: var(--shell-blue);
+      border-radius: 999px;
+      height: 10px;
+      transition: transform 220ms ease, background-color 220ms ease, box-shadow 220ms ease;
+      width: 10px;
+    }
+
+    .shell__status-text {
+      color: var(--shell-soft);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .shell__chart {
+      align-self: start;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(219, 234, 254, 0.96);
+      border-radius: 16px;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
+      margin-left: auto;
+      overflow: hidden;
+      padding: 10px 10px 8px;
+      width: 152px;
+    }
+
+    .shell__chart svg {
+      display: block;
+      height: auto;
+      width: 100%;
+    }
+
+    .shell__curve-base,
+    .shell__curve-live {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .shell__curve-base {
+      stroke: #cbd5e1;
+      stroke-width: 6;
+    }
+
+    .shell__curve-live {
+      stroke: var(--shell-blue);
+      stroke-dasharray: 240;
+      stroke-dashoffset: 178;
+      stroke-width: 7;
+      transition: stroke 240ms ease;
+    }
+
+    .shell__pulse-stage {
+      align-self: end;
+      display: grid;
+      gap: 8px;
+    }
+
+    .shell__pulse-track {
+      background: linear-gradient(90deg, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0.02) 100%);
+      border: 1px solid rgba(191, 219, 254, 0.92);
+      border-radius: 999px;
+      height: 18px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .shell__pulse-wave {
+      background: linear-gradient(90deg, rgba(37, 99, 235, 0) 0%, rgba(6, 182, 212, 0.85) 44%, rgba(37, 99, 235, 0) 100%);
+      border-radius: 999px;
+      height: 100%;
+      left: -36%;
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      width: 36%;
+    }
+
+    .shell__timeline {
+      align-items: center;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .shell__timeline span {
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(219, 234, 254, 0.88);
+      border-radius: 999px;
+      color: var(--shell-soft);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 6px 8px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .shell__timeline span.is-active {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: rgba(96, 165, 250, 0.72);
+      color: var(--shell-blue);
+    }
+
+    .shell.is-running .shell__status-dot,
+    .shell.is-ready .shell__status-dot {
+      background: var(--shell-blue);
+    }
+
+    .shell.is-primed .shell__status-dot {
+      background: var(--shell-gold);
+      box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.14);
+      transform: scale(1.08);
+    }
+
+    .shell.is-primed .shell__curve-live {
+      stroke: var(--shell-gold);
+      stroke-dashoffset: 112;
+    }
+
+    .shell.is-firing .shell__status-dot {
+      background: #0f766e;
+      box-shadow: 0 0 0 12px rgba(6, 182, 212, 0.16);
+      transform: scale(1.15);
+    }
+
+    .shell.is-firing .shell__curve-live {
+      animation: shellChartSpike 0.9s ease-out forwards;
+      stroke: #0f766e;
+    }
+
+    .shell.is-firing .shell__pulse-wave {
+      animation: shellPulseRun 1s ease-out forwards;
+      opacity: 1;
+    }
+
+    .shell.is-recovering .shell__status-dot {
+      background: #475569;
+      box-shadow: 0 0 0 6px rgba(148, 163, 184, 0.14);
+    }
+
+    .shell.is-recovering .shell__curve-live {
+      stroke: #64748b;
+      stroke-dashoffset: 168;
+    }
+
+    .shell.is-leaked .shell__status-dot {
+      background: #64748b;
+    }
+
+    .shell.is-leaked .shell__curve-live {
+      stroke: #64748b;
+      stroke-dashoffset: 184;
+    }
+
+    @keyframes shellPulseRun {
+      0% {
+        left: -36%;
+        opacity: 0.2;
+      }
+
+      12% {
+        opacity: 1;
+      }
+
+      100% {
+        left: 100%;
+        opacity: 0;
+      }
+    }
+
+    @keyframes shellChartSpike {
+      0% {
+        stroke-dashoffset: 168;
+      }
+
+      35% {
+        stroke-dashoffset: 30;
+      }
+
+      100% {
+        stroke-dashoffset: 168;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell is-ready" id="shell">
+    <iframe
+      class="shell__frame"
+      src="https://phet.colorado.edu/sims/html/neuron/latest/neuron_en.html"
+      title="PhET neuron simulator"
+      loading="lazy"
+    ></iframe>
+    <div class="shell__veil"></div>
+    <div class="shell__hud">
+      <div class="shell__topbar">
+        <div class="shell__status">
+          <span class="shell__status-dot"></span>
+          <span class="shell__status-text" id="statusText">Ready for a sound burst</span>
+        </div>
+        <div class="shell__chart">
+          <div class="shell__pill">Membrane response</div>
+          <svg viewBox="0 0 220 96" aria-hidden="true">
+            <path class="shell__curve-base" d="M8 70 L54 70 C72 70 82 68 92 38 C98 20 104 12 112 34 C124 66 136 70 212 70" />
+            <path class="shell__curve-live" d="M8 70 L54 70 C72 70 82 68 92 38 C98 20 104 12 112 34 C124 66 136 70 212 70" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="shell__pulse-stage">
+        <div class="shell__pulse-track">
+          <div class="shell__pulse-wave"></div>
+        </div>
+        <div class="shell__timeline" id="timeline">
+          <span data-step="build">Build</span>
+          <span data-step="threshold">Threshold</span>
+          <span data-step="spike">Spike</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const shell = document.getElementById('shell')
+      const statusText = document.getElementById('statusText')
+      const timeline = document.getElementById('timeline')
+      let spikeTimer = null
+
+      const stateCopy = {
+        ready: 'Ready for a sound burst',
+        running: 'Signals are building inside the neuron',
+        primed: 'The neuron is close to threshold',
+        firing: 'Threshold crossed — spike in progress',
+        recovering: 'The neuron is settling back down',
+        leaked: 'The signals faded before a spike',
+      }
+
+      function setShellState(nextState) {
+        shell.className = `shell is-${nextState}`
+        statusText.textContent = stateCopy[nextState] || stateCopy.ready
+        updateTimeline(nextState)
+      }
+
+      function updateTimeline(nextState) {
+        const items = timeline.querySelectorAll('[data-step]')
+        items.forEach((item) => item.classList.remove('is-active'))
+
+        if (nextState === 'running') {
+          timeline.querySelector('[data-step="build"]')?.classList.add('is-active')
+          return
+        }
+
+        if (nextState === 'primed') {
+          timeline.querySelector('[data-step="threshold"]')?.classList.add('is-active')
+          return
+        }
+
+        if (nextState === 'firing' || nextState === 'recovering') {
+          timeline.querySelector('[data-step="spike"]')?.classList.add('is-active')
+        }
+      }
+
+      function notifyParent(type) {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type }, '*')
+        }
+      }
+
+      window.addEventListener('message', (event) => {
+        const type = event.data && event.data.type
+
+        if (!type) {
+          return
+        }
+
+        if (type === 'AIWEB_RESET') {
+          window.clearTimeout(spikeTimer)
+          setShellState('ready')
+          return
+        }
+
+        if (type === 'AIWEB_RUNNING') {
+          setShellState('running')
+          return
+        }
+
+        if (type === 'AIWEB_PREPARE_THRESHOLD') {
+          setShellState('primed')
+          return
+        }
+
+        if (type === 'AIWEB_STIMULATE') {
+          window.clearTimeout(spikeTimer)
+          setShellState('firing')
+          notifyParent('AIWEB_SPIKE_STARTED')
+
+          spikeTimer = window.setTimeout(() => {
+            setShellState('recovering')
+            notifyParent('AIWEB_SPIKE_FINISHED')
+          }, 920)
+          return
+        }
+
+        if (type === 'AIWEB_LEAKED') {
+          setShellState('leaked')
+        }
+      })
+
+      notifyParent('AIWEB_READY')
+    })()
+  </script>
+</body>
+</html>
