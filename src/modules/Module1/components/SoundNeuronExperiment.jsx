@@ -25,7 +25,8 @@ function SoundNeuronExperiment() {
     <div className="module1-sound-neuron">
       <div className="module1-sound-neuron__shell">
         <div className="module1-sound-neuron__intro">
-          <h2 className="module1-sound-neuron__title">TEST THE NEURON</h2>
+          <p className="module1-eyebrow module1-eyebrow-tight">Section C. Sound Experiment</p>
+          <h2 className="module1-sound-neuron__title">Hearing your name in a noisy room</h2>
           <label className="module1-sound-neuron__prompt" htmlFor="module1-sound-neuron-input">
             What did the neuron hear?
           </label>

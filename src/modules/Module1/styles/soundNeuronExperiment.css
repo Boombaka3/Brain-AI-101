@@ -5,13 +5,11 @@
 .module1-sound-neuron__shell {
   display: grid;
   gap: 18px;
-  padding: 24px;
-  border: 1px solid rgba(191, 205, 229, 0.9);
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at top right, rgba(213, 231, 255, 0.8), transparent 42%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 255, 0.98));
-  box-shadow: 0 16px 40px rgba(36, 52, 84, 0.08);
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .module1-sound-neuron__intro {
@@ -21,8 +19,12 @@
 
 .module1-sound-neuron__title {
   margin: 0;
-  font-size: clamp(1.8rem, 2.5vw, 2.45rem);
-  letter-spacing: 0.06em;
+  color: #0f172a;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.4vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
 }
 
 .module1-sound-neuron__prompt {
@@ -366,10 +368,6 @@
 }
 
 @media (max-width: 720px) {
-  .module1-sound-neuron__shell {
-    padding: 18px;
-  }
-
   .module1-sound-neuron__input-row {
     grid-template-columns: 1fr;
   }
