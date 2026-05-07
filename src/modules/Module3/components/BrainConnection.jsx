@@ -35,44 +35,34 @@ function BrainConnection() {
 
   return (
     <section className="m3-section">
-      <div className="m3-section-heading">
-        <p className="m3-eyebrow">E. Brain Connection</p>
-        <h2>Dopamine as Prediction Error</h2>
-        <p className="m3-section-subtitle">
-          Dopamine doesn't signal pleasure — it signals "better or worse than expected."
-        </p>
-      </div>
-
-      {/* Dopamine panel */}
       <div className="module3-dopamine-panel">
-        <p className="module3-dopamine-label">Dopamine prediction error — 3 cases</p>
+        <p className="module3-dopamine-label">Dopamine prediction error - 3 cases</p>
         <div className="module3-dopamine-row">
           <div className="module3-dopamine-card">
-            <div className="module3-dopamine-emoji">🍽️</div>
+            <div className="module3-dopamine-emoji">Food</div>
             <p className="module3-dopamine-title">Expected food arrives</p>
             <p className="module3-dopamine-desc">Prediction matches reality. No surprise.</p>
             <span className="module3-dopamine-signal module3-dopamine--neutral">Dopamine = 0</span>
           </div>
           <div className="module3-dopamine-card" style={{ background: '#f0fdf4', borderColor: '#86efac' }}>
-            <div className="module3-dopamine-emoji">🎁</div>
+            <div className="module3-dopamine-emoji">Gift</div>
             <p className="module3-dopamine-title">Unexpected food arrives</p>
-            <p className="module3-dopamine-desc">Better than expected — learn to repeat.</p>
-            <span className="module3-dopamine-signal module3-dopamine--positive">Dopamine ↑ spike</span>
+            <p className="module3-dopamine-desc">Better than expected - learn to repeat.</p>
+            <span className="module3-dopamine-signal module3-dopamine--positive">Dopamine spike</span>
           </div>
           <div className="module3-dopamine-card" style={{ background: '#fef2f2', borderColor: '#fca5a5' }}>
-            <div className="module3-dopamine-emoji">😞</div>
+            <div className="module3-dopamine-emoji">Miss</div>
             <p className="module3-dopamine-title">Predicted food missing</p>
-            <p className="module3-dopamine-desc">Worse than expected — update model.</p>
-            <span className="module3-dopamine-signal module3-dopamine--negative">Dopamine ↓ dip</span>
+            <p className="module3-dopamine-desc">Worse than expected - update model.</p>
+            <span className="module3-dopamine-signal module3-dopamine--negative">Dopamine dip</span>
           </div>
         </div>
         <div className="module3-dopamine-bridge">
-          This is identical to the error term in supervised learning weight updates: <strong>error = expected − actual</strong>. Positive error strengthens connections; negative error weakens them.
+          This is identical to the error term in supervised learning weight updates: <strong>error = expected - actual</strong>. Positive error strengthens connections; negative error weakens them.
         </div>
       </div>
 
       <div className="m3-section-card">
-        {/* Stage pills */}
         <div className="m3-controls">
           {STAGES.map((label, i) => (
             <motion.span
@@ -88,7 +78,6 @@ function BrainConnection() {
         <svg viewBox="0 0 880 390" className="m3-svg-block">
           <rect x="16" y="16" width="848" height="358" rx="12" fill="#F8FAFC" stroke="#E2E8F0" />
 
-          {/* AI Learning panel */}
           <g transform="translate(40,76)">
             <rect x="0" y="0" width="380" height="280" rx="10" fill="#fff" stroke="#BFDBFE" />
             <text x="20" y="28" fontSize="16" fontWeight="700" fill="#1E40AF">AI Learning</text>
@@ -141,7 +130,6 @@ function BrainConnection() {
             <rect ref={aiWeightRef} x="20" y="262" width="92" height="12" rx="6" fill="#3B82F6" />
           </g>
 
-          {/* Brain Learning panel */}
           <g transform="translate(458,76)">
             <rect x="0" y="0" width="380" height="280" rx="10" fill="#fff" stroke="#BBF7D0" />
             <text x="20" y="28" fontSize="16" fontWeight="700" fill="#166534">Brain Learning</text>

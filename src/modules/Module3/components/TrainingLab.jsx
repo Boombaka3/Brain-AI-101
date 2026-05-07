@@ -49,12 +49,6 @@ function TrainingLab() {
 
   return (
     <section className="m3-section">
-      <div className="m3-section-heading">
-        <p className="m3-eyebrow">D. Training</p>
-        <h2>Practice changes weights</h2>
-        <p className="m3-section-subtitle">Run one example at a time. Wrong guesses shift the active weights.</p>
-      </div>
-
       <LossChart trainingStep={step} mismatch={tCalc.mismatch} />
       <LearningRateExplorer />
 

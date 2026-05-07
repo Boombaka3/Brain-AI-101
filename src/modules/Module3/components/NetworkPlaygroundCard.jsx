@@ -7,7 +7,6 @@ function NetworkPlaygroundCard() {
     <div className="m3-section-card m3-playground-card">
       <div className="m3-playground-heading">
         <p className="m3-rl-control-label">Supervised learning</p>
-        <h3>Labeled examples help the model adjust</h3>
         <p className="m3-type-desc">
           Use the TensorFlow Playground to see how labeled answers reshape a model&apos;s decision boundary.
         </p>

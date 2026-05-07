@@ -6,8 +6,6 @@ import useScrollProgress from '../../hooks/useScrollProgress'
 import LearningProblem from './components/LearningProblem'
 import LearningTypes from './components/LearningTypes'
 import SectionCLab from './components/SectionCLab'
-import TrainingLab from './components/TrainingLab'
-import BrainConnection from './components/BrainConnection'
 import BigPicture from './components/BigPicture'
 import './module3.css'
 
@@ -17,8 +15,6 @@ const SECTIONS = [
   { label: 'Fixed vs Learning' },
   { label: 'Three Ways to Learn' },
   { label: 'Learning in Action' },
-  { label: 'Training Pipeline' },
-  { label: 'Brain Connection' },
   { label: 'Big Picture' },
 ]
 
@@ -60,9 +56,7 @@ function Module3({ onBack, onContinue }) {
         <div ref={setRef(0)}><LearningProblem /></div>
         <div ref={setRef(1)}><LearningTypes isMobile={isMobile} onJumpToSectionC={() => scrollTo(2)} /></div>
         <div ref={setRef(2)}><SectionCLab /></div>
-        <div ref={setRef(3)}><TrainingLab /></div>
-        <div ref={setRef(4)}><BrainConnection /></div>
-        <div ref={setRef(5)}><BigPicture /></div>
+        <div ref={setRef(3)}><BigPicture /></div>
 
         <section className="m3-section m3-continue-section">
           <div className="m3-continue-card" onClick={onContinue} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onContinue?.()}>

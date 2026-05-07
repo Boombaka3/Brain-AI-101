@@ -25,8 +25,8 @@ function SoundNeuronExperiment() {
     <div className="module1-sound-neuron">
       <div className="module1-sound-neuron__shell">
         <div className="module1-sound-neuron__intro">
-          <p className="module1-eyebrow module1-eyebrow-tight">Section C. Sound Experiment</p>
-          <h2 className="module1-sound-neuron__title">How Does a Neuron Decide?</h2>
+          <p className="module1-eyebrow module1-eyebrow-tight">C. Sound Experiment</p>
+          <h2 className="module1-sound-neuron__title">How the Brain Notices What Matters</h2>
           <p className="module1-card-muted module1-text-reset">Hearing your name in a noisy room</p>
         </div>
 

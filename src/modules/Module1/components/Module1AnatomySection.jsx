@@ -7,7 +7,7 @@ function Module1AnatomySection({ onContinue }) {
     <section className="module1-section module1-anatomy-section">
       <div className="module1-anatomy-grid">
         <div className="module1-anatomy-copy">
-          <p className="module1-eyebrow">Part B</p>
+          <p className="module1-eyebrow">B. Neuron</p>
           <h2 className="module1-anatomy-title">Meet the Neuron</h2>
           <p className="module1-anatomy-body">
             Right now, millions of neurons are firing in your brain to let you read this

@@ -7,9 +7,9 @@ function Module1Intro({ onStart }) {
       <div className="module1-intro-hero-inner">
         <p className="module1-intro-kicker">Module 1</p>
         <h2 className="module1-intro-headline">
-          How Does a Neuron
+          How the Brain Notices
           <br />
-          <span className="module1-intro-headline-accent">Decide?</span>
+          <span className="module1-intro-headline-accent">What Matters</span>
         </h2>
         <p className="module1-intro-desc">
           In a noisy room, your brain does not treat every sound the same.
