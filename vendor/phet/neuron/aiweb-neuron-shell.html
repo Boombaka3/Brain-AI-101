@@ -12,8 +12,6 @@
       --shell-gold: #f59e0b;
       --shell-ink: #0f172a;
       --shell-soft: #475569;
-      --shell-trim-width: 286px;
-      --shell-trim-height: 292px;
     }
 
     * {
@@ -34,38 +32,6 @@
     .shell {
       inset: 0;
       position: absolute;
-    }
-
-    .shell__viewport {
-      inset: 0;
-      overflow: hidden;
-      position: absolute;
-    }
-
-    .shell__viewport--trimmed {
-      clip-path: polygon(
-        0 0,
-        100% 0,
-        100% calc(100% - var(--shell-trim-height)),
-        calc(100% - var(--shell-trim-width)) calc(100% - var(--shell-trim-height)),
-        calc(100% - var(--shell-trim-width)) 100%,
-        0 100%
-      );
-    }
-
-    .shell__trim-fill {
-      background:
-        radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0) 34%),
-        linear-gradient(180deg, #d7fbfb 0%, #c7f1f2 100%);
-      border-left: 1px solid rgba(191, 219, 254, 0.92);
-      border-top: 1px solid rgba(191, 219, 254, 0.92);
-      border-top-left-radius: 22px;
-      bottom: 0;
-      height: var(--shell-trim-height);
-      position: absolute;
-      right: 0;
-      width: var(--shell-trim-width);
-      z-index: 1;
     }
 
     .shell__frame {
@@ -310,15 +276,12 @@
 </head>
 <body>
   <div class="shell is-ready" id="shell">
-    <div class="shell__viewport shell__viewport--trimmed">
-      <iframe
-        class="shell__frame"
-        src="https://phet.colorado.edu/sims/html/neuron/latest/neuron_en.html"
-        title="PhET neuron simulator"
-        loading="lazy"
-      ></iframe>
-    </div>
-    <div class="shell__trim-fill" aria-hidden="true"></div>
+    <iframe
+      class="shell__frame"
+      src="https://phet.colorado.edu/sims/html/neuron/latest/neuron_en.html"
+      title="PhET neuron simulator"
+      loading="lazy"
+    ></iframe>
     <div class="shell__veil"></div>
     <div class="shell__hud">
       <div class="shell__topbar">
