@@ -170,7 +170,7 @@ function SpecialistsSection() {
               <g key={key} opacity={isSilenced ? 0.4 : 1} style={{ cursor: dropoutMode ? 'default' : 'pointer' }} onClick={() => toggleSilence(key)}>
                 <clipPath id={`somaClip-${key}`}><circle cx={nx} cy={200} r={NEURON_RADIUS - 2} /></clipPath>
 
-                {hasInteracted && output > 0 && !isSilenced && (
+                {dropoutMode && hasInteracted && output > 0 && !isSilenced && (
                   <circle cx={nx} cy={200} r={NEURON_RADIUS + 8 + intensity * 6} fill="none" stroke={color} strokeWidth={2 + intensity * 3} opacity={glowOpacity} />
                 )}
 
