@@ -188,10 +188,10 @@
 .module1-intro-headline {
   color: #0f172a;
   font-family: var(--font-display);
-  font-size: clamp(3.2rem, 7vw, 5.5rem);
-  font-weight: 900;
+  font-size: clamp(2.9rem, 6.2vw, 4.9rem);
+  font-weight: 800;
   letter-spacing: -0.045em;
-  line-height: 0.95;
+  line-height: 0.98;
   margin: 0 0 24px;
 }
 
@@ -204,8 +204,8 @@
 
 .module1-intro-desc {
   color: #475569;
-  font-size: 18px;
-  line-height: 1.7;
+  font-size: 17px;
+  line-height: 1.65;
   margin: 0 0 40px;
   max-width: 480px;
 }

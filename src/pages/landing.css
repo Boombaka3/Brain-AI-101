@@ -35,11 +35,11 @@
 .lp-hero-bg-text {
   color: #0f172a;
   font-family: var(--font-display);
-  font-size: clamp(2.6rem, 5.8vw, 6rem);
+  font-size: clamp(2.7rem, 5vw, 4.7rem);
   font-weight: 800;
   left: 50%;
-  letter-spacing: -0.04em;
-  line-height: 1.0;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
   margin: 0;
   max-width: 80vw;
   pointer-events: none;
@@ -95,11 +95,13 @@
 
 .lp-hero-tag {
   color: #475569;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   position: absolute;
   top: 22%;
+  text-transform: uppercase;
   z-index: 4;
 }
 
@@ -123,11 +125,11 @@
 
 .lp-flank-label {
   color: #0f172a;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 600;
-  letter-spacing: 0.01em;
-  line-height: 1.6;
-  margin: 0 0 14px;
+  letter-spacing: -0.015em;
+  line-height: 1.5;
+  margin: 0 0 16px;
   text-transform: uppercase;
 }
 
@@ -143,7 +145,7 @@
   color: #b8860b;
   display: block;
   font-family: var(--font-display);
-  font-size: clamp(3rem, 5vw, 5rem);
+  font-size: clamp(2.3rem, 4vw, 3.8rem);
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1;
@@ -185,8 +187,8 @@
   color: #0f172a;
   font-family: var(--font-display);
   font-size: clamp(0.85rem, 1.2vw, 1.05rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   padding: 0;
   position: relative;
 }
@@ -246,7 +248,7 @@
   cursor: pointer;
   display: inline-flex;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   gap: 8px;
   letter-spacing: -0.01em;
@@ -266,7 +268,7 @@
 }
 
 .lp-btn-arrow {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
   transition: transform 0.2s;
 }
@@ -284,9 +286,9 @@
   cursor: pointer;
   display: inline-flex;
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  gap: 6px;
+  font-size: 17px;
+  font-weight: 700;
+  gap: 8px;
   padding: 0;
   transition: color 0.2s;
 }
@@ -494,7 +496,7 @@
   color: #0f172a;
   display: block;
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 3.5vw, 3.2rem);
+  font-size: clamp(2.2rem, 3.2vw, 3rem);
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1;
@@ -611,7 +613,7 @@
 
 .lp-bd-bottom-headline {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-size: clamp(1.9rem, 3.7vw, 3rem);
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1.05;
@@ -629,7 +631,7 @@
 
 .lp-section-title {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-size: clamp(1.95rem, 3.8vw, 3rem);
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1.0;
@@ -666,7 +668,7 @@
 
 .lp-nr-heading {
   font-family: var(--font-display);
-  font-size: clamp(1.9rem, 3.5vw, 3rem);
+  font-size: clamp(1.8rem, 3.2vw, 2.7rem);
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1.05;
@@ -691,7 +693,7 @@
 .lp-bigstat-value {
   color: #b8860b;
   font-family: var(--font-display);
-  font-size: 2.2rem;
+  font-size: 2.05rem;
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1;
@@ -802,7 +804,7 @@
 
 .lp-final-heading {
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 5vw, 4.2rem);
+  font-size: clamp(2.2rem, 4.6vw, 3.7rem);
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1.05;
@@ -851,7 +853,7 @@
   }
 
   .lp-hero-bg-text {
-    font-size: 3.2rem;
+    font-size: 3rem;
     left: auto;
     margin-bottom: -16px;
     position: relative;
@@ -911,8 +913,16 @@
 }
 
 @media (max-width: 560px) {
+  .lp-flank-label {
+    font-size: 14px;
+  }
+
+  .lp-btn-text {
+    font-size: 15px;
+  }
+
   .lp-hero-bg-text {
-    font-size: 2.8rem;
+    font-size: 2.45rem;
   }
 
   .lp-bd-bottom-headline {

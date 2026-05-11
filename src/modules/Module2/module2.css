@@ -45,6 +45,8 @@
 }
 
 .m2-section-heading {
+  margin: 0 auto;
+  max-width: 820px;
   text-align: center;
 }
 
@@ -59,19 +61,19 @@
 
 .m2-section-heading h2 {
   font-family: var(--font-display);
-  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-size: clamp(3rem, 5.8vw, 4.8rem);
   font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin: 0 0 8px;
+  letter-spacing: -0.04em;
+  line-height: 0.96;
+  margin: 0 0 12px;
 }
 
 .m2-section-subtitle {
   color: var(--module2-text-muted);
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.5;
   margin: 0;
-  max-width: 520px;
+  max-width: 480px;
   margin-inline: auto;
 }
 
@@ -773,7 +775,7 @@
 
 @media (max-width: 640px) {
   .m2-section-heading h2 {
-    font-size: 1.6rem;
+    font-size: 2.3rem;
   }
 
   .m2-continue-card {

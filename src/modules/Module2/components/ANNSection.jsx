@@ -4,13 +4,13 @@ import { motion } from 'framer-motion'
 const STAGE_LABELS = ['One Neuron', 'A Hidden Layer', 'Two Layers', 'Deep Network']
 
 const STAGE_DESCS = [
-  'A single artificial neuron receives inputs, gives each input a weight, and combines them into one output.\n\nThis connects back to Module 1: a biological neuron fired only when enough signal reached its threshold. In an artificial neuron, activation plays a similar role.\n\nOne neuron can make only a simple decision. A network can combine many simple decisions to find patterns.',
-  '',
-  '',
-  '',
+  'A single artificial neuron receives inputs, gives each input a weight, and combines them into one output. This connects back to Module 1: a biological neuron fired only when enough signal reached its threshold. In an artificial neuron, activation plays a similar role.',
+  'A layer of neurons processes the same inputs in parallel. Each neuron has different weights, so each detects something different.',
+  "The hidden layer's output becomes the next layer's input. Now the network can detect combinations of features that no single neuron could see alone.",
+  'Stack enough layers and you have a deep neural network. Early layers detect simple patterns; later layers build more complex ideas from them.',
 ]
 
-const STAGE_BUTTONS = ['Add a Layer →', 'Add Output →', 'Go Deeper →', null]
+const STAGE_BUTTONS = ['Add a Layer ->', 'Add Output ->', 'Go Deeper ->', null]
 
 const INPUTS = [[60, 110], [60, 200], [60, 290]]
 const HIDDEN1 = [[220, 80], [220, 150], [220, 220], [220, 290]]
@@ -26,7 +26,6 @@ export default function ANNSection() {
   const showH2 = stage >= 3
   const showOut = stage >= 2
   const outputs = showH2 ? OUTPUTS_DEEP : OUTPUTS_SHALLOW
-  const stageDescParts = STAGE_DESCS[stage].split('\n\n')
 
   return (
     <section className="m2-section">
@@ -34,26 +33,20 @@ export default function ANNSection() {
         <div className="m2-opening-hero m2-opening-hero--card">
           <div className="m2-opening-hero-inner">
             <p className="m2-opening-kicker">MODULE 2</p>
-          <h2 className="m2-opening-headline">
-            What Can a Network See
-            <br />
-            That One Neuron Cannot?
-          </h2>
-          <p className="m2-opening-subtitle">From one artificial neuron to networks.</p>
-        </div>
-        <div className="m2-opening-orb" aria-hidden="true" />
-      </div>
-
-      <div className="m2-ann-stage-info">
-        <p className="m2-ann-stage-label">{STAGE_LABELS[stage]}</p>
-        {stageDescParts[0] && (
-          <div className="m2-ann-stage-desc">
-            {stageDescParts.map((part) => (
-              <p key={part}>{part}</p>
-            ))}
+            <h2 className="m2-opening-headline">
+              What Can a Network See
+              <br />
+              That One Neuron Cannot?
+            </h2>
+            <p className="m2-opening-subtitle">From one artificial neuron to networks.</p>
           </div>
-        )}
-      </div>
+          <div className="m2-opening-orb" aria-hidden="true" />
+        </div>
+
+        <div className="m2-ann-stage-info">
+          <p className="m2-ann-stage-label">{STAGE_LABELS[stage]}</p>
+          <p className="m2-ann-stage-desc">{STAGE_DESCS[stage]}</p>
+        </div>
 
         <svg viewBox="0 0 620 360" className="m2-svg-block" style={{ maxHeight: 300 }}>
           <defs>
@@ -77,7 +70,7 @@ export default function ANNSection() {
               <text x={SINGLE_NEURON_POS[0]} y={SINGLE_NEURON_POS[1] + 5} textAnchor="middle" fontSize="13" fill="#6d28d9" fontWeight="700">N</text>
               <line x1={SINGLE_NEURON_POS[0] + 30} y1={SINGLE_NEURON_POS[1]} x2={SINGLE_NEURON_POS[0] + 85} y2={SINGLE_NEURON_POS[1]} stroke="#c7d2fe" strokeWidth={1.5} markerEnd="url(#ann-arrow)" />
               <text x={SINGLE_NEURON_POS[0] + 100} y={SINGLE_NEURON_POS[1] + 5} fontSize="12" fill="#4b5563">output</text>
-              <text x={310} y={340} textAnchor="middle" fontSize="11" fill="#94a3b8" fontStyle="italic">One neuron — one weighted decision</text>
+              <text x={310} y={340} textAnchor="middle" fontSize="11" fill="#94a3b8" fontStyle="italic">One neuron - one weighted decision</text>
             </motion.g>
           )}
 
@@ -146,11 +139,9 @@ export default function ANNSection() {
           )}
         </div>
 
-        {stage > 0 && (
-          <div className="m2-observation">
-            <p>Networks do not solve the image all at once. One layer may notice edges. Another may combine edges into shapes. Later layers can use those shapes to recognize a pattern.</p>
-          </div>
-        )}
+        <div className="m2-observation">
+          <p>A network combines many simple decisions. Each layer can notice a different part of the pattern.</p>
+        </div>
       </div>
     </section>
   )
