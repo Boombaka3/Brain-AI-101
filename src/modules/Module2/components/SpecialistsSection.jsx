@@ -20,18 +20,21 @@ function SpecialistsSection() {
   const [hasInteracted, setHasInteracted] = useState(false)
   const [interactionCount, setInteractionCount] = useState(0)
   const [showInsights, setShowInsights] = useState(false)
+  const [silencedNeurons, setSilencedNeurons] = useState({ alpha: false, beta: false, gamma: false })
   const somaFillRefs = useRef({})
 
   const canShowInsights = interactionCount >= 5
 
   const neuronOutputs = useMemo(() => Object.entries(NEURON_CONFIGS).map(([key, config]) => {
     const sum = computeWeightedSum(grid, config.weights)
-    const output = computeActivation(sum, THRESHOLD, 'relu')
-    return { key, ...config, sum, output, isSilenced: false }
-  }), [grid])
+    const isSilenced = silencedNeurons[key]
+    const output = isSilenced ? 0 : computeActivation(sum, THRESHOLD, 'relu')
+    return { key, ...config, sum, output, isSilenced }
+  }), [grid, silencedNeurons])
 
-  const maxOutput = Math.max(...neuronOutputs.map(n => n.output))
-  const dominantNeuron = maxOutput > 0 ? neuronOutputs.find(n => n.output === maxOutput)?.key : null
+  const activeOutputs = neuronOutputs.filter(n => !n.isSilenced)
+  const maxOutput = activeOutputs.length > 0 ? Math.max(...activeOutputs.map(n => n.output)) : 0
+  const dominantNeuron = maxOutput > 0 ? activeOutputs.find(n => n.output === maxOutput)?.key : null
 
   const toggleCell = (i) => {
     const g = [...grid]
@@ -49,11 +52,17 @@ function SpecialistsSection() {
     setInteractionCount(c => c + 1)
   }
 
+  const toggleSilence = (key) => {
+    setSilencedNeurons(prev => ({ ...prev, [key]: !prev[key] }))
+    setHasInteracted(true)
+  }
+
   useEffect(() => {
-    neuronOutputs.forEach(({ key, sum }) => {
+    neuronOutputs.forEach(({ key, sum, isSilenced }) => {
       const ref = somaFillRefs.current[key]
       if (!ref) return
-      const ratio = Math.min(1, sum / (THRESHOLD * 1.5))
+      const effectiveSum = isSilenced ? 0 : sum
+      const ratio = Math.min(1, effectiveSum / (THRESHOLD * 1.5))
       const h = MAX_FILL * ratio
       const topY = 200 + NEURON_RADIUS - h
       gsap.to(ref, { attr: { y: topY, height: Math.max(0, h) }, duration: 0.25, ease: 'power2.out' })
@@ -68,16 +77,16 @@ function SpecialistsSection() {
         <p className="m2-section-subtitle">Not every neuron responds to the same visual clue. Some respond more strongly to a vertical edge. Others respond to a horizontal edge or a diagonal edge.</p>
       </div>
 
-      <HubelWieselStory />
+      <div className="m2-section-card m2-selectivity-canvas">
+        <HubelWieselStory />
 
-      <div className="m2-selectivity-bridge">
-        <p>
-          The same idea appears in artificial networks. Different weights make a neuron more sensitive to some input patterns than others. In the grid below, each artificial neuron has a different preference.
-        </p>
-        <strong>Try different patterns. Watch which neuron responds most strongly.</strong>
-      </div>
+        <div className="m2-selectivity-bridge">
+          <p>
+            The same idea appears in artificial networks. Different weights make a neuron more sensitive to some input patterns than others. In the grid below, each artificial neuron has a different preference.
+          </p>
+          <strong>Try different patterns. Watch which neuron responds most strongly.</strong>
+        </div>
 
-      <div className="m2-section-card">
         <div className="m2-center-controls" style={{ gap: '8px' }}>
           {canShowInsights && (
             <button
@@ -96,6 +105,10 @@ function SpecialistsSection() {
               <stop offset="70%" stopColor="#D1FAE5" />
               <stop offset="100%" stopColor="#A7F3D0" />
             </radialGradient>
+            <radialGradient id="somaGradientSilenced" cx="40%" cy="40%" r="60%">
+              <stop offset="0%" stopColor="#F8FAFC" />
+              <stop offset="100%" stopColor="#CBD5E1" />
+            </radialGradient>
           </defs>
 
           <g>
@@ -112,8 +125,8 @@ function SpecialistsSection() {
             })}
           </g>
 
-          {neuronOutputs.map(({ key }, ni) => (
-            <g key={`conn-${key}`}>
+          {neuronOutputs.map(({ key, isSilenced }, ni) => (
+            <g key={`conn-${key}`} opacity={isSilenced ? 0.2 : 1}>
               {grid.map((val, i) => {
                 const row = Math.floor(i / 3), col = i % 3
                 const sx = GRID_X + col * CELL + (CELL - 4) / 2
@@ -124,43 +137,49 @@ function SpecialistsSection() {
             </g>
           ))}
 
-          {neuronOutputs.map(({ key, symbol, revealedName, sum, output, color }, ni) => {
+          {neuronOutputs.map(({ key, symbol, revealedName, sum, output, color, isSilenced }, ni) => {
             const nx = 320 + ni * 140
-            const fires = sum >= THRESHOLD
-            const fillRatio = Math.min(1, sum / (THRESHOLD * 1.5))
+            const fires = sum >= THRESHOLD && !isSilenced
+            const effectiveSum = isSilenced ? 0 : sum
+            const fillRatio = Math.min(1, effectiveSum / (THRESHOLD * 1.5))
             const fillH = MAX_FILL * fillRatio
             const fillTopY = 200 + NEURON_RADIUS - fillH
             const intensity = Math.min(1, output / 6)
 
             return (
-              <g key={key}>
+              <g key={key} opacity={isSilenced ? 0.45 : 1} style={{ cursor: 'pointer' }} onClick={() => toggleSilence(key)}>
                 <clipPath id={`somaClip-${key}`}><circle cx={nx} cy={200} r={NEURON_RADIUS - 2} /></clipPath>
 
-                <circle cx={nx} cy={200} r={NEURON_RADIUS} fill="url(#somaGradient)" stroke={hasInteracted && output > 0 ? color : '#065F46'} strokeWidth={hasInteracted && output > 0 ? 2 + intensity * 2 : 2} />
+                <circle cx={nx} cy={200} r={NEURON_RADIUS} fill={isSilenced ? 'url(#somaGradientSilenced)' : 'url(#somaGradient)'} stroke={isSilenced ? '#94A3B8' : (hasInteracted && output > 0 ? color : '#065F46')} strokeWidth={hasInteracted && output > 0 ? 2 + intensity * 2 : 2} strokeDasharray={isSilenced ? '4 4' : 'none'} />
 
-                {hasInteracted && (
+                {hasInteracted && !isSilenced && (
                   <rect ref={el => somaFillRefs.current[key] = el} x={nx - NEURON_RADIUS} y={fillTopY} width={NEURON_RADIUS * 2} height={fillH} fill={color} clipPath={`url(#somaClip-${key})`} opacity={0.5 + intensity * 0.4} />
                 )}
 
-                <circle cx={nx} cy={200} r={NEURON_RADIUS * 0.72} fill="none" stroke="#D97706" strokeWidth={1.5} strokeDasharray="4 3" opacity={hasInteracted && fires ? 0.3 : 0.5} />
+                <circle cx={nx} cy={200} r={NEURON_RADIUS * 0.72} fill="none" stroke={isSilenced ? '#94A3B8' : '#D97706'} strokeWidth={1.5} strokeDasharray="4 3" opacity={isSilenced ? 0.3 : (hasInteracted && fires ? 0.3 : 0.5)} />
 
-                <text x={nx} y={206} textAnchor="middle" fontSize="22" fontWeight="700" fill={hasInteracted && output > 0 ? color : '#1E293B'}>{symbol}</text>
+                {isSilenced
+                  ? <text x={nx} y={208} textAnchor="middle" fontSize="28" fontWeight="700" fill="#94A3B8">x</text>
+                  : <text x={nx} y={206} textAnchor="middle" fontSize="22" fontWeight="700" fill={hasInteracted && output > 0 ? color : '#1E293B'}>{symbol}</text>
+                }
 
-                {showInsights && (
+                {showInsights && !isSilenced && (
                   <text x={nx} y={200 - NEURON_RADIUS - 14} textAnchor="middle" fontSize="10" fontWeight="500" fill={color} fontStyle="italic">
                     responds to {revealedName.toLowerCase()}
                   </text>
                 )}
 
-                <g opacity={hasInteracted ? 1 : 0.25}>
+                <g opacity={hasInteracted ? (isSilenced ? 0.35 : 1) : 0.25}>
                   <rect x={nx - 10} y={260} width={20} height={55} fill="#F1F5F9" stroke="#E2E8F0" rx={4} />
                   {hasInteracted && (
-                    <rect x={nx - 10} y={315 - Math.min(1, output * RELU_SCALE) * 55} width={20} height={Math.min(1, output * RELU_SCALE) * 55} fill={color} rx={4} opacity={0.6 + intensity * 0.4} />
+                    <rect x={nx - 10} y={315 - Math.min(1, output * RELU_SCALE) * 55} width={20} height={Math.min(1, output * RELU_SCALE) * 55} fill={isSilenced ? '#94A3B8' : color} rx={4} opacity={isSilenced ? 0.4 : (0.6 + intensity * 0.4)} />
                   )}
                   <text x={nx} y={330} textAnchor="middle" fontSize="10" fontWeight="600" fill={hasInteracted && output > 0 ? color : '#94A3B8'}>
                     {hasInteracted ? output.toFixed(1) : '?'}
                   </text>
                 </g>
+
+                {isSilenced && <text x={nx} y={348} textAnchor="middle" fontSize="9" fontWeight="500" fill="#94A3B8">silenced</text>}
               </g>
             )
           })}
@@ -191,7 +210,7 @@ function SpecialistsSection() {
 
         <p className="m2-hint">
           {hasInteracted
-            ? 'Try another pattern to compare the response strengths.'
+            ? 'Click a neuron to silence or restore it. Try another pattern to compare the response strengths.'
             : 'Click cells or use pattern presets below.'}
         </p>
       </div>

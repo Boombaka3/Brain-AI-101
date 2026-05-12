@@ -90,17 +90,20 @@
   padding: 28px;
 }
 
+.m2-selectivity-canvas {
+  gap: 18px;
+}
+
 .m2-hw-card {
   align-items: center;
-  background: #ffffff;
+  background: #fbfaff;
   border: 1px solid #ddd6fe;
-  border-radius: var(--module2-radius-lg);
-  box-shadow: var(--module2-shadow-card);
+  border-radius: 18px;
   display: grid;
   gap: 24px;
   grid-template-columns: minmax(0, 0.88fr) minmax(320px, 1.12fr);
   overflow: hidden;
-  padding: 24px;
+  padding: 22px;
 }
 
 .m2-hw-copy h3 {
@@ -768,7 +771,6 @@
   font-size: 14px;
 }
 
-/* ── Dropout Callout ─────────────────────────────────────────────── */
 
 /* ── CNN Explainer ───────────────────────────────────────────────── */
 
