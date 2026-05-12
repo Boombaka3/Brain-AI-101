@@ -14,16 +14,33 @@ const GRID_Y = 120
 const CELL = 44
 const MAX_FILL = NEURON_RADIUS * 2 * 0.85
 
+function getPreferredPattern(weights) {
+  return weights.map((weight) => (weight > 0 ? 1 : 0))
+}
+
+function getMatchDetails(inputPattern, preferredPattern) {
+  const activePreferred = preferredPattern.filter(Boolean).length || 1
+  const matchCells = preferredPattern.map((value, index) => Boolean(value && inputPattern[index]))
+  const matchCount = matchCells.filter(Boolean).length
+  return {
+    matchCells,
+    matchScore: Math.round((matchCount / activePreferred) * 100),
+  }
+}
+
+function getResponseLabel(output) {
+  if (output >= 3) return 'Strong response'
+  if (output > 0) return 'Medium response'
+  return 'Weak response'
+}
+
 function SpecialistsSection() {
   const [grid, setGrid] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0])
   const [currentPreset, setCurrentPreset] = useState(null)
   const [hasInteracted, setHasInteracted] = useState(false)
-  const [interactionCount, setInteractionCount] = useState(0)
   const [showInsights, setShowInsights] = useState(false)
   const [silencedNeurons, setSilencedNeurons] = useState({ alpha: false, beta: false, gamma: false })
   const somaFillRefs = useRef({})
-
-  const canShowInsights = interactionCount >= 5
 
   const neuronOutputs = useMemo(() => Object.entries(NEURON_CONFIGS).map(([key, config]) => {
     const sum = computeWeightedSum(grid, config.weights)
@@ -35,21 +52,30 @@ function SpecialistsSection() {
   const activeOutputs = neuronOutputs.filter(n => !n.isSilenced)
   const maxOutput = activeOutputs.length > 0 ? Math.max(...activeOutputs.map(n => n.output)) : 0
   const dominantNeuron = maxOutput > 0 ? activeOutputs.find(n => n.output === maxOutput)?.key : null
+  const dominantOutput = neuronOutputs.find(n => n.key === dominantNeuron)
+
+  const whyRows = useMemo(() => neuronOutputs.map((neuron) => {
+    const preferredPattern = getPreferredPattern(neuron.weights)
+    const { matchCells, matchScore } = getMatchDetails(grid, preferredPattern)
+    return { ...neuron, preferredPattern, matchCells, matchScore }
+  }), [grid, neuronOutputs])
 
   const toggleCell = (i) => {
     const g = [...grid]
     g[i] = g[i] === 0 ? 1 : 0
     setGrid(g)
     setCurrentPreset(null)
+    registerActivity()
+  }
+
+  const registerActivity = () => {
     setHasInteracted(true)
-    setInteractionCount(c => c + 1)
   }
 
   const loadPreset = (name) => {
     setGrid([...GRID_PRESETS[name]])
     setCurrentPreset(name)
-    setHasInteracted(true)
-    setInteractionCount(c => c + 1)
+    registerActivity()
   }
 
   const toggleSilence = (key) => {
@@ -88,10 +114,12 @@ function SpecialistsSection() {
         </div>
 
         <div className="m2-center-controls" style={{ gap: '8px' }}>
-          {canShowInsights && (
+          {hasInteracted && (
             <button
               className={`m2-pill-btn${showInsights ? ' m2-pill-btn--accent' : ''}`}
               onClick={() => setShowInsights(!showInsights)}
+              aria-expanded={showInsights}
+              aria-controls="m2-why-panel"
             >
               {showInsights ? 'Showing why' : 'Show why'}
             </button>
@@ -185,6 +213,60 @@ function SpecialistsSection() {
           })}
         </svg>
 
+        {showInsights && hasInteracted && (
+          <div className="m2-why-panel" id="m2-why-panel">
+            <div className="m2-why-panel__intro">
+              <h3>Why did this neuron respond?</h3>
+              <p>Each neuron has a preferred pattern. It responds more strongly when the input matches that pattern.</p>
+            </div>
+
+            <div className="m2-why-comparison" aria-label="Input pattern compared with each neuron's preferred pattern">
+              <div className="m2-why-grid-block">
+                <span>Input pattern</span>
+                <div className="m2-why-mini-grid" aria-label="Current input pattern">
+                  {grid.map((value, index) => (
+                    <span key={index} className={value ? 'is-active' : ''}>{value}</span>
+                  ))}
+                </div>
+              </div>
+
+              {whyRows.map(({ key, symbol, revealedName, color, output, isSilenced, preferredPattern, matchCells, matchScore }) => {
+                const isBest = key === dominantNeuron
+                return (
+                  <div className={`m2-why-grid-block${isBest ? ' is-best' : ''}`} key={key}>
+                    <span>{symbol} preferred pattern</span>
+                    <div className="m2-why-mini-grid" aria-label={`${symbol} preferred ${revealedName.toLowerCase()} pattern`}>
+                      {preferredPattern.map((value, index) => (
+                        <span
+                          key={index}
+                          className={[
+                            value ? 'is-preferred' : '',
+                            matchCells[index] ? 'is-match' : '',
+                          ].filter(Boolean).join(' ')}
+                          style={matchCells[index] ? { '--match-color': color } : undefined}
+                        >
+                          {value}
+                        </span>
+                      ))}
+                    </div>
+                    <strong>{isBest ? 'Best match' : `${matchScore}% match`}</strong>
+                    <em>{isSilenced ? 'Silenced' : getResponseLabel(output)}</em>
+                  </div>
+                )
+              })}
+            </div>
+
+            <p className="m2-why-panel__result">
+              {dominantOutput
+                ? `${dominantOutput.symbol} responded most strongly because the input pattern matched its preferred ${dominantOutput.revealedName.toLowerCase()} pattern best.`
+                : 'No neuron has a strong match yet. Try a pattern preset or turn on cells in the input grid.'}
+            </p>
+            <p className="m2-why-panel__bridge">
+              This is similar to how a CNN layer uses filters. A filter checks for a feature, such as an edge or angle. When the feature matches the input, the response becomes stronger.
+            </p>
+          </div>
+        )}
+
         <div className="m2-preset-row">
           <span className="m2-preset-label">Patterns:</span>
           {Object.keys(GRID_PRESETS).map(name => (
@@ -201,12 +283,6 @@ function SpecialistsSection() {
         <div className="m2-observation">
           <p>Same input grid. Different weights. Different preference.</p>
         </div>
-
-        {showInsights && dominantNeuron && (
-          <p className="m2-insight-text" style={{ marginTop: 8 }}>
-            {NEURON_CONFIGS[dominantNeuron].symbol} consistently responds more to {NEURON_CONFIGS[dominantNeuron].revealedName.toLowerCase()} structures.
-          </p>
-        )}
 
         <p className="m2-hint">
           {hasInteracted
