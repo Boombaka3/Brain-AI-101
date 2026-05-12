@@ -15,7 +15,7 @@ gsap.registerPlugin(ScrollTrigger)
 const SECTIONS = [
   { label: 'Neural Networks' },
   { label: 'Activation Functions' },
-  { label: 'Selectivity & Dropout' },
+  { label: 'Neural Selectivity' },
   { label: 'CNNs' },
   { label: 'CNN Explainer' },
 ]
