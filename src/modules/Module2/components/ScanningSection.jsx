@@ -14,8 +14,8 @@ import {
   padImageGrid,
 } from '../module2Config'
 
-const SVG_W = 1080
-const SVG_H = 390
+const SVG_W = 1260
+const SVG_H = 500
 
 function getCellTone(value) {
   if (value > 0) {
@@ -130,16 +130,17 @@ function ScanningSection() {
     setStoredOutputs({ '0,0': sum })
   }
 
-  const baselineY = 118
+  const baselineY = 132
   const sourceCell = 58
   const paddedCell = 38
-  const kernelCell = 48
+  const kernelCell = 64
+  const kernelBox = 42
   const outputCell = 58
 
   const sourceX = 44
-  const paddedX = 258
-  const kernelX = 562
-  const outputX = 790
+  const paddedX = 324
+  const kernelX = 648
+  const outputX = 948
 
   const sourceY = baselineY + (PADDED_SIZE * paddedCell - SOURCE_SIZE * sourceCell) / 2
   const paddedY = baselineY
@@ -149,6 +150,15 @@ function ScanningSection() {
   const paddedWindowX = paddedX + receptiveFieldPos.col * paddedCell - 4
   const paddedWindowY = paddedY + receptiveFieldPos.row * paddedCell - 4
   const paddedWindowSize = KERNEL_SIZE * paddedCell + 8
+  const sourceRight = sourceX + SOURCE_SIZE * sourceCell - 4
+  const paddedCenterX = paddedX + paddedCell * 2.5
+  const sourceToPaddedMidX = (sourceRight + paddedX) / 2
+  const paddedToKernelMidX = (paddedX + paddedCell * 5 + kernelX) / 2
+  const kernelToOutputMidX = (kernelX + kernelCell * 3 + outputX) / 2
+  const sourceNoteY = sourceY + sourceCell * 3 + 30
+  const paddedNoteY = paddedY + paddedCell * 5 + 22
+  const kernelNoteY = kernelY + kernelCell * 3 + 30
+  const outputNoteY = outputY + outputCell * 3 + 30
 
   const scannedCount = Object.keys(storedOutputs).length
 
@@ -202,7 +212,7 @@ function ScanningSection() {
           </defs>
 
           <g>
-            <text x={sourceX + sourceCell * 1.5} y={84} className="m2-cnn-svg-label" textAnchor="middle">
+            <text x={sourceX + sourceCell * 1.5} y={86} className="m2-cnn-svg-label" textAnchor="middle">
               Original 3×3
             </text>
             {convImage.map((val, i) => {
@@ -236,27 +246,13 @@ function ScanningSection() {
                 </g>
               )
             })}
-            <text x={sourceX + sourceCell * 1.5} y={sourceY + sourceCell * 3 + 24} className="m2-cnn-svg-note" textAnchor="middle">
+            <text x={sourceX + sourceCell * 1.5} y={sourceNoteY} className="m2-cnn-svg-note" textAnchor="middle">
               Click cells to edit the image.
             </text>
           </g>
 
-          <path
-            d={`M ${sourceX + sourceCell * 3 + 18} ${baselineY + 95} L ${paddedX - 24} ${baselineY + 95}`}
-            fill="none"
-            stroke="#C4B5FD"
-            strokeWidth="2.5"
-            markerEnd="url(#m2-cnn-arrowhead)"
-          />
-          <text x={sourceX + sourceCell * 3 + 68} y={baselineY + 72} className="m2-cnn-svg-step" textAnchor="middle">
-            add
-          </text>
-          <text x={sourceX + sourceCell * 3 + 68} y={baselineY + 92} className="m2-cnn-svg-step" textAnchor="middle">
-            Padding
-          </text>
-
           <g>
-            <text x={paddedX + paddedCell * 2.5} y={84} className="m2-cnn-svg-label" textAnchor="middle">
+            <text x={paddedCenterX} y={86} className="m2-cnn-svg-label" textAnchor="middle">
               Padded 5×5
             </text>
             {paddedImage.map((val, i) => {
@@ -309,21 +305,39 @@ function ScanningSection() {
               stroke="#7C3AED"
               strokeWidth="4"
             />
-            <text x={paddedX + paddedCell * 2.5} y={paddedY + paddedCell * 5 + 24} className="m2-cnn-svg-note" textAnchor="middle">
-              Purple cells are padding. The filter scans this 5×5 view.
+            <text x={paddedCenterX} y={paddedNoteY} className="m2-cnn-svg-note" textAnchor="middle">
+              <tspan x={paddedCenterX} dy="0">Purple cells are padding.</tspan>
+              <tspan x={paddedCenterX} dy="15">The filter scans this 5×5 view.</tspan>
             </text>
           </g>
 
           <path
-            d={`M ${paddedX + paddedCell * 5 + 20} ${baselineY + 95} L ${kernelX - 20} ${baselineY + 95}`}
+            d={`M ${sourceRight + 24} ${baselineY + 95} L ${paddedX - 32} ${baselineY + 95}`}
             fill="none"
             stroke="#C4B5FD"
             strokeWidth="2.5"
             markerEnd="url(#m2-cnn-arrowhead)"
           />
+          <text x={sourceToPaddedMidX} y={baselineY + 70} className="m2-cnn-svg-step" textAnchor="middle">
+            add
+          </text>
+          <text x={sourceToPaddedMidX} y={baselineY + 92} className="m2-cnn-svg-step" textAnchor="middle">
+            Padding
+          </text>
+
+          <path
+            d={`M ${paddedX + paddedCell * 5 + 24} ${baselineY + 95} L ${kernelX - 28} ${baselineY + 95}`}
+            fill="none"
+            stroke="#C4B5FD"
+            strokeWidth="2.5"
+            markerEnd="url(#m2-cnn-arrowhead)"
+          />
+          <text x={paddedToKernelMidX} y={baselineY + 80} className="m2-cnn-svg-step" textAnchor="middle">
+            scan with filter
+          </text>
 
           <g>
-            <text x={kernelX + kernelCell * 1.5} y={84} className="m2-cnn-svg-label" textAnchor="middle">
+            <text x={kernelX + kernelCell * 1.5} y={74} className="m2-cnn-svg-label" textAnchor="middle">
               Filter 3×3
             </text>
             {kernel.map((weight, i) => {
@@ -331,62 +345,66 @@ function ScanningSection() {
               const col = i % KERNEL_SIZE
               const x = kernelX + col * kernelCell
               const y = kernelY + row * kernelCell
+              const boxX = x + (kernelCell - kernelBox) / 2
+              const boxY = y
               const positive = weight > 0
               const negative = weight < 0
 
               return (
                 <g key={`kernel-${i}`}>
                   <rect
-                    x={x}
-                    y={y}
-                    width={kernelCell - 4}
-                    height={kernelCell - 4}
+                    x={boxX}
+                    y={boxY}
+                    width={kernelBox}
+                    height={kernelBox}
                     rx={12}
                     fill={positive ? '#EEF2FF' : negative ? '#FFF7ED' : '#FFFFFF'}
                     stroke={positive ? '#A78BFA' : negative ? '#FDBA74' : '#DDD6FE'}
                     strokeWidth="1.5"
                   />
                   <text
-                    x={x + (kernelCell - 4) / 2}
-                    y={y + (kernelCell - 4) / 2 + 6}
+                    x={boxX + kernelBox / 2}
+                    y={boxY + kernelBox / 2 + 7}
                     textAnchor="middle"
                     className="m2-cnn-svg-value"
                     fill={positive ? '#6D28D9' : negative ? '#C2410C' : '#64748B'}
                   >
                     {weight > 0 ? `+${weight}` : weight}
                   </text>
-                  <g style={{ cursor: 'pointer' }} onClick={() => updateKernelValue(i, 1)}>
-                    <rect x={x + kernelCell - 22} y={y + 6} width={14} height={14} rx={4} fill="#EDE9FE" />
-                    <text x={x + kernelCell - 15} y={y + 17} textAnchor="middle" className="m2-cnn-svg-mini-btn">+</text>
-                  </g>
-                  <g style={{ cursor: 'pointer' }} onClick={() => updateKernelValue(i, -1)}>
-                    <rect x={x + kernelCell - 22} y={y + kernelCell - 24} width={14} height={14} rx={4} fill="#EDE9FE" />
-                    <text x={x + kernelCell - 15} y={y + kernelCell - 13} textAnchor="middle" className="m2-cnn-svg-mini-btn">−</text>
+                  <g transform={`translate(${x + kernelCell / 2}, ${y + kernelBox + 16})`}>
+                    <g style={{ cursor: 'pointer' }} onClick={() => updateKernelValue(i, 1)}>
+                      <rect x={-18} y={0} width={16} height={16} rx={5} fill="#EDE9FE" />
+                      <text x={-10} y={12} textAnchor="middle" className="m2-cnn-svg-mini-btn">+</text>
+                    </g>
+                    <g style={{ cursor: 'pointer' }} onClick={() => updateKernelValue(i, -1)}>
+                      <rect x={2} y={0} width={16} height={16} rx={5} fill="#EDE9FE" />
+                      <text x={10} y={12} textAnchor="middle" className="m2-cnn-svg-mini-btn">−</text>
+                    </g>
                   </g>
                 </g>
               )
             })}
-            <text x={kernelX + kernelCell * 1.5} y={kernelY + kernelCell * 3 + 24} className="m2-cnn-svg-note" textAnchor="middle">
+            <text x={kernelX + kernelCell * 1.5} y={kernelNoteY} className="m2-cnn-svg-note" textAnchor="middle">
               Same filter, reused at every patch.
             </text>
           </g>
 
           <path
-            d={`M ${kernelX + kernelCell * 3 + 18} ${baselineY + 95} L ${outputX - 22} ${baselineY + 95}`}
+            d={`M ${kernelX + kernelCell * 3 + 24} ${baselineY + 95} L ${outputX - 28} ${baselineY + 95}`}
             fill="none"
             stroke="#C4B5FD"
             strokeWidth="2.5"
             markerEnd="url(#m2-cnn-arrowhead)"
           />
-          <text x={kernelX + kernelCell * 3 + 66} y={baselineY + 76} className="m2-cnn-svg-step" textAnchor="middle">
+          <text x={kernelToOutputMidX} y={baselineY + 76} className="m2-cnn-svg-step" textAnchor="middle">
             stride
           </text>
-          <text x={kernelX + kernelCell * 3 + 66} y={baselineY + 96} className="m2-cnn-svg-step" textAnchor="middle">
+          <text x={kernelToOutputMidX} y={baselineY + 96} className="m2-cnn-svg-step" textAnchor="middle">
             {STRIDE}
           </text>
 
           <g>
-            <text x={outputX + outputCell * 1.5} y={84} className="m2-cnn-svg-label" textAnchor="middle">
+            <text x={outputX + outputCell * 1.5} y={86} className="m2-cnn-svg-label" textAnchor="middle">
               Output 3×3
             </text>
             {[0, 1, 2].map(row =>
@@ -424,8 +442,9 @@ function ScanningSection() {
                 )
               })
             )}
-            <text x={outputX + outputCell * 1.5} y={outputY + outputCell * 3 + 24} className="m2-cnn-svg-note" textAnchor="middle">
-              Click a square to move the filter one step.
+            <text x={outputX + outputCell * 1.5} y={outputNoteY} className="m2-cnn-svg-note" textAnchor="middle">
+              <tspan x={outputX + outputCell * 1.5} dy="0">Click a square to move</tspan>
+              <tspan x={outputX + outputCell * 1.5} dy="15">the filter one step.</tspan>
             </text>
           </g>
         </svg>
