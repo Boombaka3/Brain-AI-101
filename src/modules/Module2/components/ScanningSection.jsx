@@ -1,11 +1,63 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
-  SAMPLE_IMAGE, DEFAULT_KERNEL, KERNEL_PRESETS,
-  computeWeightedSum, getReceptiveFieldValues
+  DEFAULT_KERNEL,
+  KERNEL_PRESETS,
+  KERNEL_SIZE,
+  OUTPUT_SIZE,
+  PADDED_SIZE,
+  PADDING,
+  SAMPLE_IMAGE,
+  SOURCE_SIZE,
+  STRIDE,
+  computeWeightedSum,
+  getReceptiveFieldValues,
+  padImageGrid,
 } from '../module2Config'
 
-const SVG_W = 800
-const SVG_H = 420
+const SVG_W = 1080
+const SVG_H = 390
+
+function getCellTone(value) {
+  if (value > 0) {
+    return {
+      bg: '#3B82F6',
+      border: '#2563EB',
+      text: '#FFFFFF',
+    }
+  }
+
+  return {
+    bg: '#F8FAFC',
+    border: '#CBD5E1',
+    text: '#94A3B8',
+  }
+}
+
+function getOutputTone(value) {
+  if (value > 0) {
+    const intensity = Math.min(1, value / 6)
+    return {
+      bg: `rgba(59, 130, 246, ${0.18 + intensity * 0.38})`,
+      border: '#7C3AED',
+      text: '#4C1D95',
+    }
+  }
+
+  if (value < 0) {
+    const intensity = Math.min(1, Math.abs(value) / 6)
+    return {
+      bg: `rgba(248, 113, 113, ${0.16 + intensity * 0.34})`,
+      border: '#F97316',
+      text: '#9A3412',
+    }
+  }
+
+  return {
+    bg: '#F8FAFC',
+    border: '#CBD5E1',
+    text: '#64748B',
+  }
+}
 
 function ScanningSection() {
   const [convImage, setConvImage] = useState([...SAMPLE_IMAGE])
@@ -13,217 +65,373 @@ function ScanningSection() {
   const [receptiveFieldPos, setReceptiveFieldPos] = useState({ row: 0, col: 0 })
   const [storedOutputs, setStoredOutputs] = useState({})
   const [isAnimating, setIsAnimating] = useState(false)
+  const [showScoreBreakdown, setShowScoreBreakdown] = useState(false)
+
+  const paddedImage = padImageGrid(convImage, SOURCE_SIZE, PADDING)
 
   useEffect(() => {
     if (Object.keys(storedOutputs).length === 0) {
-      const field = getReceptiveFieldValues(convImage, 0, 0)
+      const field = getReceptiveFieldValues(paddedImage, 0, 0, PADDED_SIZE)
       const sum = computeWeightedSum(field, kernel)
       setStoredOutputs({ '0,0': sum })
     }
-  }, [])
+  }, [kernel, paddedImage, storedOutputs])
 
-  const currentField = getReceptiveFieldValues(convImage, receptiveFieldPos.row, receptiveFieldPos.col)
+  const currentField = getReceptiveFieldValues(
+    paddedImage,
+    receptiveFieldPos.row,
+    receptiveFieldPos.col,
+    PADDED_SIZE
+  )
   const convSum = computeWeightedSum(currentField, kernel)
-  const elementProducts = currentField.map((val, i) => ({ input: val, weight: kernel[i], product: val * kernel[i] }))
+  const scoreParts = currentField.map((val, i) => ({ input: val, weight: kernel[i], product: val * kernel[i] }))
+
+  const updateStoredValue = (image, nextKernel, row, col, resetMap = false) => {
+    const posKey = `${row},${col}`
+    const field = getReceptiveFieldValues(image, row, col, PADDED_SIZE)
+    const sum = computeWeightedSum(field, nextKernel)
+    setStoredOutputs(prev => (resetMap ? { [posKey]: sum } : { ...prev, [posKey]: sum }))
+  }
 
   const toggleConvCell = (index) => {
     const img = [...convImage]
     img[index] = img[index] === 0 ? 1 : 0
     setConvImage(img)
-    const posKey = `${receptiveFieldPos.row},${receptiveFieldPos.col}`
-    const field = getReceptiveFieldValues(img, receptiveFieldPos.row, receptiveFieldPos.col)
-    const sum = computeWeightedSum(field, kernel)
-    setStoredOutputs(prev => ({ ...prev, [posKey]: sum }))
+    const padded = padImageGrid(img, SOURCE_SIZE, PADDING)
+    updateStoredValue(padded, kernel, receptiveFieldPos.row, receptiveFieldPos.col, true)
   }
 
   const updateKernelValue = (index, delta) => {
-    const k = [...kernel]
-    k[index] = Math.max(-9, Math.min(9, k[index] + delta))
-    setKernel(k)
-    const posKey = `${receptiveFieldPos.row},${receptiveFieldPos.col}`
-    const field = getReceptiveFieldValues(convImage, receptiveFieldPos.row, receptiveFieldPos.col)
-    const sum = computeWeightedSum(field, k)
-    setStoredOutputs(prev => ({ ...prev, [posKey]: sum }))
+    const nextKernel = [...kernel]
+    nextKernel[index] = Math.max(-9, Math.min(9, nextKernel[index] + delta))
+    setKernel(nextKernel)
+    updateStoredValue(paddedImage, nextKernel, receptiveFieldPos.row, receptiveFieldPos.col, true)
   }
 
   const loadKernelPreset = (name) => {
     const preset = KERNEL_PRESETS[name]
     if (!preset) return
     setKernel([...preset])
-    const posKey = `${receptiveFieldPos.row},${receptiveFieldPos.col}`
-    const field = getReceptiveFieldValues(convImage, receptiveFieldPos.row, receptiveFieldPos.col)
-    const sum = computeWeightedSum(field, preset)
-    setStoredOutputs(prev => ({ ...prev, [posKey]: sum }))
+    updateStoredValue(paddedImage, preset, receptiveFieldPos.row, receptiveFieldPos.col, true)
   }
 
   const moveReceptiveField = (row, col) => {
-    if (row < 0 || row > 2 || col < 0 || col > 2 || isAnimating) return
+    if (row < 0 || row >= OUTPUT_SIZE || col < 0 || col >= OUTPUT_SIZE || isAnimating) return
     setIsAnimating(true)
     setReceptiveFieldPos({ row, col })
-    const posKey = `${row},${col}`
-    const field = getReceptiveFieldValues(convImage, row, col)
-    const sum = computeWeightedSum(field, kernel)
-    setStoredOutputs(prev => ({ ...prev, [posKey]: sum }))
-    setTimeout(() => setIsAnimating(false), 300)
+    updateStoredValue(paddedImage, kernel, row, col)
+    setTimeout(() => setIsAnimating(false), 240)
   }
 
   const resetConvolution = () => {
     setReceptiveFieldPos({ row: 0, col: 0 })
-    const field = getReceptiveFieldValues(convImage, 0, 0)
+    const field = getReceptiveFieldValues(paddedImage, 0, 0, PADDED_SIZE)
     const sum = computeWeightedSum(field, kernel)
     setStoredOutputs({ '0,0': sum })
   }
 
-  // Layout
-  const inputGridX = 30, inputGridY = 60, inputCellSz = 34
-  const kernelGridX = 250, kernelGridY = 120, kernelCellSz = 44
-  const productGridX = 430, productGridY = 120, productCellSz = 44
-  const outputGridX = 640, outputGridY = 120, outputCellSz = 50
+  const baselineY = 118
+  const sourceCell = 58
+  const paddedCell = 38
+  const kernelCell = 48
+  const outputCell = 58
+
+  const sourceX = 44
+  const paddedX = 258
+  const kernelX = 562
+  const outputX = 790
+
+  const sourceY = baselineY + (PADDED_SIZE * paddedCell - SOURCE_SIZE * sourceCell) / 2
+  const paddedY = baselineY
+  const kernelY = baselineY + (PADDED_SIZE * paddedCell - KERNEL_SIZE * kernelCell) / 2
+  const outputY = baselineY + (PADDED_SIZE * paddedCell - OUTPUT_SIZE * outputCell) / 2
+
+  const paddedWindowX = paddedX + receptiveFieldPos.col * paddedCell - 4
+  const paddedWindowY = paddedY + receptiveFieldPos.row * paddedCell - 4
+  const paddedWindowSize = KERNEL_SIZE * paddedCell + 8
+
+  const scannedCount = Object.keys(storedOutputs).length
 
   return (
     <section className="m2-section">
-      <div className="m2-section-card">
+      <div className="m2-section-card m2-cnn-card">
         <div className="m2-section-heading m2-canvas-heading">
-        <p className="m2-eyebrow">D. CNNs</p>
-        <h2>CNNs: Seeing in Patches</h2>
-        <p className="m2-section-subtitle">A convolutional neural network slides a filter across the image, producing a feature map — one value for every patch it scans.</p>
-      </div>
+          <p className="m2-eyebrow">D. CNNs</p>
+          <h2>Seeing in Patches</h2>
+          <p className="m2-section-subtitle">
+            A CNN looks at small parts of an image one step at a time. It uses a filter, a small
+            pattern detector, to check each patch.
+          </p>
+        </div>
 
-      <div className="m2-cnn-pipeline">
-        {['Conv Layer', 'Activation', 'Pooling', '× Repeat', 'Classifier'].map((label, i, arr) => (
-          <span key={label} className="m2-cnn-pipeline-item">
-            <span className="m2-cnn-stage-box">{label}</span>
-            {i < arr.length - 1 && <span className="m2-cnn-arrow"> → </span>}
-          </span>
-        ))}
-      </div>
+        <div className="m2-cnn-copy-grid">
+          <div className="m2-cnn-copy-card">
+            <strong>Padding</strong>
+            <p>
+              Start with a 3×3 image. Add a padding border around it, making it 5×5. Padding lets
+              the filter check the edge pixels too. The output stays 3×3, matching the original
+              image.
+            </p>
+          </div>
+          <div className="m2-cnn-copy-card">
+            <strong>Stride</strong>
+            <p>Here, the filter moves one step at a time. That step size is called stride.</p>
+          </div>
+          <div className="m2-cnn-copy-card">
+            <strong>Kernel</strong>
+            <p>In CNNs, this filter is also called a kernel.</p>
+          </div>
+        </div>
 
-        <svg width={SVG_W} height={SVG_H} className="m2-svg-block">
+        <div className="m2-cnn-legend">
+          <span className="m2-cnn-legend-chip m2-cnn-legend-chip--image">Original 3×3</span>
+          <span className="m2-cnn-legend-chip m2-cnn-legend-chip--padding">Padding</span>
+          <span className="m2-cnn-legend-chip m2-cnn-legend-chip--active">Active filter window</span>
+        </div>
+
+        <svg
+          width={SVG_W}
+          height={SVG_H}
+          viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+          className="m2-svg-block m2-cnn-svg"
+        >
           <defs>
-            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-              <path d="M0,0 L8,3 L0,6 Z" fill="#94A3B8" />
+            <marker id="m2-cnn-arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+              <path d="M0,0 L10,4 L0,8 Z" fill="#C4B5FD" />
             </marker>
           </defs>
 
-          {/* Input image 5×5 */}
           <g>
-            <text x={inputGridX + inputCellSz * 2.5} y={inputGridY - 12} textAnchor="middle" fontSize="11" fontWeight="600" fill="#1E293B">Input (5×5)</text>
+            <text x={sourceX + sourceCell * 1.5} y={84} className="m2-cnn-svg-label" textAnchor="middle">
+              Original 3×3
+            </text>
             {convImage.map((val, i) => {
-              const row = Math.floor(i / 5), col = i % 5
-              const x = inputGridX + col * inputCellSz, y = inputGridY + row * inputCellSz
-              const inField = row >= receptiveFieldPos.row && row < receptiveFieldPos.row + 3 && col >= receptiveFieldPos.col && col < receptiveFieldPos.col + 3
+              const row = Math.floor(i / SOURCE_SIZE)
+              const col = i % SOURCE_SIZE
+              const x = sourceX + col * sourceCell
+              const y = sourceY + row * sourceCell
+              const tone = getCellTone(val)
+
               return (
-                <g key={i} style={{ cursor: 'pointer' }} onClick={() => toggleConvCell(i)}>
-                  <rect x={x} y={y} width={inputCellSz - 2} height={inputCellSz - 2} rx={4} fill={inField ? (val ? '#3B82F6' : '#EFF6FF') : (val ? '#64748B' : '#F8FAFC')} stroke={inField ? '#8B5CF6' : (val ? '#475569' : '#E2E8F0')} strokeWidth={inField ? 2 : 1} />
-                  <text x={x + (inputCellSz - 2) / 2} y={y + (inputCellSz - 2) / 2 + 4} textAnchor="middle" fontSize="12" fontWeight={inField ? '700' : '500'} fill={inField ? (val ? 'white' : '#3B82F6') : (val ? 'white' : '#94A3B8')}>{val}</text>
+                <g key={`source-${i}`} style={{ cursor: 'pointer' }} onClick={() => toggleConvCell(i)}>
+                  <rect
+                    x={x}
+                    y={y}
+                    width={sourceCell - 4}
+                    height={sourceCell - 4}
+                    rx={12}
+                    fill={tone.bg}
+                    stroke="#DDD6FE"
+                    strokeWidth={1.4}
+                  />
+                  <text
+                    x={x + (sourceCell - 4) / 2}
+                    y={y + (sourceCell - 4) / 2 + 7}
+                    textAnchor="middle"
+                    className="m2-cnn-svg-value"
+                    fill={tone.text}
+                  >
+                    {val}
+                  </text>
                 </g>
               )
             })}
-            <rect x={inputGridX + receptiveFieldPos.col * inputCellSz - 3} y={inputGridY + receptiveFieldPos.row * inputCellSz - 3} width={inputCellSz * 3 + 4} height={inputCellSz * 3 + 4} fill="none" stroke="#8B5CF6" strokeWidth={3} rx={6} />
-            <text x={inputGridX + inputCellSz * 2.5} y={inputGridY + inputCellSz * 5 + 14} textAnchor="middle" fontSize="9" fill="#94A3B8">click to edit</text>
+            <text x={sourceX + sourceCell * 1.5} y={sourceY + sourceCell * 3 + 24} className="m2-cnn-svg-note" textAnchor="middle">
+              Click cells to edit the image.
+            </text>
           </g>
 
-          <text x={kernelGridX - 18} y={kernelGridY + kernelCellSz * 1.5 + 5} textAnchor="middle" fontSize="20" fontWeight="700" fill="#64748B">×</text>
+          <path
+            d={`M ${sourceX + sourceCell * 3 + 18} ${baselineY + 95} L ${paddedX - 24} ${baselineY + 95}`}
+            fill="none"
+            stroke="#C4B5FD"
+            strokeWidth="2.5"
+            markerEnd="url(#m2-cnn-arrowhead)"
+          />
+          <text x={sourceX + sourceCell * 3 + 68} y={baselineY + 72} className="m2-cnn-svg-step" textAnchor="middle">
+            add
+          </text>
+          <text x={sourceX + sourceCell * 3 + 68} y={baselineY + 92} className="m2-cnn-svg-step" textAnchor="middle">
+            Padding
+          </text>
 
-          {/* Kernel 3×3 */}
           <g>
-            <text x={kernelGridX + kernelCellSz * 1.5} y={kernelGridY - 12} textAnchor="middle" fontSize="11" fontWeight="600" fill="#8B5CF6">Weights (3×3)</text>
-            {kernel.map((w, i) => {
-              const row = Math.floor(i / 3), col = i % 3
-              const x = kernelGridX + col * kernelCellSz, y = kernelGridY + row * kernelCellSz
-              const bg = w > 0 ? '#DCFCE7' : (w < 0 ? '#FEE2E2' : '#F8FAFC')
-              const border = w > 0 ? '#22C55E' : (w < 0 ? '#EF4444' : '#CBD5E1')
-              const tc = w > 0 ? '#166534' : (w < 0 ? '#991B1B' : '#64748B')
+            <text x={paddedX + paddedCell * 2.5} y={84} className="m2-cnn-svg-label" textAnchor="middle">
+              Padded 5×5
+            </text>
+            {paddedImage.map((val, i) => {
+              const row = Math.floor(i / PADDED_SIZE)
+              const col = i % PADDED_SIZE
+              const x = paddedX + col * paddedCell
+              const y = paddedY + row * paddedCell
+              const isPadding = row === 0 || row === PADDED_SIZE - 1 || col === 0 || col === PADDED_SIZE - 1
+              const inField =
+                row >= receptiveFieldPos.row &&
+                row < receptiveFieldPos.row + KERNEL_SIZE &&
+                col >= receptiveFieldPos.col &&
+                col < receptiveFieldPos.col + KERNEL_SIZE
+
+              const tone = isPadding
+                ? { bg: '#F5F3FF', border: '#D8B4FE', text: '#8B5CF6' }
+                : getCellTone(val)
+
               return (
-                <g key={i}>
-                  <rect x={x} y={y} width={kernelCellSz - 2} height={kernelCellSz - 2} rx={5} fill={bg} stroke={border} strokeWidth={2} />
-                  <text x={x + (kernelCellSz - 2) / 2} y={y + (kernelCellSz - 2) / 2 + 5} textAnchor="middle" fontSize="14" fontWeight="700" fill={tc}>{w > 0 ? `+${w}` : w}</text>
+                <g key={`padded-${i}`}>
+                  <rect
+                    x={x}
+                    y={y}
+                    width={paddedCell - 4}
+                    height={paddedCell - 4}
+                    rx={10}
+                    fill={tone.bg}
+                    stroke={inField ? '#7C3AED' : tone.border}
+                    strokeWidth={inField ? 2.3 : 1.3}
+                  />
+                  <text
+                    x={x + (paddedCell - 4) / 2}
+                    y={y + (paddedCell - 4) / 2 + 5}
+                    textAnchor="middle"
+                    className="m2-cnn-svg-small-value"
+                    fill={tone.text}
+                  >
+                    {val}
+                  </text>
+                </g>
+              )
+            })}
+            <rect
+              x={paddedWindowX}
+              y={paddedWindowY}
+              width={paddedWindowSize}
+              height={paddedWindowSize}
+              rx={16}
+              fill="none"
+              stroke="#7C3AED"
+              strokeWidth="4"
+            />
+            <text x={paddedX + paddedCell * 2.5} y={paddedY + paddedCell * 5 + 24} className="m2-cnn-svg-note" textAnchor="middle">
+              Purple cells are padding. The filter scans this 5×5 view.
+            </text>
+          </g>
+
+          <path
+            d={`M ${paddedX + paddedCell * 5 + 20} ${baselineY + 95} L ${kernelX - 20} ${baselineY + 95}`}
+            fill="none"
+            stroke="#C4B5FD"
+            strokeWidth="2.5"
+            markerEnd="url(#m2-cnn-arrowhead)"
+          />
+
+          <g>
+            <text x={kernelX + kernelCell * 1.5} y={84} className="m2-cnn-svg-label" textAnchor="middle">
+              Filter 3×3
+            </text>
+            {kernel.map((weight, i) => {
+              const row = Math.floor(i / KERNEL_SIZE)
+              const col = i % KERNEL_SIZE
+              const x = kernelX + col * kernelCell
+              const y = kernelY + row * kernelCell
+              const positive = weight > 0
+              const negative = weight < 0
+
+              return (
+                <g key={`kernel-${i}`}>
+                  <rect
+                    x={x}
+                    y={y}
+                    width={kernelCell - 4}
+                    height={kernelCell - 4}
+                    rx={12}
+                    fill={positive ? '#EEF2FF' : negative ? '#FFF7ED' : '#FFFFFF'}
+                    stroke={positive ? '#A78BFA' : negative ? '#FDBA74' : '#DDD6FE'}
+                    strokeWidth="1.5"
+                  />
+                  <text
+                    x={x + (kernelCell - 4) / 2}
+                    y={y + (kernelCell - 4) / 2 + 6}
+                    textAnchor="middle"
+                    className="m2-cnn-svg-value"
+                    fill={positive ? '#6D28D9' : negative ? '#C2410C' : '#64748B'}
+                  >
+                    {weight > 0 ? `+${weight}` : weight}
+                  </text>
                   <g style={{ cursor: 'pointer' }} onClick={() => updateKernelValue(i, 1)}>
-                    <rect x={x + kernelCellSz - 14} y={y + 2} width={10} height={10} rx={2} fill="#E2E8F0" />
-                    <text x={x + kernelCellSz - 9} y={y + 10} textAnchor="middle" fontSize="9" fill="#64748B">+</text>
+                    <rect x={x + kernelCell - 22} y={y + 6} width={14} height={14} rx={4} fill="#EDE9FE" />
+                    <text x={x + kernelCell - 15} y={y + 17} textAnchor="middle" className="m2-cnn-svg-mini-btn">+</text>
                   </g>
                   <g style={{ cursor: 'pointer' }} onClick={() => updateKernelValue(i, -1)}>
-                    <rect x={x + kernelCellSz - 14} y={y + kernelCellSz - 14} width={10} height={10} rx={2} fill="#E2E8F0" />
-                    <text x={x + kernelCellSz - 9} y={y + kernelCellSz - 6} textAnchor="middle" fontSize="9" fill="#64748B">−</text>
+                    <rect x={x + kernelCell - 22} y={y + kernelCell - 24} width={14} height={14} rx={4} fill="#EDE9FE" />
+                    <text x={x + kernelCell - 15} y={y + kernelCell - 13} textAnchor="middle" className="m2-cnn-svg-mini-btn">−</text>
                   </g>
                 </g>
               )
             })}
-            <text x={kernelGridX + kernelCellSz * 1.5} y={kernelGridY + kernelCellSz * 3 + 14} textAnchor="middle" fontSize="9" fill="#8B5CF6">click +/− to edit</text>
+            <text x={kernelX + kernelCell * 1.5} y={kernelY + kernelCell * 3 + 24} className="m2-cnn-svg-note" textAnchor="middle">
+              Same filter, reused at every patch.
+            </text>
           </g>
 
-          <text x={productGridX - 18} y={kernelGridY + kernelCellSz * 1.5 + 5} textAnchor="middle" fontSize="20" fontWeight="700" fill="#64748B">=</text>
+          <path
+            d={`M ${kernelX + kernelCell * 3 + 18} ${baselineY + 95} L ${outputX - 22} ${baselineY + 95}`}
+            fill="none"
+            stroke="#C4B5FD"
+            strokeWidth="2.5"
+            markerEnd="url(#m2-cnn-arrowhead)"
+          />
+          <text x={kernelX + kernelCell * 3 + 66} y={baselineY + 76} className="m2-cnn-svg-step" textAnchor="middle">
+            stride
+          </text>
+          <text x={kernelX + kernelCell * 3 + 66} y={baselineY + 96} className="m2-cnn-svg-step" textAnchor="middle">
+            {STRIDE}
+          </text>
 
-          {/* Products 3×3 */}
           <g>
-            <text x={productGridX + productCellSz * 1.5} y={productGridY - 12} textAnchor="middle" fontSize="11" fontWeight="600" fill="#1E293B">Products</text>
-            {elementProducts.map(({ input, weight, product }, i) => {
-              const row = Math.floor(i / 3), col = i % 3
-              const x = productGridX + col * productCellSz, y = productGridY + row * productCellSz
-              const bg = product > 0 ? '#DCFCE7' : (product < 0 ? '#FEE2E2' : '#F8FAFC')
-              const border = product > 0 ? '#22C55E' : (product < 0 ? '#EF4444' : '#E2E8F0')
-              const tc = product > 0 ? '#166534' : (product < 0 ? '#991B1B' : '#94A3B8')
-              return (
-                <g key={i}>
-                  <rect x={x} y={y} width={productCellSz - 2} height={productCellSz - 2} rx={5} fill={bg} stroke={border} strokeWidth={1.5} />
-                  <text x={x + (productCellSz - 2) / 2} y={y + 13} textAnchor="middle" fontSize="8" fill="#94A3B8">
-                    {input}×{weight >= 0 ? (weight > 0 ? '+' : '') : ''}{weight}
-                  </text>
-                  <text x={x + (productCellSz - 2) / 2} y={y + (productCellSz - 2) / 2 + 8} textAnchor="middle" fontSize="14" fontWeight="700" fill={tc}>{product > 0 ? `+${product}` : product}</text>
-                </g>
-              )
-            })}
-            <rect x={productGridX} y={productGridY + productCellSz * 3 + 8} width={productCellSz * 3 - 2} height={30} rx={6} fill={convSum > 0 ? '#DCFCE7' : (convSum < 0 ? '#FEE2E2' : '#F1F5F9')} stroke={convSum > 0 ? '#22C55E' : (convSum < 0 ? '#EF4444' : '#CBD5E1')} strokeWidth={2} />
-            <text x={productGridX + (productCellSz * 3 - 2) / 2} y={productGridY + productCellSz * 3 + 28} textAnchor="middle" fontSize="14" fontWeight="700" fill={convSum > 0 ? '#166534' : (convSum < 0 ? '#991B1B' : '#64748B')}>Σ = {convSum}</text>
-          </g>
-
-          {/* Arrow */}
-          <path d={`M ${productGridX + productCellSz * 3 + 10} ${productGridY + productCellSz * 1.5} L ${outputGridX - 15} ${productGridY + productCellSz * 1.5}`} fill="none" stroke="#94A3B8" strokeWidth={2} markerEnd="url(#arrowhead)" />
-
-          {/* Output map 3×3 */}
-          <g>
-            <text x={outputGridX + outputCellSz * 1.5} y={outputGridY - 12} textAnchor="middle" fontSize="11" fontWeight="600" fill="#1E293B">Output (3×3)</text>
+            <text x={outputX + outputCell * 1.5} y={84} className="m2-cnn-svg-label" textAnchor="middle">
+              Output 3×3
+            </text>
             {[0, 1, 2].map(row =>
               [0, 1, 2].map(col => {
-                const x = outputGridX + col * outputCellSz
-                const y = outputGridY + row * outputCellSz
+                const x = outputX + col * outputCell
+                const y = outputY + row * outputCell
                 const posKey = `${row},${col}`
-                const isCurrent = row === receptiveFieldPos.row && col === receptiveFieldPos.col
                 const stored = storedOutputs[posKey]
-                const hasVal = stored !== undefined
-
-                let bg = '#F8FAFC', border = '#E2E8F0', tc = '#CBD5E1'
-                if (hasVal) {
-                  if (stored > 0) {
-                    const int = Math.min(1, stored / 6)
-                    bg = `rgba(16, 185, 129, ${0.15 + int * 0.5})`; border = '#10B981'; tc = '#047857'
-                  } else if (stored < 0) {
-                    const int = Math.min(1, Math.abs(stored) / 6)
-                    bg = `rgba(239, 68, 68, ${0.15 + int * 0.5})`; border = '#EF4444'; tc = '#991B1B'
-                  } else {
-                    bg = '#F1F5F9'; border = '#94A3B8'; tc = '#64748B'
-                  }
-                }
+                const hasValue = stored !== undefined
+                const isCurrent = row === receptiveFieldPos.row && col === receptiveFieldPos.col
+                const tone = hasValue ? getOutputTone(stored) : { bg: '#F8FAFC', border: '#E2E8F0', text: '#CBD5E1' }
 
                 return (
                   <g key={posKey} style={{ cursor: 'pointer' }} onClick={() => moveReceptiveField(row, col)}>
-                    <rect x={x} y={y} width={outputCellSz - 4} height={outputCellSz - 4} rx={6} fill={bg} stroke={isCurrent ? '#8B5CF6' : border} strokeWidth={isCurrent ? 3 : 1.5} />
-                    <text x={x + (outputCellSz - 4) / 2} y={y + (outputCellSz - 4) / 2 + 5} textAnchor="middle" fontSize="14" fontWeight="700" fill={hasVal ? tc : '#CBD5E1'}>{hasVal ? stored : '?'}</text>
+                    <rect
+                      x={x}
+                      y={y}
+                      width={outputCell - 4}
+                      height={outputCell - 4}
+                      rx={12}
+                      fill={tone.bg}
+                      stroke={isCurrent ? '#7C3AED' : tone.border}
+                      strokeWidth={isCurrent ? 3 : 1.5}
+                    />
+                    <text
+                      x={x + (outputCell - 4) / 2}
+                      y={y + (outputCell - 4) / 2 + 7}
+                      textAnchor="middle"
+                      className="m2-cnn-svg-value"
+                      fill={tone.text}
+                    >
+                      {hasValue ? stored : '?'}
+                    </text>
                   </g>
                 )
               })
             )}
-            <text x={outputGridX + outputCellSz * 1.5} y={outputGridY + outputCellSz * 3 + 14} textAnchor="middle" fontSize="9" fill="#94A3B8">click to move window</text>
+            <text x={outputX + outputCell * 1.5} y={outputY + outputCell * 3 + 24} className="m2-cnn-svg-note" textAnchor="middle">
+              Click a square to move the filter one step.
+            </text>
           </g>
-
-          <text x={SVG_W / 2} y={SVG_H - 15} textAnchor="middle" fontSize="12" fontWeight="500" fill="#64748B" fontStyle="italic">
-            The same neuron is reused at each location.
-          </text>
         </svg>
 
-        {/* Kernel presets */}
         <div className="m2-preset-row">
-          <span className="m2-preset-label">Kernel:</span>
+          <span className="m2-preset-label">Filter presets:</span>
           {Object.keys(KERNEL_PRESETS).map(name => (
             <button key={name} className="m2-preset-btn" onClick={() => loadKernelPreset(name)}>
               {name.replace(/([A-Z])/g, ' $1').trim()}
@@ -232,23 +440,81 @@ function ScanningSection() {
           <button className="m2-preset-btn" onClick={resetConvolution}>Reset Map</button>
         </div>
 
-        {/* Observation */}
         <div className="m2-observation m2-observation--purple">
-          <p>
-            {convSum === 0
-              ? <><strong>Output is zero.</strong> The kernel finds no matching structure here.</>
-              : convSum > 0
-                ? <><strong>Positive output ({convSum}).</strong> The kernel matches the input pattern here.</>
-                : <><strong>Negative output ({convSum}).</strong> The input opposes what the kernel expects.</>
-            }
-          </p>
+          <p><strong>Padding lets the filter check the edges without shrinking the output.</strong></p>
         </div>
 
         <p className="m2-hint">
-          {Object.keys(storedOutputs).length >= 9
-            ? "You've scanned all positions. Try a different kernel!"
-            : 'Click output cells to scan with the kernel.'}
+          {scannedCount >= OUTPUT_SIZE * OUTPUT_SIZE
+            ? 'You have scanned every patch. Try a different filter preset.'
+            : 'The output stays 3×3 because the padded 5×5 image lines up with the original 3×3 scan positions.'}
         </p>
+
+        <div className="m2-cnn-score-panel">
+          <button
+            type="button"
+            className="m2-cnn-score-toggle"
+            onClick={() => setShowScoreBreakdown(prev => !prev)}
+          >
+            {showScoreBreakdown ? 'Hide score details' : 'How the score is made'}
+          </button>
+
+          {showScoreBreakdown && (
+            <div className="m2-cnn-score-breakdown">
+              <div className="m2-cnn-score-copy">
+                <h3>Current patch score</h3>
+                <p>
+                  This output square uses one 3×3 patch from the padded image and one 3×3 filter.
+                  Matching parts push the score up. Non-matching parts push it down.
+                </p>
+                <p>
+                  Current scan position: row {receptiveFieldPos.row + 1}, column {receptiveFieldPos.col + 1}. Current score: <strong>{convSum}</strong>.
+                </p>
+              </div>
+
+              <div className="m2-cnn-score-grid-wrap">
+                <div>
+                  <span className="m2-cnn-score-label">Patch</span>
+                  <div className="m2-cnn-score-grid">
+                    {currentField.map((value, index) => {
+                      const tone = getCellTone(value)
+                      return (
+                        <span key={`patch-${index}`} style={{ background: tone.bg, color: tone.text, borderColor: '#DDD6FE' }}>
+                          {value}
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <span className="m2-cnn-score-label">Filter</span>
+                  <div className="m2-cnn-score-grid">
+                    {kernel.map((value, index) => (
+                      <span key={`filter-${index}`} className="m2-cnn-score-grid--filter">
+                        {value > 0 ? `+${value}` : value}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <span className="m2-cnn-score-label">Score pieces</span>
+                  <div className="m2-cnn-score-grid">
+                    {scoreParts.map(({ product }, index) => (
+                      <span
+                        key={`product-${index}`}
+                        className={product > 0 ? 'is-positive' : product < 0 ? 'is-negative' : ''}
+                      >
+                        {product > 0 ? `+${product}` : product}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   )

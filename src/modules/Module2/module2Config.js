@@ -38,6 +38,13 @@ export const DEFAULT_KERNEL = [
   1, 0, -1
 ]
 
+export const SOURCE_SIZE = 3
+export const PADDING = 1
+export const PADDED_SIZE = SOURCE_SIZE + PADDING * 2
+export const KERNEL_SIZE = 3
+export const STRIDE = 1
+export const OUTPUT_SIZE = SOURCE_SIZE
+
 export const KERNEL_PRESETS = {
   verticalEdge: [1, 0, -1, 1, 0, -1, 1, 0, -1],
   horizontalEdge: [1, 1, 1, 0, 0, 0, -1, -1, -1],
@@ -106,11 +113,9 @@ export const TRANSITION_ARRANGEMENTS = [
 ]
 
 export const SAMPLE_IMAGE = [
-  0, 0, 1, 1, 1,
-  0, 0, 1, 1, 1,
-  0, 0, 1, 1, 1,
-  0, 0, 1, 1, 1,
-  0, 0, 1, 1, 1,
+  0, 1, 0,
+  0, 1, 1,
+  0, 1, 0,
 ]
 
 export const GRID_PRESETS = {
@@ -160,10 +165,25 @@ export function computeWeightedSum(grid, weights) {
   return grid.reduce((sum, val, i) => sum + val * weights[i], 0)
 }
 
-export function getReceptiveFieldValues(image, row, col, imageWidth = 5) {
+export function padImageGrid(image, sourceWidth = SOURCE_SIZE, pad = PADDING) {
+  const paddedWidth = sourceWidth + pad * 2
+  const padded = new Array(paddedWidth * paddedWidth).fill(0)
+
+  for (let row = 0; row < sourceWidth; row++) {
+    for (let col = 0; col < sourceWidth; col++) {
+      const sourceIndex = row * sourceWidth + col
+      const paddedIndex = (row + pad) * paddedWidth + (col + pad)
+      padded[paddedIndex] = image[sourceIndex]
+    }
+  }
+
+  return padded
+}
+
+export function getReceptiveFieldValues(image, row, col, imageWidth = PADDED_SIZE) {
   const values = []
-  for (let r = 0; r < 3; r++) {
-    for (let c = 0; c < 3; c++) {
+  for (let r = 0; r < KERNEL_SIZE; r++) {
+    for (let c = 0; c < KERNEL_SIZE; c++) {
       const idx = (row + r) * imageWidth + (col + c)
       values.push(image[idx] ?? 0)
     }
@@ -172,11 +192,10 @@ export function getReceptiveFieldValues(image, row, col, imageWidth = 5) {
 }
 
 export function computeOutputMap(image, weights, threshold) {
-  const outputSize = 3
   const output = []
-  for (let r = 0; r < outputSize; r++) {
-    for (let c = 0; c < outputSize; c++) {
-      const receptiveField = getReceptiveFieldValues(image, r, c)
+  for (let r = 0; r < OUTPUT_SIZE; r++) {
+    for (let c = 0; c < OUTPUT_SIZE; c++) {
+      const receptiveField = getReceptiveFieldValues(image, r, c, PADDED_SIZE)
       const sum = computeWeightedSum(receptiveField, weights)
       const activation = computeActivation(sum, threshold, 'relu')
       output.push({ row: r, col: c, sum, activation })
