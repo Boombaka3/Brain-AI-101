@@ -5269,51 +5269,126 @@
   border: 0;
   border-radius: 0;
   box-shadow: none;
-  gap: 14px;
+  gap: 12px;
   padding: 0;
 }
 
 .module1-phet-panel--compact .module1-phet-panel__controls {
   display: grid;
-  gap: 12px 14px;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.module1-phet-panel--compact .module1-phet-panel__controls-main {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
 }
 
 .module1-phet-panel--compact .module1-phet-panel__control-group {
   background: rgba(248, 251, 255, 0.92);
   border: 1px solid rgba(207, 224, 247, 0.88);
   border-radius: 18px;
-  padding: 14px;
+  padding: 12px 14px;
 }
 
-.module1-phet-panel--compact .module1-phet-panel__control-group:first-child {
-  grid-column: 1;
-}
-
-.module1-phet-panel--compact .module1-phet-panel__control-group:nth-child(2) {
-  grid-column: 2;
-}
-
-.module1-phet-panel--compact .module1-phet-panel__control-group:last-child {
-  grid-column: 1 / -1;
+.module1-phet-panel--compact .module1-phet-panel__control-group h4 {
+  font-size: 13px;
+  margin: 0 0 8px;
 }
 
 .module1-phet-panel--compact .module1-phet-panel__control-row {
-  align-items: start;
-  justify-content: flex-start;
+  gap: 8px;
 }
 
-.module1-phet-panel--compact .module1-phet-panel__control-row button:first-child {
+.module1-phet-panel--compact .module1-phet-panel__control-row--compact {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.module1-phet-panel--compact .module1-phet-panel__control-row--chips {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.module1-phet-panel--compact .module1-phet-panel__button,
+.module1-phet-panel--compact .module1-phet-panel__control-row button,
+.module1-phet-panel--compact .module1-phet-panel__details-summary {
+  align-items: center;
+  border-radius: 12px;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 700;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 12px;
+}
+
+.module1-phet-panel--compact .module1-phet-panel__button {
+  border: 1px solid transparent;
+}
+
+.module1-phet-panel--compact .module1-phet-panel__button--primary {
   flex: 1 1 180px;
 }
 
+.module1-phet-panel--compact .module1-phet-panel__button--secondary {
+  background: #ffffff;
+  border-color: rgba(191, 219, 254, 0.9);
+  color: #35516e;
+  flex: 0 0 auto;
+}
+
+.module1-phet-panel--compact .module1-phet-panel__details {
+  background: rgba(248, 251, 255, 0.92);
+  border: 1px solid rgba(207, 224, 247, 0.88);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.module1-phet-panel--compact .module1-phet-panel__details-summary {
+  background: transparent;
+  color: #1d4ed8;
+  cursor: pointer;
+  list-style: none;
+  width: 100%;
+}
+
+.module1-phet-panel--compact .module1-phet-panel__details-summary::-webkit-details-marker {
+  display: none;
+}
+
+.module1-phet-panel--compact .module1-phet-panel__details[open] .module1-phet-panel__details-summary {
+  border-bottom: 1px solid rgba(207, 224, 247, 0.88);
+}
+
+.module1-phet-panel--compact .module1-phet-panel__details-copy {
+  color: var(--module1-text-soft);
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 0 0 10px;
+}
+
+.module1-phet-panel--compact .module1-phet-panel__control-group--advanced {
+  background: transparent;
+  border: 0;
+  padding: 10px 12px 12px;
+}
+
 .module1-phet-panel--compact .module1-phet-panel__toggle-row {
-  gap: 10px;
+  gap: 8px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .module1-phet-panel--compact .module1-phet-panel__toggle-row label {
-  min-height: 48px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(207, 224, 247, 0.88);
+  border-radius: 14px;
+  display: grid;
+  gap: 6px;
+  min-height: 42px;
+  padding: 8px 10px;
 }
 
 .module1-phet-panel--compact .module1-phet-embed {
@@ -5337,15 +5412,9 @@
     gap: 20px;
   }
 
+  .module1-phet-panel--compact .module1-phet-panel__controls-main,
   .module1-phet-panel--compact .module1-phet-panel__controls {
     grid-template-columns: 1fr;
-  }
-
-  .module1-phet-panel--compact .module1-phet-panel__control-group,
-  .module1-phet-panel--compact .module1-phet-panel__control-group:first-child,
-  .module1-phet-panel--compact .module1-phet-panel__control-group:nth-child(2),
-  .module1-phet-panel--compact .module1-phet-panel__control-group:last-child {
-    grid-column: auto;
   }
 }
 

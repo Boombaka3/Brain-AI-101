@@ -3,9 +3,9 @@ function NeuronResponsePanel({ lastResult }) {
     return (
       <div className="module1-sound-neuron__response-panel">
         <span className="module1-sound-neuron__response-label">Result</span>
-        <strong className="module1-sound-neuron__response-title">No spike yet</strong>
+        <strong className="module1-sound-neuron__response-title">The signal did not reach the threshold yet.</strong>
         <span className="module1-sound-neuron__response-label">Why it happened</span>
-        <p className="module1-sound-neuron__response-line">The signal was not strong enough to trigger a spike in time.</p>
+        <p className="module1-sound-neuron__response-line">The input was not strong enough, so the neuron stayed quiet.</p>
       </div>
     )
   }
@@ -14,9 +14,9 @@ function NeuronResponsePanel({ lastResult }) {
     return (
       <div className="module1-sound-neuron__response-panel">
         <span className="module1-sound-neuron__response-label">Result</span>
-        <strong className="module1-sound-neuron__response-title">Neuron stimulated</strong>
+        <strong className="module1-sound-neuron__response-title">The signal reached the threshold, so the neuron fired.</strong>
         <span className="module1-sound-neuron__response-label">Why it happened</span>
-        <p className="module1-sound-neuron__response-line">The stimulus changes the neuron&apos;s activity. Use the view options to inspect ions, charges, concentrations, or the potential chart.</p>
+        <p className="module1-sound-neuron__response-line">The sound added enough input at the soma. Once the total passed the threshold, the neuron sent a signal forward.</p>
       </div>
     )
   }
@@ -25,9 +25,9 @@ function NeuronResponsePanel({ lastResult }) {
     return (
       <div className="module1-sound-neuron__response-panel">
         <span className="module1-sound-neuron__response-label">Result</span>
-        <strong className="module1-sound-neuron__response-title">Neuron stimulated</strong>
+        <strong className="module1-sound-neuron__response-title">The signal reached the threshold, so the neuron fired.</strong>
         <span className="module1-sound-neuron__response-label">Why it happened</span>
-        <p className="module1-sound-neuron__response-line">The stimulus changes the neuron&apos;s activity. Use the view options to inspect ions, charges, concentrations, or the potential chart.</p>
+        <p className="module1-sound-neuron__response-line">The sound added enough input at the soma. Once the total passed the threshold, the neuron sent a signal forward.</p>
       </div>
     )
   }
@@ -35,9 +35,9 @@ function NeuronResponsePanel({ lastResult }) {
   return (
     <div className="module1-sound-neuron__response-panel">
       <span className="module1-sound-neuron__response-label">Result</span>
-      <strong className="module1-sound-neuron__response-title">Ready</strong>
+      <strong className="module1-sound-neuron__response-title">Build the signal at the soma.</strong>
       <span className="module1-sound-neuron__response-label">Why it happened</span>
-      <p className="module1-sound-neuron__response-line">Use Stimulate Neuron to watch the neuron respond.</p>
+      <p className="module1-sound-neuron__response-line">Send a sound to add input. If the total reaches threshold, the neuron will fire automatically.</p>
     </div>
   )
 }

@@ -2,19 +2,25 @@ import FloatingSignal from './FloatingSignal'
 import NeuronResponsePanel from './NeuronResponsePanel'
 import PhetNeuronPanel from './PhetNeuronPanel'
 import { staticPayAttentionSvg } from './module1SceneAssets'
-import useSoundNeuronExperiment, { EXAMPLE_SIGNALS } from '../hooks/useSoundNeuronExperiment'
+import useSoundNeuronExperiment, { EXAMPLE_SIGNALS, MAX_INPUT, THRESHOLD } from '../hooks/useSoundNeuronExperiment'
 import '../styles/soundNeuronExperiment.css'
 
 function SoundNeuronExperiment() {
   const {
     currentPhrase,
+    somaInput,
     recentSignals,
     isAnimating,
+    isFiring,
     lastResult,
+    autoStimulateToken,
     setCurrentPhrase,
     submitCurrentPhrase,
     submitExamplePhrase,
   } = useSoundNeuronExperiment()
+
+  const somaFillPercent = Math.max(0, Math.min(100, (somaInput / MAX_INPUT) * 100))
+  const thresholdPercent = (THRESHOLD / MAX_INPUT) * 100
 
   return (
     <div className="module1-sound-neuron">
@@ -85,17 +91,38 @@ function SoundNeuronExperiment() {
             <div className="module1-sound-neuron__panel-header">
               <div>
                 <h3 className="module1-sound-neuron__panel-title">Watch the neuron</h3>
-                <p className="module1-sound-neuron__panel-copy">Stimulate the neuron and watch how it responds.</p>
+                <p className="module1-sound-neuron__panel-copy">Each sound adds input at the soma. When the total reaches threshold, the neuron fires automatically.</p>
+              </div>
+            </div>
+
+            <div className="module1-sound-neuron__meter">
+              <div className="module1-sound-neuron__meter-header">
+                <span className="module1-sound-neuron__meter-label">Soma input</span>
+                <strong>{somaInput} / {MAX_INPUT}</strong>
+              </div>
+              <div
+                className={`module1-sound-neuron__meter-track ${isFiring ? 'is-firing' : ''}`}
+                aria-label="Soma input meter"
+                aria-valuemin={0}
+                aria-valuemax={MAX_INPUT}
+                aria-valuenow={somaInput}
+                role="meter"
+              >
+                <div className="module1-sound-neuron__meter-fill" style={{ width: `${somaFillPercent}%` }} />
+                <div className="module1-sound-neuron__meter-threshold" style={{ left: `${thresholdPercent}%` }}>
+                  <span>Threshold {THRESHOLD}</span>
+                </div>
               </div>
             </div>
 
             <NeuronResponsePanel lastResult={lastResult} />
             <PhetNeuronPanel
               title="Watch the neuron"
-              helperText="Stimulate the neuron and watch how it responds."
+              helperText="Send a sound to build input, or use the manual controls to test the neuron directly."
               showStatus={false}
               showPlayback={false}
               showAttribution={false}
+              autoStimulateToken={autoStimulateToken}
               compact
               showIntro={false}
             />

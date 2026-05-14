@@ -56,16 +56,24 @@ function useSoundNeuronExperiment() {
   const [isAnimating, setIsAnimating] = useState(false)
   const [isFiring, setIsFiring] = useState(false)
   const [lastResult, setLastResult] = useState('initial')
+  const [autoStimulateToken, setAutoStimulateToken] = useState(0)
 
   const decayIntervalRef = useRef(null)
   const timeoutIdsRef = useRef(new Set())
   const signalCounterRef = useRef(0)
   const somaInputRef = useRef(0)
   const hasSubmittedRef = useRef(false)
-  const thresholdHitRef = useRef(false)
+  const thresholdReachedRef = useRef(false)
+  const autoStimulateLockRef = useRef(false)
 
   useEffect(() => {
     somaInputRef.current = somaInput
+  }, [somaInput])
+
+  useEffect(() => {
+    if (somaInput < THRESHOLD) {
+      autoStimulateLockRef.current = false
+    }
   }, [somaInput])
 
   useEffect(() => {
@@ -95,8 +103,13 @@ function useSoundNeuronExperiment() {
       somaInputRef.current = nextLevel
       setSomaInput(nextLevel)
 
-      if (nextLevel === 0 && hasSubmittedRef.current && !thresholdHitRef.current) {
-        setLastResult('no-fire')
+      if (nextLevel === 0) {
+        if (hasSubmittedRef.current && !thresholdReachedRef.current) {
+          setLastResult('no-fire')
+        }
+
+        hasSubmittedRef.current = false
+        thresholdReachedRef.current = false
       }
     }, DECAY_INTERVAL_MS)
 
@@ -119,8 +132,11 @@ function useSoundNeuronExperiment() {
       return
     }
 
+    if (somaInputRef.current === 0) {
+      thresholdReachedRef.current = false
+    }
+
     hasSubmittedRef.current = true
-    thresholdHitRef.current = false
     setLastResult('initial')
     setCurrentPhrase('')
 
@@ -137,9 +153,14 @@ function useSoundNeuronExperiment() {
       setSomaInput(nextTotal)
 
       if (nextTotal >= THRESHOLD) {
-        thresholdHitRef.current = true
+        thresholdReachedRef.current = true
         setIsFiring(true)
         setLastResult(signal.isAlexCue ? 'alex-fire' : 'fire')
+
+        if (!autoStimulateLockRef.current) {
+          autoStimulateLockRef.current = true
+          setAutoStimulateToken((current) => current + 1)
+        }
 
         const fireTimeout = window.setTimeout(() => {
           timeoutIdsRef.current.delete(fireTimeout)
@@ -175,6 +196,7 @@ function useSoundNeuronExperiment() {
     isAnimating,
     isFiring,
     lastResult,
+    autoStimulateToken,
     setCurrentPhrase,
     submitCurrentPhrase,
     submitExamplePhrase,

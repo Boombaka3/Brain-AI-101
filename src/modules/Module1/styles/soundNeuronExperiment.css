@@ -100,7 +100,7 @@
   grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.9fr);
   gap: 18px;
   align-items: stretch;
-  min-height: 420px;
+  min-height: 440px;
 }
 
 .module1-sound-neuron__signal-overlay {
@@ -120,7 +120,7 @@
   position: relative;
   z-index: 1;
   display: grid;
-  gap: 14px;
+  gap: 12px;
   min-height: 100%;
   align-content: start;
   padding: 18px;
@@ -168,8 +168,8 @@
 
 .module1-sound-neuron__response-panel {
   display: grid;
-  gap: 8px;
-  padding-bottom: 4px;
+  gap: 6px;
+  padding-bottom: 2px;
 }
 
 .module1-sound-neuron__response-label {
@@ -181,15 +181,16 @@
 }
 
 .module1-sound-neuron__response-title {
-  font-size: 1.28rem;
+  font-size: 1.12rem;
   color: #12203a;
+  line-height: 1.35;
 }
 
 .module1-sound-neuron__response-line {
   margin: 0;
   color: #50627d;
-  font-size: 0.98rem;
-  line-height: 1.55;
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
 
 .module1-sound-neuron__panel-header {
@@ -208,13 +209,17 @@
 .module1-sound-neuron__panel-copy {
   margin: 0;
   color: #50627d;
-  font-size: 0.96rem;
-  line-height: 1.55;
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
 
 .module1-sound-neuron__meter {
   display: grid;
-  gap: 10px;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(248, 251, 255, 0.9);
+  border: 1px solid rgba(207, 224, 247, 0.88);
 }
 
 .module1-sound-neuron__meter-header {
@@ -234,7 +239,7 @@
 
 .module1-sound-neuron__meter-track {
   position: relative;
-  height: 18px;
+  height: 16px;
   border-radius: 999px;
   overflow: visible;
   background: linear-gradient(180deg, #e6eef8, #dbe7f4);
@@ -265,7 +270,7 @@
   bottom: calc(100% + 6px);
   transform: translateX(-50%);
   white-space: nowrap;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 800;
   color: #9c5718;
 }
