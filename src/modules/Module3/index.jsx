@@ -6,18 +6,22 @@ import useScrollProgress from '../../hooks/useScrollProgress'
 import LearningProblem from './components/LearningProblem'
 import LearningTypes from './components/LearningTypes'
 import SectionCLab from './components/SectionCLab'
+import AdvancedLearningLabs from './components/AdvancedLearningLabs'
 import BackpropagationSection from './components/BackpropagationSection'
+import BrainConnection from './components/BrainConnection'
 import BigPicture from './components/BigPicture'
 import './module3.css'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const SECTIONS = [
-  { label: 'Fixed vs Learning' },
-  { label: 'Three Ways to Learn' },
-  { label: 'Learning in Action' },
+  { label: 'Learning Means Changing' },
+  { label: 'Three Ways Machines Learn' },
+  { label: 'Error Goes Down Over Time' },
   { label: 'Backpropagation' },
-  { label: 'Big Picture' },
+  { label: 'Brain × AI Feedback' },
+  { label: 'Feedback During Inference' },
+  { label: 'Advanced Learning Labs' },
 ]
 
 function Module3({ onBack, onContinue, onNavigate }) {
@@ -60,7 +64,9 @@ function Module3({ onBack, onContinue, onNavigate }) {
         <div ref={setRef(1)}><LearningTypes isMobile={isMobile} onJumpToSectionC={() => scrollTo(2)} /></div>
         <div ref={setRef(2)}><SectionCLab /></div>
         <div ref={setRef(3)}><BackpropagationSection /></div>
-        <div ref={setRef(4)}><BigPicture /></div>
+        <div ref={setRef(4)}><BrainConnection /></div>
+        <div ref={setRef(5)}><BigPicture /></div>
+        <div ref={setRef(6)}><AdvancedLearningLabs /></div>
 
         <section className="m3-section m3-continue-section">
           <div className="m3-continue-card" onClick={onContinue} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onContinue?.()}>

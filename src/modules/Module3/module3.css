@@ -2773,3 +2773,383 @@
     row-gap: 4px;
   }
 }
+
+/* Scoped refresh: Section C + Advanced Learning Labs */
+
+.m3-training-section,
+.m3-section:has(.m3-training-intro-card) {
+  display: grid;
+  gap: 22px;
+}
+
+.m3-training-intro,
+.m3-training-intro-card {
+  background: #ffffff;
+  border: 1px solid #dbe7e2;
+  border-radius: 24px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
+  color: #475569;
+  display: grid;
+  gap: 12px;
+  padding: 28px;
+}
+
+.m3-training-intro p,
+.m3-training-intro-card p {
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.m3-training-grid {
+  align-items: start;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+}
+
+.m3-training-current-card,
+.m3-training-state-card,
+.m3-training-chart-card,
+.m3-training-summary-card,
+.m3-training-term-note,
+.m3-training-term-card,
+.m3-training-final-card,
+.m3-training-takeaway-card {
+  background: #ffffff;
+  border: 1px solid #dbe7e2;
+  border-radius: 24px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
+}
+
+.m3-training-current-card,
+.m3-training-state-card,
+.m3-training-chart-card {
+  gap: 18px;
+}
+
+.m3-training-card-head {
+  display: grid;
+  gap: 8px;
+}
+
+.m3-training-card-label {
+  color: #059669;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.m3-training-card-head h3,
+.m3-training-summary-card h3 {
+  color: #0f172a;
+  font-family: var(--font-display);
+  font-size: clamp(1.22rem, 2.2vw, 1.55rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.m3-training-state-list {
+  display: grid;
+  gap: 12px;
+}
+
+.m3-training-state-row {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 15px 16px;
+}
+
+.m3-training-state-row span,
+.m3-training-note span {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.m3-training-state-row strong {
+  color: #0f172a;
+  font-size: clamp(1.05rem, 2vw, 1.2rem);
+  font-weight: 800;
+  text-align: right;
+}
+
+.m3-training-note {
+  background: #f8fafc;
+  border: 1px solid #dbe7e2;
+  border-left: 3px solid #059669;
+  border-radius: 18px;
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+}
+
+.m3-training-note p {
+  color: #0f172a;
+  font-size: 15px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.m3-training-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.m3-training-complete {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  color: #047857;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 8px 12px;
+}
+
+.m3-training-chart,
+.m3-loss-chart {
+  align-items: end;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  min-height: 290px;
+  width: 100%;
+}
+
+.m3-loss-chart__column {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  min-width: 0;
+}
+
+.m3-loss-chart__value,
+.m3-loss-chart__epoch {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.m3-loss-chart__bar-shell {
+  align-items: end;
+  background: #f8fafc;
+  border: 1px solid #dbe5f0;
+  border-radius: 18px;
+  display: flex;
+  height: 210px;
+  justify-content: center;
+  overflow: hidden;
+  padding: 10px;
+  width: 100%;
+}
+
+.m3-training-bar,
+.m3-loss-chart__bar {
+  background: linear-gradient(180deg, #34d399 0%, #059669 100%);
+  border-radius: 999px;
+  min-height: 8px;
+  transition: height 0.24s ease, opacity 0.24s ease, background-color 0.24s ease;
+  width: 100%;
+}
+
+.m3-training-bar-active,
+.m3-loss-chart__column.is-current .m3-loss-chart__bar-shell {
+  border-color: #86efac;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.08);
+}
+
+.m3-training-bar-muted,
+.m3-loss-chart__column:not(.is-visible) .m3-loss-chart__bar {
+  background: #cbd5e1;
+  opacity: 0.55;
+}
+
+.m3-loss-chart__column:not(.is-visible) .m3-loss-chart__value,
+.m3-loss-chart__column:not(.is-visible) .m3-loss-chart__epoch {
+  color: #94a3b8;
+}
+
+.m3-training-summary-card,
+.m3-training-final-card,
+.m3-training-takeaway-card {
+  display: grid;
+  gap: 10px;
+  padding: 24px 26px;
+}
+
+.m3-training-summary-card p,
+.m3-training-term-note p,
+.m3-training-term-card p,
+.m3-training-final-card p,
+.m3-training-takeaway-card p {
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.m3-training-term-note,
+.m3-training-term-card {
+  background: #f8fafc;
+  border-color: #dbe5f0;
+  color: #0f172a;
+}
+
+.m3-training-term-note strong,
+.m3-training-term-card strong {
+  color: #0f172a;
+}
+
+.m3-training-final-card,
+.m3-training-takeaway-card {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.m3-training-final-card p:first-child,
+.m3-training-takeaway-card p:first-child {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.m3-advanced-labs,
+.m3-advanced-learning-labs {
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.92) 0%, rgba(241, 245, 249, 0.92) 100%);
+  border: 1px solid #dbe5f0;
+  border-radius: 24px;
+  display: grid;
+  gap: 18px;
+  margin-top: 8px;
+  overflow: hidden;
+  padding: 22px 20px;
+}
+
+.m3-advanced-labs-header,
+.m3-advanced-learning-labs__intro {
+  display: grid;
+  gap: 8px;
+}
+
+.m3-advanced-labs-intro,
+.m3-advanced-learning-labs__eyebrow,
+.m3-advanced-learning-labs__label {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.m3-advanced-labs-header h3,
+.m3-advanced-learning-labs__intro h3,
+.m3-advanced-lab-title,
+.m3-advanced-learning-labs__card-copy h4 {
+  color: #0f172a;
+  font-family: var(--font-display);
+  font-size: clamp(1.02rem, 1.8vw, 1.3rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.m3-advanced-labs-header h3,
+.m3-advanced-learning-labs__intro h3 {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+}
+
+.m3-advanced-labs-header p:last-child,
+.m3-advanced-learning-labs__intro p:last-child,
+.m3-advanced-lab-subtitle {
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.m3-advanced-labs-grid,
+.m3-advanced-learning-labs__stack {
+  display: grid;
+  gap: 16px;
+}
+
+.m3-advanced-lab-card,
+.m3-advanced-learning-labs__card {
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid #dbe5f0;
+  border-radius: 20px;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px;
+}
+
+.m3-advanced-lab-card {
+  grid-template-rows: auto auto 1fr;
+}
+
+.m3-advanced-learning-labs__card-copy {
+  display: grid;
+  gap: 6px;
+}
+
+.m3-advanced-learning-labs__card.unsupervised .m3-advanced-learning-labs__label {
+  color: #1d4ed8;
+}
+
+.m3-advanced-learning-labs__card.supervised .m3-advanced-learning-labs__label {
+  color: #047857;
+}
+
+.m3-advanced-learning-labs__card.reinforcement .m3-advanced-learning-labs__label {
+  color: #b45309;
+}
+
+.m3-advanced-lab-content,
+.m3-advanced-learning-labs__card-body {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.m3-advanced-lab-content > *,
+.m3-advanced-learning-labs__card-body > * {
+  max-width: 100%;
+}
+
+@media (max-width: 1000px) {
+  .m3-advanced-labs-grid,
+  .m3-advanced-learning-labs__stack {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .m3-training-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .m3-loss-chart {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    min-height: auto;
+  }
+
+  .m3-loss-chart__bar-shell {
+    height: 150px;
+  }
+}

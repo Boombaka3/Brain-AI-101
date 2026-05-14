@@ -148,7 +148,7 @@ function LearningTypes() {
 
       <div className="m3-section-card m3-learning-type-bridge">
         <p>
-          The next section focuses on supervised learning because it gives the clearest path into error, weight updates, and backpropagation:
+          The next section is optional advanced practice. After that, the core lesson focuses on supervised learning because it gives the clearest path into error, weight updates, and backpropagation:
         </p>
         <p>prediction → target → error → update.</p>
       </div>
