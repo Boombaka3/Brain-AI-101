@@ -155,7 +155,7 @@ export default function LandingPage({ onStart, onNavigate }) {
     <div className="lp-page">
       <section className="lp-hero">
         <h1 className="lp-hero-bg-text" aria-hidden="true">
-          Brain &times;<br />AI 101
+          Brain &times; AI 101
         </h1>
 
         <span className="lp-hero-tag lp-hero-tag--left">Brains and AI</span>
@@ -190,7 +190,7 @@ export default function LandingPage({ onStart, onNavigate }) {
             <span className="lp-meta-chip">Three interactive modules</span>
           </div>
           <button className="lp-btn-primary" onClick={onStart}>
-            Begin Module 1 <span className="lp-btn-arrow" aria-hidden="true">{'->'}</span>
+            Start the experience <span className="lp-btn-arrow" aria-hidden="true">{'->'}</span>
           </button>
         </div>
 
