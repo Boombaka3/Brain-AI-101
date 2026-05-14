@@ -262,6 +262,15 @@
   transform: translateY(-2px);
 }
 
+.lp-btn-primary:focus-visible,
+.lp-btn-secondary:focus-visible,
+.lp-btn-text:focus-visible,
+.lp-bd-tab:focus-visible,
+.lp-bd-sched-row:focus-visible {
+  outline: 3px solid rgba(45, 126, 255, 0.35);
+  outline-offset: 3px;
+}
+
 .lp-btn-primary--xl {
   font-size: 17px;
   padding: 17px 40px;
@@ -734,7 +743,6 @@
   border-style: solid;
   border-width: 1px;
   display: flex;
-  gap: 12px;
   padding: 12px 16px;
 }
 
@@ -743,7 +751,6 @@
 .lp-anatomy-step--amber  { background: #fffbeb; border-color: #fde68a; }
 .lp-anatomy-step--purple { background: #faf5ff; border-color: #ddd6fe; }
 
-.lp-anatomy-icon { flex-shrink: 0; font-size: 18px; line-height: 1; }
 .lp-anatomy-label { color: #1e293b; font-size: 14px; font-weight: 600; }
 
 /* Dot pattern visual */

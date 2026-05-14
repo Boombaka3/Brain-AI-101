@@ -52,7 +52,7 @@ function App() {
   if (currentView === 'landing') {
     content = (
       <Suspense fallback={<div style={{ minHeight: '100vh', background: '#F8FBFF' }} />}>
-        <LandingPage onStart={() => goTo('module1')} />
+        <LandingPage onStart={() => goTo('module1')} onNavigate={goTo} />
       </Suspense>
     )
   } else if (currentView === 'module1') {
