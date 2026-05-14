@@ -2132,6 +2132,208 @@
   margin: 0;
 }
 
+/* Section A: learning problem */
+.m3-learning-question {
+  text-align: center;
+}
+
+.m3-learning-intro-card {
+  background: #ffffff;
+  border: 1px solid #dbe7e2;
+  border-radius: 18px;
+  color: #475569;
+  display: grid;
+  gap: 10px;
+  padding: 18px 20px;
+}
+
+.m3-learning-loop {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.m3-learning-loop-step {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #d6e2f1;
+  border-radius: 18px;
+  color: #0f172a;
+  display: flex;
+  gap: 10px;
+  min-height: 62px;
+  padding: 10px 14px;
+}
+
+.m3-learning-loop-step-active {
+  background: #ecfdf5;
+  border-color: #6ee7b7;
+  box-shadow: 0 0 0 1px rgba(5, 150, 105, 0.08);
+}
+
+.m3-learning-activity-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.m3-learning-panel {
+  background: #ffffff;
+  border: 1px solid #dbe7e2;
+  border-radius: 22px;
+  color: #0f172a;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 20px;
+}
+
+.m3-digit-card {
+  align-items: center;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border: 1px solid #dbe7e2;
+  border-radius: 18px;
+  display: grid;
+  justify-items: center;
+  min-height: 220px;
+  padding: 18px;
+}
+
+.m3-digit-mark {
+  color: #1e3a8a;
+  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-size: clamp(4.75rem, 8vw, 7rem);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.m3-metric-list,
+.m3-weight-list {
+  display: grid;
+  gap: 10px;
+}
+
+.m3-weight-row {
+  align-items: stretch;
+  background: #ffffff;
+  border: 1px solid #dbe7e2;
+  border-radius: 14px;
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+}
+
+.m3-weight-label {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.m3-weight-values {
+  color: #047857;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.m3-confidence-meter {
+  display: grid;
+  gap: 8px;
+}
+
+.m3-confidence-fill {
+  background: linear-gradient(90deg, #10b981, #34d399);
+  border-radius: 999px;
+  height: 100%;
+}
+
+.m3-weight-bar {
+  background: #e2e8f0;
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.m3-biology-bridge {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fdfb 100%);
+  border: 1px solid #dbe7e2;
+  border-left: 3px solid #059669;
+  border-radius: 20px;
+  display: grid;
+  gap: 10px;
+  padding: 22px 24px;
+}
+
+.m3-learning-final-takeaway {
+  background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
+  border: 1px solid #a7f3d0;
+  border-radius: 18px;
+  display: grid;
+  gap: 10px;
+  padding: 18px 20px;
+}
+
+.m3-learning-final-takeaway p {
+  color: #475569;
+  margin: 0;
+}
+
+.m3-learning-final-takeaway p:first-child {
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.m3-signal-activity > .m3-signal-activity__phase {
+  background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
+  border-color: #a7f3d0;
+}
+
+.m3-signal-activity > .m3-signal-activity__phase .m3-signal-activity__phase-label {
+  color: #047857;
+}
+
+.m3-signal-activity > .m3-signal-activity__phase p {
+  color: #475569;
+}
+
+.m3-signal-activity > .m3-signal-activity__phase p:first-child + div p:first-child,
+.m3-signal-activity > .m3-signal-activity__phase > div p:first-child {
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.m3-signal-activity__process-step.is-active {
+  box-shadow: 0 0 0 1px rgba(5, 150, 105, 0.08);
+}
+
+.m3-signal-activity__grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.m3-signal-activity__info-item {
+  border-color: #dbe7e2;
+}
+
+.m3-signal-activity__info-item strong {
+  font-size: 16px;
+}
+
+.m3-mechanism-panel {
+  background: #ffffff;
+  border-color: #dbe7e2;
+}
+
+.m3-section > .m3-section-card:last-child {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fdfb 100%);
+  border: 1px solid #dbe7e2;
+  border-left: 3px solid #059669;
+}
+
 .m3-value-grid {
   display: grid;
   gap: 10px;
@@ -2306,6 +2508,12 @@
 .m3-types-grid--mechanisms .m3-story-card__subtitle,
 .m3-types-grid--mechanisms .m3-type-desc {
   margin: 0;
+}
+
+@media (max-width: 900px) {
+  .m3-learning-activity-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {

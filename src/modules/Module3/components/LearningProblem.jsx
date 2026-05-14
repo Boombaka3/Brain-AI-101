@@ -74,6 +74,12 @@ function LearningProblem() {
   const showError = step >= 3
   const showWeightUpdate = step >= 4
   const showImprovedPrediction = step >= 5
+  const isComplete = step === 5
+  const primaryLabel = controlSteps[step]
+
+  const handleAdvance = () => {
+    setStep((currentStep) => Math.min(currentStep + 1, 5))
+  }
 
   return (
     <section className="m3-section">
@@ -86,37 +92,6 @@ function LearningProblem() {
       </div>
 
       <div className="m3-section-card m3-signal-activity">
-        <div
-          className="m3-human-framing"
-          style={{
-            display: 'grid',
-            gap: '10px',
-          }}
-        >
-          <div>
-            <h3 style={{ margin: '0 0 6px', color: '#0f172a', fontSize: '1.3rem', fontWeight: 800 }}>
-              Prediction, Error, Update
-            </h3>
-            <p style={{ margin: 0, color: '#047857', fontSize: '0.98rem', fontWeight: 700 }}>
-              Error is not failure. Error is information.
-            </p>
-          </div>
-
-          <div style={{ display: 'grid', gap: '8px' }}>
-            <p>A fixed system uses the same weights every time.</p>
-            <p>A learning system changes its weights after feedback.</p>
-            <p>The model receives an input.</p>
-            <p>It uses weights to make a prediction.</p>
-            <p>It compares the prediction with the target answer.</p>
-            <p>The difference is the error.</p>
-            <p>The error tells the model how its weights need to change.</p>
-            <p>The input is not rewritten.</p>
-            <p>The target is not rewritten.</p>
-            <p>The model changes itself.</p>
-            <p>That change is the beginning of learning.</p>
-          </div>
-        </div>
-
         <div
           className="m3-signal-activity__process"
           aria-label="Learning process"
@@ -146,7 +121,7 @@ function LearningProblem() {
                     className="m3-signal-activity__process-arrow"
                     aria-hidden="true"
                   >
-                    →
+                    {'\u2192'}
                   </span>
                 ) : null}
               </div>
@@ -155,23 +130,33 @@ function LearningProblem() {
         </div>
 
         <div className="m3-controls m3-signal-activity__controls">
-          {controlSteps.map((label, index) => (
+          {!isComplete ? (
             <button
-              key={label}
               type="button"
-              className={`m3-btn${step === index ? ' m3-btn--primary' : ''}`}
-              onClick={() => setStep(index)}
+              className="m3-btn m3-btn--primary"
+              onClick={handleAdvance}
             >
-              {label}
+              {primaryLabel}
             </button>
-          ))}
-          <button
-            type="button"
-            className="m3-btn"
-            onClick={() => setStep(0)}
-          >
-            Reset
-          </button>
+          ) : null}
+          {isComplete ? (
+            <>
+              <button
+                type="button"
+                className="m3-btn m3-btn--primary"
+                onClick={() => setStep(0)}
+              >
+                {primaryLabel}
+              </button>
+              <button
+                type="button"
+                className="m3-btn"
+                onClick={() => setStep(0)}
+              >
+                Reset
+              </button>
+            </>
+          ) : null}
         </div>
 
         <div className="m3-signal-activity__grid">
@@ -193,23 +178,25 @@ function LearningProblem() {
                 padding: '18px',
               }}
             >
-              <div
-                aria-label="Handwritten digit 3"
-                style={{
-                  color: '#1e3a8a',
-                  fontFamily: '"Brush Script MT", "Segoe Script", cursive',
-                  fontSize: '7rem',
-                  fontWeight: 700,
-                  lineHeight: 1,
-                  transform: 'rotate(-9deg)',
-                }}
-              >
-                3
-              </div>
+              {step >= 0 ? (
+                <div
+                  aria-label="Handwritten digit 3"
+                  style={{
+                    color: '#1e3a8a',
+                    fontFamily: '"Brush Script MT", "Segoe Script", cursive',
+                    fontSize: '7rem',
+                    fontWeight: 700,
+                    lineHeight: 1,
+                    transform: 'rotate(-9deg)',
+                  }}
+                >
+                  3
+                </div>
+              ) : null}
             </div>
 
             <p className="m3-section-subtitle" style={{ margin: 0, maxWidth: 'none', textAlign: 'left' }}>
-              The model receives an input: a handwritten digit.
+              {step >= 0 ? `The model receives an input: a ${learningExample.inputLabel.toLowerCase()}.` : ''}
             </p>
           </article>
 
@@ -252,6 +239,10 @@ function LearningProblem() {
                   <strong>{showImprovedPrediction ? learningExample.after.prediction : '...'}</strong>
                 </div>
                 <div className="m3-signal-activity__info-item">
+                  <span>Target</span>
+                  <strong>{showImprovedPrediction ? learningExample.target : '...'}</strong>
+                </div>
+                <div className="m3-signal-activity__info-item">
                   <span>Error after update</span>
                   <strong>{showImprovedPrediction ? learningExample.after.error.toFixed(2) : '...'}</strong>
                 </div>
@@ -285,7 +276,7 @@ function LearningProblem() {
                       <span>{weight.label}</span>
                       <strong>
                         {showWeightUpdate
-                          ? `${weight.before.toFixed(2)} → ${weight.after.toFixed(2)}`
+                          ? `${weight.before.toFixed(2)} \u2192 ${weight.after.toFixed(2)}`
                           : weight.before.toFixed(2)}
                       </strong>
                     </div>
@@ -299,6 +290,38 @@ function LearningProblem() {
             </div>
           </article>
         </div>
+
+        {showImprovedPrediction ? (
+          <div
+            className="m3-signal-activity__phase"
+            style={{
+              background: 'linear-gradient(180deg, #f8fbff 0%, #ffffff 100%)',
+              borderColor: '#bfdbfe',
+            }}
+          >
+            <p className="m3-signal-activity__phase-label">Final takeaway</p>
+            <div style={{ display: 'grid', gap: '8px' }}>
+              <p style={{ margin: 0, color: '#0f172a', fontSize: '1rem', fontWeight: 700 }}>
+                Learning happened because the model changed its weights.
+              </p>
+              <p style={{ margin: 0 }}>The input stayed the same.</p>
+              <p style={{ margin: 0 }}>The target stayed the same.</p>
+              <p style={{ margin: 0 }}>The error provided feedback.</p>
+              <p style={{ margin: 0 }}>The weights changed.</p>
+              <p style={{ margin: 0 }}>The next prediction improved.</p>
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="m3-section-card">
+        <div className="m3-mechanism-panel__header">
+          <p className="m3-learning-label">Biology bridge</p>
+          <h3>Same idea, different system</h3>
+        </div>
+        <p className="m3-section-subtitle" style={{ margin: 0, maxWidth: 'none', textAlign: 'left' }}>
+          Brains also change through experience. Synaptic plasticity means connections between neurons can strengthen or weaken over time. In machine learning, weights between artificial neurons also increase or decrease during training. The mechanisms are different, but the shared idea is adaptive connection strength.
+        </p>
       </div>
     </section>
   )
