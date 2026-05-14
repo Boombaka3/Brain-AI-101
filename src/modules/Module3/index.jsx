@@ -20,7 +20,7 @@ const SECTIONS = [
   { label: 'Big Picture' },
 ]
 
-function Module3({ onBack, onContinue }) {
+function Module3({ onBack, onContinue, onNavigate }) {
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 900 : false)
   const { activeIndex, visitedIndices, setRef, scrollTo, refs } = useScrollProgress(SECTIONS.length)
 
@@ -52,6 +52,7 @@ function Module3({ onBack, onContinue }) {
         visitedIndices={visitedIndices}
         onSectionClick={scrollTo}
         onBack={onBack}
+        onCourseStepClick={onNavigate}
       />
 
       <main className="m3-main">

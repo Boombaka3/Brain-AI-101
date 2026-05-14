@@ -7,15 +7,22 @@ const MODULE_CONFIG = {
   module3: { num: '03', label: 'Learning', fullTitle: 'Learning to Learn', color: '#059669', time: '~26 min' },
 }
 
-const ALL_MODULES = ['module1', 'module2', 'module3']
+const COURSE_STEPS = [
+  { key: 'module1', short: '01', label: 'Module 1' },
+  { key: 'module2', short: '02', label: 'Module 2' },
+  { key: 'module3', short: '03', label: 'Module 3' },
+  { key: 'courseEvaluation', short: 'EV', label: 'Course Evaluation' },
+  { key: 'completion', short: 'OK', label: 'Completion' },
+]
 
-export default function ModuleNav({ current, sections = [], activeIndex = 0, visitedIndices = new Set(), onSectionClick, onBack }) {
+export default function ModuleNav({ current, sections = [], activeIndex = 0, visitedIndices = new Set(), onSectionClick, onBack, onCourseStepClick }) {
   const mod = MODULE_CONFIG[current]
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const completedCount = [...visitedIndices].filter(i => i !== activeIndex).length
   const totalSections = sections.length
   const progress = totalSections > 0 ? (completedCount + 1) / totalSections : 0
+  const currentCourseStep = COURSE_STEPS.findIndex(step => step.key === current)
 
   return (
     <>
@@ -57,6 +64,7 @@ export default function ModuleNav({ current, sections = [], activeIndex = 0, vis
                 className={`mnav-mobile-item${isActive ? ' active' : ''}`}
                 style={isActive ? { color: mod.color } : undefined}
                 onClick={() => { onSectionClick?.(i); setMobileOpen(false) }}
+                aria-current={isActive ? 'page' : undefined}
               >
                 <span className="mnav-mobile-item-icon">
                   {isVisited ? (
@@ -83,17 +91,32 @@ export default function ModuleNav({ current, sections = [], activeIndex = 0, vis
             <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
               <path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span>Brain AI 101</span>
+            <span>Brain x AI 101</span>
           </button>
 
-          {/* Module indicator */}
-          <div className="mnav-module-indicator">
-            {ALL_MODULES.map((key) => {
-              const m = MODULE_CONFIG[key]
-              const isCurrent = key === current
+          {/* Course path */}
+          <div className="mnav-course-path" aria-label="Course path">
+            {COURSE_STEPS.map((step, index) => {
+              const isCurrent = index === currentCourseStep
+              const isComplete = currentCourseStep > index
+              const accentStyle = isCurrent && mod ? { background: mod.color, borderColor: mod.color, color: '#fff' } : undefined
+
               return (
-                <div key={key} className={`mnav-module-pip${isCurrent ? ' active' : ''}`} style={isCurrent ? { background: m.color } : undefined}>
-                  <span>{m.num}</span>
+                <div key={step.key} className="mnav-course-step">
+                  <button
+                    type="button"
+                    className={`mnav-module-pip${isCurrent ? ' active' : ''}${isComplete ? ' complete' : ''}`}
+                    style={accentStyle}
+                    aria-current={isCurrent ? 'step' : undefined}
+                    aria-label={step.label}
+                    title={step.label}
+                    onClick={() => onCourseStepClick?.(step.key)}
+                  >
+                    <span>{step.short}</span>
+                  </button>
+                  {index < COURSE_STEPS.length - 1 && (
+                    <div className={`mnav-course-line${isCurrent || isComplete ? ' filled' : ''}`} />
+                  )}
                 </div>
               )
             })}
@@ -118,6 +141,7 @@ export default function ModuleNav({ current, sections = [], activeIndex = 0, vis
                   key={i}
                   className={`mnav-section-item${isActive ? ' active' : ''}${isVisited ? ' visited' : ''}`}
                   onClick={() => onSectionClick?.(i)}
+                  aria-current={isActive ? 'page' : undefined}
                 >
                   <div className="mnav-section-track">
                     {isVisited ? (

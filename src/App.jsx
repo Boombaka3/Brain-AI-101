@@ -56,11 +56,11 @@ function App() {
       </Suspense>
     )
   } else if (currentView === 'module1') {
-    content = <Module1 onBack={() => goTo('landing')} onContinue={() => goTo('module2')} />
+    content = <Module1 onBack={() => goTo('landing')} onContinue={() => goTo('module2')} onNavigate={goTo} />
   } else if (currentView === 'module2') {
-    content = <Module2 onBack={() => goTo('module1')} onContinue={() => goTo('module3')} />
+    content = <Module2 onBack={() => goTo('module1')} onContinue={() => goTo('module3')} onNavigate={goTo} />
   } else if (currentView === 'module3') {
-    content = <Module3 onBack={() => goTo('module2')} onContinue={() => goTo('courseEvaluation')} />
+    content = <Module3 onBack={() => goTo('module2')} onContinue={() => goTo('courseEvaluation')} onNavigate={goTo} />
   } else if (currentView === 'courseEvaluation') {
     content = <CourseEvaluation onBack={() => goTo('module3')} onContinue={() => goTo('completion')} />
   } else if (currentView === 'completion') {

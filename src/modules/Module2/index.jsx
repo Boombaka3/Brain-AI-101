@@ -20,7 +20,7 @@ const SECTIONS = [
   { label: 'CNN Explainer' },
 ]
 
-function Module2({ onBack, onContinue }) {
+function Module2({ onBack, onContinue, onNavigate }) {
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 900 : false)
   const { activeIndex, visitedIndices, setRef, scrollTo, refs } = useScrollProgress(SECTIONS.length)
 
@@ -52,6 +52,7 @@ function Module2({ onBack, onContinue }) {
         visitedIndices={visitedIndices}
         onSectionClick={scrollTo}
         onBack={onBack}
+        onCourseStepClick={onNavigate}
       />
 
       <main className="m2-main">
