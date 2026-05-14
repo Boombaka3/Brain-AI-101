@@ -64,9 +64,9 @@ function Module3({ onBack, onContinue }) {
         <section className="m3-section m3-continue-section">
           <div className="m3-continue-card" onClick={onContinue} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onContinue?.()}>
             <p className="m3-eyebrow">Congratulations!</p>
-            <h2>You've Completed All Modules</h2>
-            <p className="m3-section-subtitle">See what you've learned and what to explore next.</p>
-            <span className="m3-continue-btn">See What's Next</span>
+            <h2>Continue to Course Evaluation</h2>
+            <p className="m3-section-subtitle">Share feedback, reflect on the course, and complete the final knowledge check before the completion page.</p>
+            <span className="m3-continue-btn">Continue to Course Evaluation</span>
           </div>
         </section>
       </main>
