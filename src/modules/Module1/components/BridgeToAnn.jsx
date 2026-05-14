@@ -68,7 +68,6 @@ function BridgeToAnn({ onContinue }) {
         <div className="module1-bridge-mapping-header">
           <div>
             <p className="module1-bridge-footer-title">Step through the mapping</p>
-            <h3 className="module1-panel-title">Click one idea at a time to match the two systems</h3>
           </div>
         </div>
 
@@ -162,12 +161,6 @@ function BridgeToAnn({ onContinue }) {
             <p className="module1-bridge-footer-title">Artificial side</p>
             <h4>{activeStep.annTitle}</h4>
             <p>{activeStep.annText}</p>
-          </article>
-
-          <article className="module1-mapping-item">
-            <p className="module1-bridge-footer-title">Direct mapping</p>
-            <h4>{activeStep.mappingText}</h4>
-            <p>{activeStep.takeaway}</p>
           </article>
         </div>
 
