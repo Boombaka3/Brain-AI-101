@@ -349,6 +349,7 @@
 .m3-backprop-topline {
   display: grid;
   gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .m3-backprop-direction {
@@ -360,6 +361,33 @@
   color: #475569;
   font-size: 14px;
   font-weight: 600;
+}
+
+.m3-backprop-direction--panel {
+  align-items: stretch;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #dbe5f0;
+  border-radius: 20px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  gap: 12px;
+  justify-content: flex-start;
+  padding: 16px 18px;
+}
+
+.m3-backprop-direction--panel.is-active {
+  border-color: #93c5fd;
+  box-shadow: 0 12px 30px rgba(59, 130, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.m3-backprop-direction__header {
+  align-items: flex-start;
+  display: grid;
+  gap: 8px;
+}
+
+.m3-backprop-direction__viz {
+  display: block;
+  width: 100%;
 }
 
 .m3-backprop-badge {
@@ -412,6 +440,110 @@
   opacity: 0.9;
 }
 
+.m3-backprop-network-board {
+  overflow: visible;
+}
+
+.m3-backprop-links--base path {
+  opacity: 0.42;
+  transition: opacity 220ms ease, stroke-width 220ms ease;
+}
+
+.m3-backprop-links--base.is-forward path,
+.m3-backprop-links--base.is-backward path {
+  opacity: 0.72;
+}
+
+.m3-backprop-links--base.is-update path {
+  opacity: 0.52;
+}
+
+.m3-backprop-connection {
+  opacity: 0;
+  stroke: transparent;
+  stroke-dasharray: 18 10;
+  stroke-linecap: round;
+}
+
+.m3-backprop-connection.is-forward {
+  animation: m3BackpropFlowForward 1.15s linear infinite;
+  opacity: 0.95;
+  stroke: #10b981;
+}
+
+.m3-backprop-connection.is-backward {
+  animation: m3BackpropFlowBackward 1.15s linear infinite;
+  opacity: 0.95;
+  stroke: #ef4444;
+}
+
+.m3-backprop-connection.is-update {
+  animation: m3BackpropWeightFlash 0.9s ease-in-out infinite alternate;
+  opacity: 1;
+  stroke: #22c55e;
+}
+
+.m3-backprop-node {
+  transition: transform 220ms ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.m3-backprop-node__halo {
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.m3-backprop-node.is-active {
+  animation: m3BackpropNodePulse 0.9s ease-in-out infinite alternate;
+}
+
+.m3-backprop-node.is-active .m3-backprop-node__halo,
+.m3-backprop-node.is-error .m3-backprop-node__halo,
+.m3-backprop-node.is-update .m3-backprop-node__halo {
+  opacity: 1;
+}
+
+.m3-backprop-node.is-error {
+  animation: m3BackpropErrorPulse 0.8s ease-in-out infinite alternate;
+}
+
+.m3-backprop-node.is-update {
+  animation: m3BackpropNodePulse 0.65s ease-in-out infinite alternate;
+}
+
+.m3-backprop-error-chip {
+  opacity: 0;
+  transform: translateY(-6px);
+  transform-origin: center;
+}
+
+.m3-backprop-error-chip.is-visible {
+  animation: m3BackpropChipIn 260ms ease forwards;
+}
+
+.m3-backprop-particle {
+  opacity: 0.95;
+}
+
+.m3-backprop-particle.is-forward {
+  fill: #10b981;
+}
+
+.m3-backprop-particle.is-backward {
+  fill: #ef4444;
+}
+
+.m3-backprop-weight {
+  transition: transform 220ms ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.m3-backprop-weight.is-updated {
+  animation: m3BackpropWeightPulse 0.72s ease-in-out 2;
+}
+
 .m3-backprop-stats {
   display: grid;
   gap: 12px;
@@ -430,6 +562,16 @@
 
 .m3-backprop-stat {
   text-align: center;
+}
+
+.m3-backprop-stat.is-active {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.35), 0 10px 24px rgba(59, 130, 246, 0.08);
+}
+
+.m3-backprop-stat--danger.is-active {
+  border-color: #fca5a5;
+  box-shadow: 0 0 0 1px rgba(252, 165, 165, 0.35), 0 10px 24px rgba(239, 68, 68, 0.08);
 }
 
 .m3-backprop-stat span {
@@ -464,6 +606,63 @@
   font-size: 14px;
   line-height: 1.65;
   margin: 0;
+}
+
+.m3-passline {
+  fill: none;
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+
+.m3-passline--base {
+  stroke: #d7e2ee;
+}
+
+.m3-passline--forward,
+.m3-passline--backward {
+  opacity: 0;
+  stroke-dasharray: 14 10;
+}
+
+.m3-passline--forward.is-active {
+  animation: m3PassFlowForward 0.8s linear infinite;
+  opacity: 1;
+  stroke: #10b981;
+}
+
+.m3-passline--backward.is-active {
+  animation: m3PassFlowBackward 0.8s linear infinite;
+  opacity: 1;
+  stroke: #ef4444;
+}
+
+.m3-passnode {
+  stroke: #ffffff;
+  stroke-width: 2.5;
+}
+
+.m3-passnode--input {
+  fill: #2d7eff;
+}
+
+.m3-passnode--hidden {
+  fill: #7c3aed;
+}
+
+.m3-passnode--output {
+  fill: #f59e0b;
+}
+
+.m3-passnode--error {
+  fill: #ef4444;
+}
+
+.m3-passchip--forward {
+  fill: #10b981;
+}
+
+.m3-passchip--backward {
+  fill: #ef4444;
 }
 
 .m3-stage-pill {
@@ -1946,12 +2145,181 @@
   padding: 24px;
 }
 
-.module3-bridge-steps {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  margin-bottom: 16px;
+.module3-bridge-wrap--compact {
+  border-color: #dbe5f0;
+  border-radius: 22px;
+  box-shadow: none;
+  padding: 20px 20px 18px;
+}
+
+.module3-bridge-copy {
+  color: #475569;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.55;
+  margin: 14px 0 0;
+  text-align: center;
+}
+
+.module3-bridge-note {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  color: #1e40af;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 14px;
+  padding: 10px 14px;
+  text-align: center;
+}
+
+.module3-bridge-links {
+  isolation: isolate;
+}
+
+.module3-bridge-edge {
+  fill: none;
+  opacity: 0.22;
+  stroke-linecap: round;
+  stroke-width: 1.5;
+}
+
+.module3-bridge-edge--flow {
+  animation: m3BridgeFlow 1.45s linear infinite;
+  opacity: 0.65;
+  stroke-dasharray: 14 10;
+}
+
+.module3-bridge-node {
+  animation: m3BridgeNodePulse 1.8s ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.module3-bridge-node__halo {
+  animation: m3BridgeHalo 1.8s ease-in-out infinite alternate;
+  opacity: 0.14;
+}
+
+.module3-bridge-signal {
+  opacity: 0.95;
+}
+
+@keyframes m3BackpropFlowForward {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -56;
+  }
+}
+
+@keyframes m3BackpropFlowBackward {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 56;
+  }
+}
+
+@keyframes m3BackpropNodePulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes m3BackpropErrorPulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.07);
+  }
+}
+
+@keyframes m3BackpropWeightFlash {
+  from {
+    stroke-dashoffset: 0;
+    filter: drop-shadow(0 0 0 rgba(34, 197, 94, 0.15));
+  }
+  to {
+    stroke-dashoffset: -34;
+    filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.45));
+  }
+}
+
+@keyframes m3BackpropWeightPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes m3BackpropChipIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes m3BridgeFlow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -48;
+  }
+}
+
+@keyframes m3BridgeNodePulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes m3BridgeHalo {
+  from {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.2;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes m3PassFlowForward {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -48;
+  }
+}
+
+@keyframes m3PassFlowBackward {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 48;
+  }
 }
 
 /* ── Continue section ────────────────────────────────────────────── */

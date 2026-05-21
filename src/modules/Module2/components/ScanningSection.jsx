@@ -133,8 +133,8 @@ function ScanningSection() {
   const baselineY = 132
   const sourceCell = 58
   const paddedCell = 38
-  const kernelCell = 64
-  const kernelBox = 42
+  const kernelCell = 96
+  const kernelBox = 54
   const outputCell = 58
 
   const sourceX = 44
@@ -154,7 +154,7 @@ function ScanningSection() {
   const paddedCenterX = paddedX + paddedCell * 2.5
   const sourceToPaddedMidX = (sourceRight + paddedX) / 2
   const paddedToKernelMidX = (paddedX + paddedCell * 5 + kernelX) / 2
-  const kernelToOutputMidX = (kernelX + kernelCell * 3 + outputX) / 2
+  const kernelToOutputMidX = (kernelX + kernelCell * 3 + outputX) / 2 - 10
   const sourceNoteY = sourceY + sourceCell * 3 + 30
   const paddedNoteY = paddedY + paddedCell * 5 + 22
   const kernelNoteY = kernelY + kernelCell * 3 + 30
@@ -178,8 +178,8 @@ function ScanningSection() {
           <div className="m2-cnn-copy-card">
             <strong>Padding</strong>
             <p>
-              Start with a 3×3 image. Add a padding border around it, making it 5×5. Padding lets
-              the filter check the edge pixels too. The output stays 3×3, matching the original
+              Start with a 3x3 image. Add a padding border around it, making it 5x5. Padding lets
+              the filter check the edge pixels too. The output stays 3x3, matching the original
               image.
             </p>
           </div>
@@ -194,7 +194,7 @@ function ScanningSection() {
         </div>
 
         <div className="m2-cnn-legend">
-          <span className="m2-cnn-legend-chip m2-cnn-legend-chip--image">Original 3×3</span>
+          <span className="m2-cnn-legend-chip m2-cnn-legend-chip--image">Original 3x3</span>
           <span className="m2-cnn-legend-chip m2-cnn-legend-chip--padding">Padding</span>
           <span className="m2-cnn-legend-chip m2-cnn-legend-chip--active">Active filter window</span>
         </div>
@@ -213,7 +213,7 @@ function ScanningSection() {
 
           <g>
             <text x={sourceX + sourceCell * 1.5} y={86} className="m2-cnn-svg-label" textAnchor="middle">
-              Original 3×3
+              Original 3x3
             </text>
             {convImage.map((val, i) => {
               const row = Math.floor(i / SOURCE_SIZE)
@@ -253,7 +253,7 @@ function ScanningSection() {
 
           <g>
             <text x={paddedCenterX} y={86} className="m2-cnn-svg-label" textAnchor="middle">
-              Padded 5×5
+              Padded 5x5
             </text>
             {paddedImage.map((val, i) => {
               const row = Math.floor(i / PADDED_SIZE)
@@ -307,7 +307,7 @@ function ScanningSection() {
             />
             <text x={paddedCenterX} y={paddedNoteY} className="m2-cnn-svg-note" textAnchor="middle">
               <tspan x={paddedCenterX} dy="0">Purple cells are padding.</tspan>
-              <tspan x={paddedCenterX} dy="15">The filter scans this 5×5 view.</tspan>
+              <tspan x={paddedCenterX} dy="15">The filter scans this 5x5 view.</tspan>
             </text>
           </g>
 
@@ -338,7 +338,7 @@ function ScanningSection() {
 
           <g>
             <text x={kernelX + kernelCell * 1.5} y={74} className="m2-cnn-svg-label" textAnchor="middle">
-              Filter 3×3
+              Filter 3x3
             </text>
             {kernel.map((weight, i) => {
               const row = Math.floor(i / KERNEL_SIZE)
@@ -371,15 +371,16 @@ function ScanningSection() {
                   >
                     {weight > 0 ? `+${weight}` : weight}
                   </text>
-                  <g transform={`translate(${x + kernelCell / 2}, ${y + kernelBox + 16})`}>
+                  <g transform={`translate(${boxX}, ${y + kernelBox + 14})`}>
                     <g style={{ cursor: 'pointer' }} onClick={() => updateKernelValue(i, 1)}>
-                      <rect x={-18} y={0} width={16} height={16} rx={5} fill="#EDE9FE" />
-                      <text x={-10} y={12} textAnchor="middle" className="m2-cnn-svg-mini-btn">+</text>
+                      <rect x={0} y={0} width={kernelBox / 2} height={24} rx={8} className="m2-cnn-svg-mini-box" />
+                      <text x={kernelBox / 4} y={16} textAnchor="middle" className="m2-cnn-svg-mini-btn">+</text>
                     </g>
                     <g style={{ cursor: 'pointer' }} onClick={() => updateKernelValue(i, -1)}>
-                      <rect x={2} y={0} width={16} height={16} rx={5} fill="#EDE9FE" />
-                      <text x={10} y={12} textAnchor="middle" className="m2-cnn-svg-mini-btn">−</text>
+                      <rect x={kernelBox / 2} y={0} width={kernelBox / 2} height={24} rx={8} className="m2-cnn-svg-mini-box" />
+                      <text x={kernelBox * 0.75} y={16} textAnchor="middle" className="m2-cnn-svg-mini-btn">-</text>
                     </g>
+                    <line x1={kernelBox / 2} y1={4} x2={kernelBox / 2} y2={20} className="m2-cnn-svg-mini-divider" />
                   </g>
                 </g>
               )
@@ -390,22 +391,22 @@ function ScanningSection() {
           </g>
 
           <path
-            d={`M ${kernelX + kernelCell * 3 + 24} ${baselineY + 95} L ${outputX - 28} ${baselineY + 95}`}
+            d={`M ${kernelX + kernelCell * 3 + 8} ${baselineY + 108} L ${outputX - 48} ${baselineY + 108}`}
             fill="none"
             stroke="#C4B5FD"
             strokeWidth="2.5"
             markerEnd="url(#m2-cnn-arrowhead)"
           />
-          <text x={kernelToOutputMidX} y={baselineY + 76} className="m2-cnn-svg-step" textAnchor="middle">
+          <text x={kernelToOutputMidX} y={baselineY + 72} className="m2-cnn-svg-step" textAnchor="middle">
             stride
           </text>
-          <text x={kernelToOutputMidX} y={baselineY + 96} className="m2-cnn-svg-step" textAnchor="middle">
+          <text x={kernelToOutputMidX} y={baselineY + 92} className="m2-cnn-svg-step" textAnchor="middle">
             {STRIDE}
           </text>
 
           <g>
             <text x={outputX + outputCell * 1.5} y={86} className="m2-cnn-svg-label" textAnchor="middle">
-              Output 3×3
+              Output 3x3
             </text>
             {[0, 1, 2].map(row =>
               [0, 1, 2].map(col => {
@@ -466,7 +467,7 @@ function ScanningSection() {
         <p className="m2-hint">
           {scannedCount >= OUTPUT_SIZE * OUTPUT_SIZE
             ? 'You have scanned every patch. Try a different filter preset.'
-            : 'The output stays 3×3 because the padded 5×5 image lines up with the original 3×3 scan positions.'}
+            : 'The output stays 3x3 because the padded 5x5 image lines up with the original 3x3 scan positions.'}
         </p>
 
         <div className="m2-cnn-score-panel">
@@ -483,7 +484,7 @@ function ScanningSection() {
               <div className="m2-cnn-score-copy">
                 <h3>Current patch score</h3>
                 <p>
-                  This output square uses one 3×3 patch from the padded image and one 3×3 filter.
+                  This output square uses one 3x3 patch from the padded image and one 3x3 filter.
                   Matching parts push the score up. Non-matching parts push it down.
                 </p>
                 <p>
@@ -540,3 +541,5 @@ function ScanningSection() {
 }
 
 export default ScanningSection
+
+
