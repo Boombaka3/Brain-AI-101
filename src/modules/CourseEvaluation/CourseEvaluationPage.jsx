@@ -9,6 +9,48 @@ import { areKnowledgeQuestionsComplete, areLikertQuestionsComplete, calculateKno
 import { createEvaluationAttempt, loadEvaluationAttempt, saveEvaluationAttempt, submitEvaluationAttempt } from './courseEvaluationStorage'
 import './courseEvaluation.css'
 
+const SUBMISSION_SCHEMA_VERSION = 'brain-ai-101-course-evaluation.v1'
+const SUBMISSION_SOURCE = 'course-evaluation'
+
+function buildSubmissionPayload(attempt) {
+  return {
+    schemaVersion: SUBMISSION_SCHEMA_VERSION,
+    sessionId: attempt.attemptId,
+    source: SUBMISSION_SOURCE,
+    submittedAt: attempt.completedAt || new Date().toISOString(),
+    quizAnswers: attempt.quizAnswers || {},
+    summary: {
+      attemptId: attempt.attemptId,
+      startedAt: attempt.startedAt || null,
+      completedAt: attempt.completedAt || null,
+      likertResponses: attempt.likertResponses || {},
+      openResponses: attempt.openResponses || {},
+      score: attempt.score,
+      maxScore: attempt.maxScore,
+      moduleBreakdown: attempt.moduleBreakdown || {},
+      passed: attempt.passed,
+    },
+  }
+}
+
+async function submitEvaluationToDropbox(payload) {
+  const response = await fetch('/api/submit-evaluation', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  const data = await response.json().catch(() => null)
+
+  if (!response.ok || !data?.ok) {
+    throw new Error('We saved your results in this browser, but Dropbox upload did not finish. Please try again.')
+  }
+
+  return Array.isArray(data.files) ? data.files : []
+}
+
 function inferStep(attempt) {
   if (attempt?.completedAt) return 'results'
   if (!attempt || !areLikertQuestionsComplete(likertQuestions, attempt.likertResponses)) return 'feedback'
@@ -27,6 +69,7 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
   const [currentStep, setCurrentStep] = useState('feedback')
   const [feedbackError, setFeedbackError] = useState('')
   const [knowledgeError, setKnowledgeError] = useState('')
+  const [isRetryingUpload, setIsRetryingUpload] = useState(false)
 
   const feedbackHeadingRef = useRef(null)
   const reflectionHeadingRef = useRef(null)
@@ -64,6 +107,33 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
       const nextAttempt = typeof updater === 'function' ? updater(current) : { ...current, ...updater }
       return saveEvaluationAttempt(nextAttempt)
     })
+  }
+
+  const syncCompletedAttempt = async (completedAttempt) => {
+    setIsRetryingUpload(true)
+    updateAttempt({
+      remoteSubmissionStatus: 'syncing',
+      remoteSubmissionError: '',
+    })
+
+    try {
+      const files = await submitEvaluationToDropbox(buildSubmissionPayload(completedAttempt))
+      updateAttempt({
+        remoteSubmissionStatus: 'synced',
+        remoteSubmissionError: '',
+        remoteSubmissionFiles: files,
+      })
+    } catch (error) {
+      updateAttempt({
+        remoteSubmissionStatus: 'failed',
+        remoteSubmissionError: error instanceof Error && error.message
+          ? error.message
+          : 'We saved your results in this browser, but Dropbox upload did not finish. Please try again.',
+        remoteSubmissionFiles: [],
+      })
+    } finally {
+      setIsRetryingUpload(false)
+    }
   }
 
   const handleLikertChange = (questionId, value) => {
@@ -107,7 +177,7 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
     setCurrentStep('reflection')
   }
 
-  const handleKnowledgeSubmit = () => {
+  const handleKnowledgeSubmit = async () => {
     if (!areKnowledgeQuestionsComplete(knowledgeQuestions, attempt.quizAnswers)) {
       setKnowledgeError('Please answer all ten knowledge-check questions before submitting.')
       return
@@ -120,10 +190,22 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
       maxScore: nextResults.maxScore,
       moduleBreakdown: nextResults.moduleBreakdown,
       passed: nextResults.passed,
+      remoteSubmissionStatus: 'syncing',
+      remoteSubmissionError: '',
+      remoteSubmissionFiles: [],
     })
 
     setAttempt(submittedAttempt)
     setCurrentStep('results')
+    await syncCompletedAttempt(submittedAttempt)
+  }
+
+  const handleRetryUpload = async () => {
+    if (!attempt?.completedAt || isRetryingUpload) {
+      return
+    }
+
+    await syncCompletedAttempt(attempt)
   }
 
   const handleRetake = () => {
@@ -190,6 +272,8 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
             headingRef={resultsHeadingRef}
             attempt={attempt}
             results={results}
+            isRetryingUpload={isRetryingUpload}
+            onRetryUpload={handleRetryUpload}
             onRetake={handleRetake}
             onContinue={onContinue}
           />

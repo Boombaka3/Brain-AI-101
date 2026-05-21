@@ -6,10 +6,26 @@ export default function EvaluationResults({
   headingRef,
   attempt,
   results,
+  isRetryingUpload,
+  onRetryUpload,
   onRetake,
   onContinue,
 }) {
   const breakdownItems = Object.values(results.moduleBreakdown)
+  const uploadStatus = attempt.remoteSubmissionStatus || 'idle'
+  const showRetry = attempt.completedAt && uploadStatus !== 'synced'
+  const uploadStatusLabel = uploadStatus === 'synced'
+    ? 'Uploaded to Dropbox'
+    : uploadStatus === 'syncing'
+      ? 'Uploading to Dropbox...'
+      : uploadStatus === 'failed'
+        ? 'Saved locally, upload needs retry'
+        : 'Saved locally'
+  const uploadStatusMessage = uploadStatus === 'synced'
+    ? 'Your feedback and quiz results are saved in this browser and uploaded to Dropbox.'
+    : uploadStatus === 'syncing'
+      ? 'Your feedback and quiz results are saved in this browser while the Dropbox upload finishes.'
+      : 'Your feedback and quiz results are stored in this browser for the completion handoff.'
 
   return (
     <section className="ce-panel ce-results-panel" aria-labelledby="results-heading">
@@ -27,8 +43,11 @@ export default function EvaluationResults({
 
         <div className="ce-save-card">
           <span className="ce-score-label">Saved status</span>
-          <strong>{attempt.completedAt ? 'Saved' : 'In progress'}</strong>
-          <p>Your feedback and quiz results are stored in this browser for the completion handoff.</p>
+          <strong>{attempt.completedAt ? uploadStatusLabel : 'In progress'}</strong>
+          <p>{uploadStatusMessage}</p>
+          {attempt.remoteSubmissionError && (
+            <p className="ce-inline-error">{attempt.remoteSubmissionError}</p>
+          )}
         </div>
       </div>
 
@@ -95,9 +114,21 @@ export default function EvaluationResults({
       </div>
 
       <div className="ce-actions">
-        <button type="button" className="shared-btn shared-btn-secondary" onClick={onRetake}>
-          Retake Knowledge Check
-        </button>
+        <div className="ce-actions-group">
+          <button type="button" className="shared-btn shared-btn-secondary" onClick={onRetake}>
+            Retake Knowledge Check
+          </button>
+          {showRetry && (
+            <button
+              type="button"
+              className="shared-btn shared-btn-secondary"
+              onClick={onRetryUpload}
+              disabled={isRetryingUpload || uploadStatus === 'syncing'}
+            >
+              {isRetryingUpload || uploadStatus === 'syncing' ? 'Retrying Upload...' : 'Retry Dropbox Upload'}
+            </button>
+          )}
+        </div>
         <button type="button" className="shared-btn shared-btn-primary" onClick={onContinue}>
           Continue to Completion Page
         </button>

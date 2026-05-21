@@ -24,6 +24,9 @@ function normalizeAttempt(raw = {}) {
     maxScore: Number.isFinite(raw.maxScore) ? raw.maxScore : null,
     moduleBreakdown: raw.moduleBreakdown || {},
     passed: typeof raw.passed === 'boolean' ? raw.passed : false,
+    remoteSubmissionStatus: typeof raw.remoteSubmissionStatus === 'string' ? raw.remoteSubmissionStatus : 'idle',
+    remoteSubmissionError: typeof raw.remoteSubmissionError === 'string' ? raw.remoteSubmissionError : '',
+    remoteSubmissionFiles: Array.isArray(raw.remoteSubmissionFiles) ? raw.remoteSubmissionFiles : [],
   }
 }
 
@@ -37,6 +40,9 @@ export function createEvaluationAttempt(seed = {}) {
     maxScore: null,
     moduleBreakdown: {},
     passed: false,
+    remoteSubmissionStatus: 'idle',
+    remoteSubmissionError: '',
+    remoteSubmissionFiles: [],
   })
 }
 
