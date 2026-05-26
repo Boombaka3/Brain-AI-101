@@ -46,6 +46,7 @@
 }
 
 .mnav-back:focus-visible,
+.mnav-pre-link:focus-visible,
 .mnav-section-item:focus-visible,
 .mnav-mobile-back:focus-visible,
 .mnav-mobile-toggle:focus-visible,
@@ -54,12 +55,49 @@
   outline-offset: 2px;
 }
 
+.mnav-pre-link {
+  align-items: flex-start;
+  background: color-mix(in srgb, var(--mnav-accent) 8%, white);
+  border: 1px solid color-mix(in srgb, var(--mnav-accent) 18%, #dbeafe);
+  border-radius: 14px;
+  color: #1e293b;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 14px 4px 0;
+  padding: 10px 12px;
+  text-align: left;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.mnav-pre-link:hover {
+  background: color-mix(in srgb, var(--mnav-accent) 12%, white);
+  border-color: color-mix(in srgb, var(--mnav-accent) 30%, #bfdbfe);
+  transform: translateY(-1px);
+}
+
+.mnav-pre-link-kicker {
+  color: var(--mnav-accent);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mnav-pre-link-title {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
 /* ── Module pip indicators ──────────────────────────────────────── */
 
 .mnav-course-path {
+  align-items: center;
   display: flex;
   gap: 0;
-  margin: 20px 0 12px;
+  margin: 16px 0 12px;
   padding: 0 4px;
 }
 

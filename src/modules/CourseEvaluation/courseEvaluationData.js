@@ -7,6 +7,21 @@ export const likertQuestions = [
   { id: 'likert-6', prompt: 'I am interested in learning more about neuroscience and artificial intelligence.' },
 ]
 
+export const preCourseLikertQuestions = [
+  { id: 'likert-1', prompt: 'I can explain the basic parts of a biological neuron.' },
+  { id: 'likert-2', prompt: 'I understand how signals move from one neuron to another.' },
+  { id: 'likert-3', prompt: 'I can explain how an artificial neuron is similar to a biological neuron.' },
+  { id: 'likert-4', prompt: 'I understand the basic idea of how artificial neural networks use inputs, weights, and activation functions.' },
+  { id: 'likert-5', prompt: 'I understand the basic idea of how AI systems learn from feedback, including weight updates.' },
+  { id: 'likert-6', prompt: 'I am interested in learning more about neuroscience and artificial intelligence.' },
+]
+
+export const preCourseOpenQuestion = {
+  id: 'pre-goal',
+  prompt: 'What do you hope to learn from this course?',
+  optional: true,
+}
+
 export const openEndedQuestions = [
   { id: 'open-1', prompt: 'What do you find most helpful from the website and lecture/lab?' },
   { id: 'open-2', prompt: 'Where do you think this website/lecture/lab could be improved?' },

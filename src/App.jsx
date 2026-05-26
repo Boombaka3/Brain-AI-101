@@ -4,7 +4,9 @@ import Module1 from './modules/Module1'
 import Module2 from './modules/Module2'
 import Module3 from './modules/Module3'
 import CourseEvaluation from './modules/CourseEvaluation'
+import PreCourseEvaluationPage from './modules/CourseEvaluation/PreCourseEvaluationPage'
 import CompletionScreen from './pages/CompletionScreen'
+import { loadPreCourseEvaluationAttempt } from './modules/CourseEvaluation/courseEvaluationStorage'
 
 const LandingPage = lazy(() => import('./pages/LandingPage'))
 
@@ -42,6 +44,16 @@ function App() {
   const [currentView, setCurrentView] = useState('landing')
   useSmoothScroll()
 
+  const startCourse = () => {
+    const preCourseAttempt = loadPreCourseEvaluationAttempt()
+    if (preCourseAttempt?.completedAt) {
+      goTo('module1')
+      return
+    }
+
+    goTo('preCourseEvaluation')
+  }
+
   const goTo = (view) => {
     setCurrentView(view)
     window.scrollTo({ top: 0 })
@@ -52,9 +64,11 @@ function App() {
   if (currentView === 'landing') {
     content = (
       <Suspense fallback={<div style={{ minHeight: '100vh', background: '#F8FBFF' }} />}>
-        <LandingPage onStart={() => goTo('module1')} onNavigate={goTo} />
+        <LandingPage onStart={startCourse} onNavigate={goTo} />
       </Suspense>
     )
+  } else if (currentView === 'preCourseEvaluation') {
+    content = <PreCourseEvaluationPage onBack={() => goTo('landing')} onContinue={() => goTo('module1')} />
   } else if (currentView === 'module1') {
     content = <Module1 onBack={() => goTo('landing')} onContinue={() => goTo('module2')} onNavigate={goTo} />
   } else if (currentView === 'module2') {

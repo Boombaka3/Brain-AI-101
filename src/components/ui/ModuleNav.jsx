@@ -94,6 +94,15 @@ export default function ModuleNav({ current, sections = [], activeIndex = 0, vis
             <span>Brain x AI 101</span>
           </button>
 
+          <button
+            type="button"
+            className="mnav-pre-link"
+            onClick={() => onCourseStepClick?.('preCourseEvaluation')}
+          >
+            <span className="mnav-pre-link-kicker">Optional</span>
+            <span className="mnav-pre-link-title">Pre-Course Evaluation</span>
+          </button>
+
           {/* Course path */}
           <div className="mnav-course-path" aria-label="Course path">
             {COURSE_STEPS.map((step, index) => {

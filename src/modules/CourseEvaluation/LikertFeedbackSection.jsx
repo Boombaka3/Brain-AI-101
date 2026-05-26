@@ -7,18 +7,24 @@ const SCALE_OPTIONS = [
 ]
 
 export default function LikertFeedbackSection({
+  sectionId = 'course-feedback-heading',
   headingRef,
+  title = 'Course Feedback',
+  helperText = 'Rate how strongly you agree with each statement.',
   questions,
   responses,
   onChange,
   errorMessage,
   onNext,
+  primaryActionLabel = 'Next',
+  secondaryActionLabel = '',
+  onSecondaryAction,
 }) {
   return (
-    <section className="ce-panel" aria-labelledby="course-feedback-heading">
+    <section className="ce-panel" aria-labelledby={sectionId}>
       <div className="ce-panel-head">
-        <h2 id="course-feedback-heading" ref={headingRef} tabIndex={-1}>Course Feedback</h2>
-        <p>Rate how strongly you agree with each statement.</p>
+        <h2 id={sectionId} ref={headingRef} tabIndex={-1}>{title}</h2>
+        <p>{helperText}</p>
       </div>
 
       <div className="ce-scale-legend" aria-label="Likert scale labels">
@@ -64,8 +70,13 @@ export default function LikertFeedbackSection({
       {errorMessage && <p className="ce-inline-error" role="alert">{errorMessage}</p>}
 
       <div className="ce-actions">
+        {secondaryActionLabel && onSecondaryAction ? (
+          <button type="button" className="shared-btn shared-btn-secondary" onClick={onSecondaryAction}>
+            {secondaryActionLabel}
+          </button>
+        ) : <span />}
         <button type="button" className="shared-btn shared-btn-primary" onClick={onNext}>
-          Next
+          {primaryActionLabel}
         </button>
       </div>
     </section>

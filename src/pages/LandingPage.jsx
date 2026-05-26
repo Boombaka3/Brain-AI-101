@@ -138,6 +138,10 @@ export default function LandingPage({ onStart, onNavigate }) {
 
   const handleNavigate = (view) => {
     if (typeof onNavigate === 'function') {
+      if (view === 'module1') {
+        onStart?.()
+        return
+      }
       onNavigate(view)
       return
     }
