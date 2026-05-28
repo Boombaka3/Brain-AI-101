@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { PHET_NEURON_LOCAL_BUILD_URL, PHET_NEURON_SIM_URL } from '../components/PhetNeuronEmbed'
+import { PHET_NEURON_LOCAL_BUILD_URL, PHET_NEURON_SIM_URL } from '../sections/interaction/PhetNeuronEmbed'
 import { PHET_MESSAGE_TYPES, PHET_SPEED_VALUES, isPhetMessageType } from '../logic/phetMessageProtocol'
 
 function postToFrame(iframeRef, payload) {

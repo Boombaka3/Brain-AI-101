@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-import LikertFeedbackSection from './LikertFeedbackSection'
-import PreCourseEvaluationIntro from './PreCourseEvaluationIntro'
-import { preCourseLikertQuestions } from './courseEvaluationData'
-import { areLikertQuestionsComplete } from './courseEvaluationLogic'
+import LikertFeedbackSection from './components/feedback/LikertFeedbackSection'
+import PreCourseEvaluationIntro from './components/feedback/PreCourseEvaluationIntro'
+import { preCourseLikertQuestions } from './data/courseEvaluationData'
+import { areLikertQuestionsComplete } from './lib/courseEvaluationLogic'
 import {
   createPreCourseEvaluationAttempt,
   loadPreCourseEvaluationAttempt,
   markPreCourseEvaluationSkipped,
   savePreCourseEvaluationAttempt,
-} from './courseEvaluationStorage'
+} from './lib/courseEvaluationStorage'
 import './courseEvaluation.css'
 
 function hasSavedResponses(attempt) {

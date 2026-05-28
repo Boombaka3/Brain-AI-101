@@ -1,0 +1,496 @@
+import { useMemo, useState } from 'react'
+
+const INPUT_NODES = [
+  { id: 'i1', x: 110, y: 92, label: 'x1' },
+  { id: 'i2', x: 110, y: 180, label: 'x2' },
+  { id: 'i3', x: 110, y: 268, label: 'x3' },
+]
+
+const HIDDEN_NODES = [
+  { id: 'h1', x: 360, y: 122, label: 'h1' },
+  { id: 'h2', x: 360, y: 238, label: 'h2' },
+]
+
+const OUTPUT_NODE = { id: 'o1', x: 620, y: 180, label: 'y' }
+
+const CONNECTIONS = [
+  {
+    id: 'i1h1',
+    from: 'i1',
+    to: 'h1',
+    path: 'M 110 92 C 190 92, 250 112, 360 122',
+    chipX: 198,
+    chipY: 72,
+  },
+  {
+    id: 'i1h2',
+    from: 'i1',
+    to: 'h2',
+    path: 'M 110 92 C 192 92, 256 162, 360 238',
+    chipX: 250,
+    chipY: 136,
+  },
+  {
+    id: 'i2h1',
+    from: 'i2',
+    to: 'h1',
+    path: 'M 110 180 C 188 180, 254 150, 360 122',
+    chipX: 194,
+    chipY: 142,
+  },
+  {
+    id: 'i2h2',
+    from: 'i2',
+    to: 'h2',
+    path: 'M 110 180 C 188 180, 254 208, 360 238',
+    chipX: 194,
+    chipY: 214,
+  },
+  {
+    id: 'i3h1',
+    from: 'i3',
+    to: 'h1',
+    path: 'M 110 268 C 190 268, 252 184, 360 122',
+    chipX: 248,
+    chipY: 232,
+  },
+  {
+    id: 'i3h2',
+    from: 'i3',
+    to: 'h2',
+    path: 'M 110 268 C 188 268, 252 236, 360 238',
+    chipX: 206,
+    chipY: 288,
+  },
+  {
+    id: 'h1o1',
+    from: 'h1',
+    to: 'o1',
+    path: 'M 360 122 C 448 122, 530 146, 620 180',
+    chipX: 492,
+    chipY: 124,
+  },
+  {
+    id: 'h2o1',
+    from: 'h2',
+    to: 'o1',
+    path: 'M 360 238 C 448 238, 530 214, 620 180',
+    chipX: 492,
+    chipY: 236,
+  },
+]
+
+const START_WEIGHTS = {
+  i1h1: 0.4,
+  i1h2: 0.2,
+  i2h1: 0.3,
+  i2h2: 0.5,
+  i3h1: 0.6,
+  i3h2: 0.4,
+  h1o1: 0.7,
+  h2o1: 0.5,
+}
+
+const UPDATED_WEIGHTS = {
+  i1h1: 0.5,
+  i1h2: 0.3,
+  i2h1: 0.3,
+  i2h2: 0.5,
+  i3h1: 0.7,
+  i3h2: 0.5,
+  h1o1: 0.8,
+  h2o1: 0.6,
+}
+
+const PHASE_COPY = {
+  idle: 'The model is ready. Start with a forward pass to produce a prediction.',
+  forward: 'The input moves through the network and produces a prediction.',
+  error: 'The prediction is compared with the target. The difference becomes the error.',
+  backward: 'The error moves backward through the network to identify which connections need adjustment.',
+  update: 'The model changes the affected weights. The next prediction moves closer to the target.',
+}
+
+const PARTICLE_GROUPS = {
+  forward: [
+    { id: 'forward-a', path: 'M 110 92 C 190 92, 250 112, 360 122 C 448 122, 530 146, 620 180', delay: '0s' },
+    { id: 'forward-b', path: 'M 110 180 C 188 180, 254 208, 360 238 C 448 238, 530 214, 620 180', delay: '0.22s' },
+    { id: 'forward-c', path: 'M 110 268 C 190 268, 252 184, 360 122 C 448 122, 530 146, 620 180', delay: '0.44s' },
+  ],
+  backward: [
+    { id: 'backward-a', path: 'M 620 180 C 530 146, 448 122, 360 122 C 250 112, 190 92, 110 92', delay: '0s' },
+    { id: 'backward-b', path: 'M 620 180 C 530 214, 448 238, 360 238 C 254 208, 188 180, 110 180', delay: '0.22s' },
+    { id: 'backward-c', path: 'M 620 180 C 530 214, 448 238, 360 238 C 252 236, 188 268, 110 268', delay: '0.44s' },
+  ],
+}
+
+const CHANGED_CONNECTIONS = CONNECTIONS.filter((connection) => START_WEIGHTS[connection.id] !== UPDATED_WEIGHTS[connection.id]).map((connection) => connection.id)
+
+const DETAIL_WEIGHTS = [
+  { id: 'h1o1', label: 'Hidden 1 -> Prediction' },
+  { id: 'h2o1', label: 'Hidden 2 -> Prediction' },
+  { id: 'i1h1', label: 'Input 1 -> Hidden 1' },
+  { id: 'i3h1', label: 'Input 3 -> Hidden 1' },
+]
+
+function BackpropagationSection() {
+  const [forwardRun, setForwardRun] = useState(0)
+  const [errorShown, setErrorShown] = useState(false)
+  const [backwardRun, setBackwardRun] = useState(0)
+  const [weightsUpdated, setWeightsUpdated] = useState(false)
+  const [phase, setPhase] = useState('idle')
+  const [flowRun, setFlowRun] = useState(0)
+
+  const weights = weightsUpdated ? UPDATED_WEIGHTS : START_WEIGHTS
+  const prediction = weightsUpdated ? '0.9' : forwardRun > 0 ? '0.6' : '--'
+  const target = errorShown ? '1.0' : '--'
+  const error = errorShown ? (weightsUpdated ? '0.1' : '0.4') : '--'
+  const activeConnections = phase === 'update'
+    ? new Set(CHANGED_CONNECTIONS)
+    : phase === 'forward' || phase === 'backward'
+      ? new Set(CONNECTIONS.map((connection) => connection.id))
+      : new Set()
+
+  const activeNodes = useMemo(() => {
+    if (phase === 'forward') return new Set(['i1', 'i2', 'i3', 'h1', 'h2', 'o1'])
+    if (phase === 'error') return new Set(['o1'])
+    if (phase === 'backward') return new Set(['o1', 'h1', 'h2'])
+    if (phase === 'update') return new Set(['h1', 'h2', 'o1'])
+    if (weightsUpdated) return new Set(['h1', 'h2', 'o1'])
+    return new Set()
+  }, [phase, weightsUpdated])
+
+  const handleForward = () => {
+    setForwardRun((value) => value + 1)
+    setErrorShown(false)
+    setBackwardRun(0)
+    setWeightsUpdated(false)
+    setPhase('forward')
+    setFlowRun((value) => value + 1)
+  }
+
+  const handleShowError = () => {
+    setErrorShown(true)
+    setPhase('error')
+  }
+
+  const handleBackward = () => {
+    setBackwardRun((value) => value + 1)
+    setPhase('backward')
+    setFlowRun((value) => value + 1)
+  }
+
+  const handleUpdateWeights = () => {
+    setWeightsUpdated(true)
+    setPhase('update')
+    setFlowRun((value) => value + 1)
+  }
+
+  const reset = () => {
+    setForwardRun(0)
+    setErrorShown(false)
+    setBackwardRun(0)
+    setWeightsUpdated(false)
+    setPhase('idle')
+    setFlowRun(0)
+  }
+
+  const connectionStroke = (value) => 2 + value * 4
+  const phaseClassName = phase !== 'idle' ? `is-${phase}` : ''
+
+  return (
+    <section className="m3-section">
+      <div className="m3-section-heading">
+        <p className="m3-eyebrow">D. BACKPROPAGATION</p>
+        <h2>Backpropagation: Using Error to Improve the Model</h2>
+        <p className="m3-section-subtitle">
+          Backpropagation means using a mistake to decide what to change.
+        </p>
+      </div>
+
+      <div className="m3-section-card m3-backprop-card">
+        <div className="m3-backprop-layout">
+          <div className="m3-backprop-network">
+            <div className="m3-backprop-phase-card">
+              <p className="m3-backprop-label">Current step</p>
+              <h3>{phase === 'idle' ? 'Ready to start' : phase.charAt(0).toUpperCase() + phase.slice(1)}</h3>
+              <p>{PHASE_COPY[phase]}</p>
+            </div>
+
+            <div className="m3-backprop-topline">
+              <div className={`m3-backprop-direction m3-backprop-direction--panel${phase === 'forward' ? ' is-active' : ''}`}>
+                <div className="m3-backprop-direction__header">
+                  <span className={`m3-backprop-badge${phase === 'forward' ? ' is-active' : ''}`}>Forward pass</span>
+                  <span>Input Features -&gt; Middle Layer -&gt; Prediction</span>
+                </div>
+                <svg viewBox="0 0 320 42" className="m3-backprop-direction__viz" aria-hidden="true">
+                  <path d="M 24 21 C 72 21, 88 21, 132 21" className="m3-passline m3-passline--base" />
+                  <path d="M 132 21 C 176 21, 196 21, 240 21" className="m3-passline m3-passline--base" />
+                  <path d="M 240 21 C 264 21, 278 21, 296 21" className="m3-passline m3-passline--base" />
+                  <path d="M 24 21 C 72 21, 88 21, 132 21" className={`m3-passline m3-passline--forward${phase === 'forward' ? ' is-active' : ''}`} />
+                  <path d="M 132 21 C 176 21, 196 21, 240 21" className={`m3-passline m3-passline--forward${phase === 'forward' ? ' is-active' : ''}`} />
+                  <path d="M 240 21 C 264 21, 278 21, 296 21" className={`m3-passline m3-passline--forward${phase === 'forward' ? ' is-active' : ''}`} />
+                  <circle cx="24" cy="21" r="5" className="m3-passnode m3-passnode--input" />
+                  <circle cx="132" cy="21" r="5" className="m3-passnode m3-passnode--hidden" />
+                  <circle cx="240" cy="21" r="5" className="m3-passnode m3-passnode--hidden" />
+                  <circle cx="296" cy="21" r="6" className="m3-passnode m3-passnode--output" />
+                </svg>
+              </div>
+
+              <div className={`m3-backprop-direction m3-backprop-direction--panel${phase === 'backward' || phase === 'error' || phase === 'update' ? ' is-active' : ''}`}>
+                <div className="m3-backprop-direction__header">
+                  <span className={`m3-backprop-badge m3-backprop-badge--error${phase === 'backward' || phase === 'error' || phase === 'update' ? ' is-active' : ''}`}>Backward pass</span>
+                  <span>Error -&gt; Prediction -&gt; Middle Layer -&gt; Weight update</span>
+                </div>
+                <svg viewBox="0 0 320 42" className="m3-backprop-direction__viz" aria-hidden="true">
+                  <path d="M 296 21 C 264 21, 278 21, 240 21" className="m3-passline m3-passline--base" />
+                  <path d="M 240 21 C 196 21, 176 21, 132 21" className="m3-passline m3-passline--base" />
+                  <path d="M 132 21 C 88 21, 72 21, 24 21" className="m3-passline m3-passline--base" />
+                  <path d="M 296 21 C 264 21, 278 21, 240 21" className={`m3-passline m3-passline--backward${phase === 'backward' ? ' is-active' : ''}`} />
+                  <path d="M 240 21 C 196 21, 176 21, 132 21" className={`m3-passline m3-passline--backward${phase === 'backward' ? ' is-active' : ''}`} />
+                  <path d="M 132 21 C 88 21, 72 21, 24 21" className={`m3-passline m3-passline--backward${phase === 'backward' ? ' is-active' : ''}`} />
+                  <circle cx="24" cy="21" r="5" className="m3-passnode m3-passnode--input" />
+                  <circle cx="132" cy="21" r="5" className="m3-passnode m3-passnode--hidden" />
+                  <circle cx="240" cy="21" r="5" className="m3-passnode m3-passnode--hidden" />
+                  <circle cx="296" cy="21" r="6" className="m3-passnode m3-passnode--output m3-passnode--error" />
+                </svg>
+              </div>
+            </div>
+
+            <svg viewBox="0 0 720 360" className={`m3-svg-block m3-backprop-network-board ${phaseClassName}`} aria-label="Simple neural network for backpropagation">
+              <defs>
+                <filter id="m3BackpropParticleGlow" x="-120%" y="-120%" width="340%" height="340%">
+                  <feGaussianBlur stdDeviation="7" result="glow" />
+                  <feMerge>
+                    <feMergeNode in="glow" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <rect x="20" y="20" width="680" height="320" rx="22" fill="#f8fafc" stroke="#e2e8f0" />
+
+              <text x="110" y="56" textAnchor="middle" fontSize="12" fill="#64748b" fontWeight="700">Input Features</text>
+              <text x="360" y="56" textAnchor="middle" fontSize="12" fill="#64748b" fontWeight="700">Middle Layer</text>
+              <text x="620" y="56" textAnchor="middle" fontSize="12" fill="#64748b" fontWeight="700">Prediction</text>
+
+              <g className={`m3-backprop-links m3-backprop-links--base ${phaseClassName}`.trim()}>
+                {CONNECTIONS.map((connection) => {
+                  const isActive = activeConnections.has(connection.id)
+
+                  return (
+                    <path
+                      key={connection.id}
+                      d={connection.path}
+                      className={`m3-backprop-base-path${isActive ? ' is-active' : ''}`}
+                      fill="none"
+                      strokeWidth={connectionStroke(weights[connection.id])}
+                      strokeLinecap="round"
+                    />
+                  )
+                })}
+              </g>
+
+              <g className="m3-backprop-links m3-backprop-links--overlay">
+                {CONNECTIONS.map((connection) => {
+                  const isForward = phase === 'forward' && activeConnections.has(connection.id)
+                  const isBackward = phase === 'backward' && activeConnections.has(connection.id)
+                  const isUpdate = phase === 'update' && CHANGED_CONNECTIONS.includes(connection.id)
+                  const overlayClassName = [
+                    'm3-backprop-connection',
+                    isForward ? 'is-forward' : '',
+                    isBackward ? 'is-backward' : '',
+                    isUpdate ? 'is-update' : '',
+                  ].filter(Boolean).join(' ')
+
+                  return (
+                    <path
+                      key={connection.id}
+                      d={connection.path}
+                      className={overlayClassName}
+                      fill="none"
+                      strokeWidth={connectionStroke(weights[connection.id]) + 1.6}
+                      strokeLinecap="round"
+                    />
+                  )
+                })}
+              </g>
+
+              {CONNECTIONS.map((connection) => {
+                const before = START_WEIGHTS[connection.id]
+                const after = UPDATED_WEIGHTS[connection.id]
+                const changed = before !== after
+                const chipClassName = [
+                  'm3-backprop-weight-chip',
+                  activeConnections.has(connection.id) ? 'is-active' : '',
+                  changed && weightsUpdated ? 'is-updated' : '',
+                ].filter(Boolean).join(' ')
+
+                return (
+                  <g key={`${connection.id}-chip`} className={chipClassName} transform={`translate(${connection.chipX}, ${connection.chipY})`}>
+                    <rect x="-24" y="-13" width="48" height="26" rx="13" />
+                    <text x="0" y="4" textAnchor="middle">
+                      {weights[connection.id].toFixed(1)}
+                    </text>
+                  </g>
+                )
+              })}
+
+              {[...INPUT_NODES, ...HIDDEN_NODES, OUTPUT_NODE].map((node) => {
+                const isActive = activeNodes.has(node.id)
+                const isOutput = node.id === 'o1'
+                const nodeClassName = [
+                  'm3-backprop-node',
+                  isActive ? 'is-active' : '',
+                  phase === 'error' && isOutput ? 'is-error' : '',
+                  phase === 'update' && (node.id === 'h1' || node.id === 'h2' || node.id === 'o1') ? 'is-update' : '',
+                ].filter(Boolean).join(' ')
+
+                return (
+                  <g key={node.id} className={nodeClassName}>
+                    <circle className="m3-backprop-node__halo" cx={node.x} cy={node.y} r={node.id === 'o1' ? 36 : 31} />
+                    <circle
+                      cx={node.x}
+                      cy={node.y}
+                      r={node.id === 'o1' ? 28 : 24}
+                      fill="#ffffff"
+                      stroke={isOutput ? '#f59e0b' : '#3b82f6'}
+                      strokeWidth="3"
+                    />
+                    <text x={node.x} y={node.y + 4} textAnchor="middle" fontSize="14" fontWeight="700" fill="#0f172a">
+                      {node.label}
+                    </text>
+                  </g>
+                )
+              })}
+
+              {errorShown ? (
+                <g className={`m3-backprop-error-chip${phase === 'error' || phase === 'backward' ? ' is-visible' : ''}`} transform="translate(570, 88)">
+                  <rect x="0" y="0" width="102" height="38" rx="19" />
+                  <text x="51" y="24" textAnchor="middle">Error {error}</text>
+                </g>
+              ) : null}
+
+              {phase === 'forward' || phase === 'backward' ? (
+                <g key={`${phase}-${flowRun}`} filter="url(#m3BackpropParticleGlow)">
+                  {PARTICLE_GROUPS[phase].map((particle) => (
+                    <g key={`${particle.id}-${flowRun}`}>
+                      <path id={`bp-particle-${particle.id}-${flowRun}`} d={particle.path} fill="none" stroke="none" />
+                      <circle className={`m3-backprop-particle-trail is-${phase}`} r="8.5">
+                        <animateMotion dur="1.35s" begin={particle.delay} fill="freeze">
+                          <mpath href={`#bp-particle-${particle.id}-${flowRun}`} />
+                        </animateMotion>
+                      </circle>
+                      <circle className={`m3-backprop-particle-core is-${phase}`} r="5.5">
+                        <animateMotion dur="1.35s" begin={particle.delay} fill="freeze">
+                          <mpath href={`#bp-particle-${particle.id}-${flowRun}`} />
+                        </animateMotion>
+                      </circle>
+                    </g>
+                  ))}
+                </g>
+              ) : null}
+            </svg>
+
+            <div className="m3-backprop-weight-panel m3-backprop-weight-panel--network">
+              <div className="m3-backprop-weight-panel__header">
+                <p className="m3-backprop-label">Connection updates</p>
+              </div>
+              <div className="m3-backprop-weight-panel__list">
+                {DETAIL_WEIGHTS.map((item) => {
+                  const before = START_WEIGHTS[item.id]
+                  const after = UPDATED_WEIGHTS[item.id]
+                  const changed = before !== after
+
+                  return (
+                    <div key={item.id} className={`m3-backprop-weight-row${changed ? ' is-change' : ''}${weightsUpdated && changed ? ' is-updated' : ''}`}>
+                      <span>{item.label}</span>
+                      <strong>{before.toFixed(1)} -&gt; {after.toFixed(1)}</strong>
+                      {weightsUpdated && changed ? <em>+{(after - before).toFixed(1)}</em> : <em>{changed ? 'Will change' : 'No change'}</em>}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="m3-backprop-sidebar">
+            <div className="m3-backprop-stats">
+              <div className={`m3-backprop-stat${phase === 'forward' || weightsUpdated ? ' is-active' : ''}`}>
+                <span>Prediction</span>
+                <strong>{prediction}</strong>
+              </div>
+              <div className={`m3-backprop-stat${phase === 'error' || phase === 'backward' || phase === 'update' ? ' is-active' : ''}`}>
+                <span>Target</span>
+                <strong>{target}</strong>
+              </div>
+              <div className={`m3-backprop-stat${phase === 'error' || phase === 'backward' || phase === 'update' ? ' is-active m3-backprop-stat--danger' : ''}`}>
+                <span>Error</span>
+                <strong>{error}</strong>
+              </div>
+            </div>
+
+            <div className="m3-backprop-explainer">
+              <p className="m3-backprop-label">Explanation</p>
+              <p>
+                Backpropagation means using a mistake to decide what to change.
+              </p>
+              <p>
+                The model makes a prediction, compares it with the target, sends the error backward through the network, and updates the connections that influenced the mistake.
+              </p>
+              <p>
+                The goal is simple: change the model so the next prediction is better.
+              </p>
+            </div>
+
+            <div className="m3-backprop-analogy">
+              <p className="m3-backprop-label">Student analogy</p>
+              <p>
+                Imagine solving a multi-step math problem and getting the final answer wrong.
+              </p>
+              <p>
+                You do not restart blindly. You look back through the steps, find where the reasoning went off track, and fix the parts that caused the mistake.
+              </p>
+              <p>
+                Backpropagation works the same way: it traces the error backward and uses it to adjust the model.
+              </p>
+            </div>
+
+            <div className="m3-backprop-note">
+              <p className="m3-backprop-label">Accuracy note</p>
+              <p>
+                This diagram shows the core idea, not the full mathematics.
+              </p>
+              <p>
+                Real systems use precise calculations to decide the size of each update, but the central idea stays the same: error tells the model what to change.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="m3-controls">
+          <button className="m3-btn m3-btn--primary" onClick={handleForward}>
+            Run Forward Pass
+          </button>
+          <button className="m3-btn" onClick={handleShowError} disabled={forwardRun === 0}>
+            Show Error
+          </button>
+          <button className="m3-btn" onClick={handleBackward} disabled={!errorShown}>
+            Send Error Backward
+          </button>
+          <button className="m3-btn" onClick={handleUpdateWeights} disabled={backwardRun === 0}>
+            Update Weights
+          </button>
+          <button className="m3-btn" onClick={reset}>
+            Reset
+          </button>
+        </div>
+
+        <p className="m3-takeaway">
+          The model predicts, checks the error, sends that error backward, and adjusts the weights so the next prediction is better.
+        </p>
+      </div>
+    </section>
+  )
+}
+
+export default BackpropagationSection

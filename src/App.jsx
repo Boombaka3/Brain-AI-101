@@ -6,9 +6,9 @@ import Module3 from './modules/Module3'
 import CourseEvaluation from './modules/CourseEvaluation'
 import PreCourseEvaluationPage from './modules/CourseEvaluation/PreCourseEvaluationPage'
 import CompletionScreen from './pages/CompletionScreen'
-import { loadPreCourseEvaluationAttempt } from './modules/CourseEvaluation/courseEvaluationStorage'
+import { loadPreCourseEvaluationAttempt } from './modules/CourseEvaluation/lib/courseEvaluationStorage'
 
-const LandingPage = lazy(() => import('./pages/LandingPage'))
+const LandingPage = lazy(() => import('./modules/LandingPage'))
 
 class AppErrorBoundary extends Component {
   constructor(props) {
