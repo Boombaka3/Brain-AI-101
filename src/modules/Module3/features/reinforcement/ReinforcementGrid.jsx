@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getGreedyAction, getStateValue } from './algorithms'
 import { getCellType, serializeState } from './environment'
@@ -100,8 +100,6 @@ function ReinforcementGrid({
   pendingEpisodeReset,
 }) {
   const { minValue, maxValue } = stateRange(environment, algorithmState)
-  const [rewardToast, setRewardToast] = useState(null)
-
   const agentMotion = useMemo(() => {
     const previous = lastTransition?.fromState
     const current = agentState.position
@@ -114,22 +112,14 @@ function ReinforcementGrid({
     }
   }, [agentState.position, environment.height, environment.width, lastTransition, pendingEpisodeReset])
 
-  useEffect(() => {
-    if (!lastTransition || lastTransition.reward === 0) return undefined
-
-    const toast = {
-      id: lastTransition.id,
-      reward: lastTransition.reward,
-      position: lastTransition.fromState ?? agentState.position,
-    }
-    setRewardToast(toast)
-
-    const id = window.setTimeout(() => {
-      setRewardToast((current) => (current?.id === toast.id ? null : current))
-    }, 620)
-
-    return () => window.clearTimeout(id)
-  }, [agentState.position, lastTransition])
+  const rewardToast =
+    lastTransition && lastTransition.reward !== 0
+      ? {
+          id: lastTransition.id,
+          reward: lastTransition.reward,
+          position: lastTransition.fromState ?? agentState.position,
+        }
+      : null
 
   return (
     <div className="m3-rl-board-shell">

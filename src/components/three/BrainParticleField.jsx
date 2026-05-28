@@ -59,7 +59,7 @@ function Scene() {
   )
 }
 
-export default function BrainParticleField({ scrollProgress = 0 }) {
+export default function BrainParticleField() {
   return (
     <Suspense fallback={<div style={{ width: '100%', height: '100%' }} />}>
       <Canvas

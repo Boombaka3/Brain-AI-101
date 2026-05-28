@@ -33,8 +33,6 @@ export default function LearningRateExplorer() {
   const [selected, setSelected] = useState('good')
   const [lr, setLr] = useState(0.05)
 
-  const active = PRESETS.find((p) => p.id === selected) || PRESETS[1]
-
   return (
     <div className="module3-lr-wrap">
       {/* Car braking analogy */}

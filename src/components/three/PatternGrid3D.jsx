@@ -14,7 +14,7 @@ const ACTIVATION_MAP = [
   0.0, 0.1, 0.9, 0.1, 0.0,
 ]
 
-function CubeCell({ x, y, activation, time }) {
+function CubeCell({ x, y, activation }) {
   const ref = useRef()
   const baseY = activation * 0.5
 

@@ -16,27 +16,17 @@ function hasSavedResponses(attempt) {
 }
 
 export default function PreCourseEvaluationPage({ onBack, onContinue }) {
-  const [attempt, setAttempt] = useState(null)
-  const [hasStarted, setHasStarted] = useState(false)
+  const initialAttempt = loadPreCourseEvaluationAttempt() || createPreCourseEvaluationAttempt()
+  const [attempt, setAttempt] = useState(initialAttempt)
+  const [hasStarted, setHasStarted] = useState(!initialAttempt.completedAt && hasSavedResponses(initialAttempt))
   const [errorMessage, setErrorMessage] = useState('')
   const headingRef = useRef(null)
-
-  useEffect(() => {
-    const existingAttempt = loadPreCourseEvaluationAttempt()
-    const nextAttempt = existingAttempt || createPreCourseEvaluationAttempt()
-    setAttempt(nextAttempt)
-    setHasStarted(existingAttempt ? !existingAttempt.completedAt && hasSavedResponses(existingAttempt) : false)
-  }, [])
 
   useEffect(() => {
     if (hasStarted) {
       headingRef.current?.focus()
     }
   }, [hasStarted])
-
-  if (!attempt) {
-    return <div className="ce-page" />
-  }
 
   const updateAttempt = (updater) => {
     setAttempt((current) => {

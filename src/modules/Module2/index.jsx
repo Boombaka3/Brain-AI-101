@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ModuleNav from '../../components/ui/ModuleNav'
@@ -21,14 +21,7 @@ const SECTIONS = [
 ]
 
 function Module2({ onBack, onContinue, onNavigate }) {
-  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 900 : false)
   const { activeIndex, visitedIndices, setRef, scrollTo, refs } = useScrollProgress(SECTIONS.length)
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 900)
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -41,7 +34,7 @@ function Module2({ onBack, onContinue, onNavigate }) {
       })
     })
     return () => ctx.revert()
-  }, [])
+  }, [refs])
 
   return (
     <div className="module2-page">

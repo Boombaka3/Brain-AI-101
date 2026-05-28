@@ -60,7 +60,6 @@ function DotGrid({ resolved }) {
 export default function LandingPage({ onStart, onNavigate }) {
   const modulesRef = useRef(null)
   const patternRef = useRef(null)
-  const [scrollProgress, setScrollProgress] = useState(0)
   const [dotResolved, setDotResolved] = useState(false)
 
   useEffect(() => {
@@ -88,13 +87,6 @@ export default function LandingPage({ onStart, onNavigate }) {
         duration: 1.2,
         ease: 'power3.out',
         delay: 0.2,
-      })
-
-      ScrollTrigger.create({
-        trigger: '.lp-hero',
-        start: 'top top',
-        end: 'bottom top',
-        onUpdate: (self) => setScrollProgress(self.progress),
       })
 
       gsap.from('.lp-bd-card', {

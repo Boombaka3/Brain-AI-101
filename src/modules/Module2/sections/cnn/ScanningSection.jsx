@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   DEFAULT_KERNEL,
   KERNEL_PRESETS,
@@ -63,19 +63,16 @@ function ScanningSection() {
   const [convImage, setConvImage] = useState([...SAMPLE_IMAGE])
   const [kernel, setKernel] = useState([...DEFAULT_KERNEL])
   const [receptiveFieldPos, setReceptiveFieldPos] = useState({ row: 0, col: 0 })
-  const [storedOutputs, setStoredOutputs] = useState({})
+  const [storedOutputs, setStoredOutputs] = useState(() => {
+    const initialPaddedImage = padImageGrid(SAMPLE_IMAGE, SOURCE_SIZE, PADDING)
+    const initialField = getReceptiveFieldValues(initialPaddedImage, 0, 0, PADDED_SIZE)
+    const initialSum = computeWeightedSum(initialField, DEFAULT_KERNEL)
+    return { '0,0': initialSum }
+  })
   const [isAnimating, setIsAnimating] = useState(false)
   const [showScoreBreakdown, setShowScoreBreakdown] = useState(false)
 
   const paddedImage = padImageGrid(convImage, SOURCE_SIZE, PADDING)
-
-  useEffect(() => {
-    if (Object.keys(storedOutputs).length === 0) {
-      const field = getReceptiveFieldValues(paddedImage, 0, 0, PADDED_SIZE)
-      const sum = computeWeightedSum(field, kernel)
-      setStoredOutputs({ '0,0': sum })
-    }
-  }, [kernel, paddedImage, storedOutputs])
 
   const currentField = getReceptiveFieldValues(
     paddedImage,

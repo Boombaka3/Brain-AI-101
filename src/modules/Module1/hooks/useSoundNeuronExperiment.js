@@ -53,7 +53,6 @@ function useSoundNeuronExperiment() {
   const [currentPhrase, setCurrentPhrase] = useState('')
   const [somaInput, setSomaInput] = useState(0)
   const [recentSignals, setRecentSignals] = useState([])
-  const [isAnimating, setIsAnimating] = useState(false)
   const [isFiring, setIsFiring] = useState(false)
   const [lastResult, setLastResult] = useState('initial')
   const [autoStimulateToken, setAutoStimulateToken] = useState(0)
@@ -75,10 +74,6 @@ function useSoundNeuronExperiment() {
       autoStimulateLockRef.current = false
     }
   }, [somaInput])
-
-  useEffect(() => {
-    setIsAnimating(recentSignals.length > 0)
-  }, [recentSignals.length])
 
   useEffect(() => {
     const shouldDecay = somaInput > 0 && recentSignals.length === 0 && !isFiring
@@ -122,6 +117,8 @@ function useSoundNeuronExperiment() {
       clearTimeouts(timeoutIdsRef)
     }
   }, [])
+
+  const isAnimating = recentSignals.length > 0
 
   const submitSignal = useCallback((phrase) => {
     const cleanPhrase = cleanPhraseForDisplay(phrase)

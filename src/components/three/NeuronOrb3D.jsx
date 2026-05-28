@@ -1,14 +1,12 @@
 import { useRef, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Line } from '@react-three/drei'
-import * as THREE from 'three'
 
 const DENDRITE_COUNT = 4
 const DENDRITE_COLOR = '#22D3EE'
 const CORE_COLOR = '#2D7EFF'
 const CORE_EMISSIVE = '#0a1f5c'
 
-function DendriteNode({ angle, radius, speed, phaseOffset }) {
+function DendriteNode({ radius, speed, phaseOffset }) {
   const ref = useRef()
 
   useFrame(({ clock }) => {
@@ -30,15 +28,6 @@ function DendriteNode({ angle, radius, speed, phaseOffset }) {
       />
     </mesh>
   )
-}
-
-function ConnectionLines({ nodeRefs }) {
-  // Simplified pulsing connection lines using Line from Drei
-  const points = useMemo(
-    () => [new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)],
-    []
-  )
-  return null // Connections handled via per-node Drei Lines below
 }
 
 function NeuronScene({ scrollProgress = 0 }) {

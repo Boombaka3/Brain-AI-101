@@ -110,7 +110,7 @@ export function buildSomaFillPath({ fillArea, fillPercent, mirrored }) {
   return fillArea(fillSeries) ?? ''
 }
 
-export function getNeuronSvgStyles({ signalGlowId, fireGlowId, isFiring }) {
+export function getNeuronSvgStyles({ signalGlowId, isFiring }) {
   return `
     .clean-neuron-svg {
       --neuron-stroke: #5c79a2;

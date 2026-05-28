@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { assignPointsToClusters, runIteration } from './kmeans'
 
 const SAMPLE_POINTS = [
@@ -43,7 +43,7 @@ export default function useKMeansDemo() {
     setLastShift(0)
   }
 
-  const step = () => {
+  const step = useCallback(() => {
     if (!points.length) return
 
     const result = runIteration(points, centroids, clusterCount)
@@ -56,13 +56,13 @@ export default function useKMeansDemo() {
     if (result.converged) {
       setIsRunning(false)
     }
-  }
+  }, [centroids, clusterCount, points])
 
   useEffect(() => {
     if (!isRunning || converged || !points.length) return undefined
     const intervalId = window.setInterval(step, speed)
     return () => window.clearInterval(intervalId)
-  }, [centroids, clusterCount, converged, isRunning, points, speed])
+  }, [converged, isRunning, points.length, speed, step])
 
   const addPoint = (x, y) => {
     if (points.length >= MAX_POINTS) return

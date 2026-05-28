@@ -61,7 +61,6 @@ function ReinforcementLab({ embedded = false }) {
   const currentStateKey = serializeState(agentState.position)
   const actionValues = getActionValues(algorithmState, currentStateKey)
   const greedyAction = getGreedyAction(algorithmState, currentStateKey)
-  const totalChoices = exploreCount + exploitCount
 
   return (
     <div className={`m3-rl-block${embedded ? ' m3-rl-block--embedded' : ''}`}>

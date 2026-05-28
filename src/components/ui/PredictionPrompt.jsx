@@ -25,10 +25,6 @@ export default function PredictionPrompt({
     onPredict?.(value)
   }
 
-  const reset = () => {
-    setChoice(null)
-  }
-
   return (
     <div className={`pp ${isRevealed ? 'pp--revealed' : ''}`}>
       <p className="pp-question">{question}</p>

@@ -1,4 +1,4 @@
-import { Component, lazy, Suspense, useState } from 'react'
+import { Component, lazy, Suspense, type ErrorInfo, type ReactNode } from 'react'
 import useSmoothScroll from './hooks/useSmoothScroll'
 import Module1 from './modules/Module1'
 import Module2 from './modules/Module2'
@@ -7,20 +7,31 @@ import CourseEvaluation from './modules/CourseEvaluation'
 import PreCourseEvaluationPage from './modules/CourseEvaluation/PreCourseEvaluationPage'
 import CompletionScreen from './pages/CompletionScreen'
 import { loadPreCourseEvaluationAttempt } from './modules/CourseEvaluation/lib/courseEvaluationStorage'
+import { useAppDispatch, useAppSelector } from './store/hooks'
+import { setCurrentView } from './store/appSlice'
+import type { AppView } from './types/app'
 
 const LandingPage = lazy(() => import('./modules/LandingPage'))
 
-class AppErrorBoundary extends Component {
-  constructor(props) {
+interface AppErrorBoundaryProps {
+  children: ReactNode
+}
+
+interface AppErrorBoundaryState {
+  error: Error | null
+}
+
+class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorBoundaryState> {
+  constructor(props: AppErrorBoundaryProps) {
     super(props)
     this.state = { error: null }
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(error: Error): AppErrorBoundaryState {
     return { error }
   }
 
-  componentDidCatch(error, info) {
+  componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('App render failed', error, info)
   }
 
@@ -41,7 +52,8 @@ class AppErrorBoundary extends Component {
 }
 
 function App() {
-  const [currentView, setCurrentView] = useState('landing')
+  const currentView = useAppSelector((state) => state.app.currentView)
+  const dispatch = useAppDispatch()
   useSmoothScroll()
 
   const startCourse = () => {
@@ -54,8 +66,8 @@ function App() {
     goTo('preCourseEvaluation')
   }
 
-  const goTo = (view) => {
-    setCurrentView(view)
+  const goTo = (view: AppView) => {
+    dispatch(setCurrentView(view))
     window.scrollTo({ top: 0 })
   }
 

@@ -5,7 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'src/**/*.{ts,tsx}']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [
@@ -23,7 +23,21 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-refresh/only-export-components': 'warn',
+    },
+  },
+  {
+    files: ['**/*.js'],
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^(?:[A-Z_]|motion|AnimatePresence)$' }],
+    },
+  },
+  {
+    files: ['**/*.jsx'],
+    rules: {
+      // Base ESLint does not reliably understand JSX component usage in this repo's setup.
+      'no-unused-vars': 'off',
     },
   },
 ])

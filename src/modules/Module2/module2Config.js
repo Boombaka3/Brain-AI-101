@@ -1,5 +1,3 @@
-import { neuronFires } from '../../utils/neuronLogic'
-
 export const INITIAL_THRESHOLD = 5
 export const THRESHOLD = 4
 export const SMOOTH_LOW = 2

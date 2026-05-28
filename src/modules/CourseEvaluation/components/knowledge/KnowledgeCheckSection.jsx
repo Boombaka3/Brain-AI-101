@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import KnowledgeQuestion from './KnowledgeQuestion'
 
 export default function KnowledgeCheckSection({
@@ -13,14 +13,9 @@ export default function KnowledgeCheckSection({
   const firstUnansweredIndex = questions.findIndex((question) => !answers[question.id])
   const [activeIndex, setActiveIndex] = useState(firstUnansweredIndex >= 0 ? firstUnansweredIndex : 0)
 
-  useEffect(() => {
-    if (firstUnansweredIndex >= 0) {
-      setActiveIndex((current) => Math.min(current, questions.length - 1))
-    }
-  }, [firstUnansweredIndex, questions.length])
-
-  const question = questions[activeIndex]
-  const isLastQuestion = activeIndex === questions.length - 1
+  const safeActiveIndex = Math.min(activeIndex, questions.length - 1)
+  const question = questions[safeActiveIndex]
+  const isLastQuestion = safeActiveIndex === questions.length - 1
   const allQuestionsAnswered = questions.every((item) => Boolean(answers[item.id]))
 
   return (
@@ -32,7 +27,7 @@ export default function KnowledgeCheckSection({
 
       <div className="ce-question-nav" aria-label="Knowledge check question navigation">
         {questions.map((item, index) => {
-          const isActive = index === activeIndex
+          const isActive = index === safeActiveIndex
           const isAnswered = Boolean(answers[item.id])
 
           return (
@@ -51,7 +46,7 @@ export default function KnowledgeCheckSection({
 
       <KnowledgeQuestion
         question={question}
-        questionNumber={activeIndex + 1}
+        questionNumber={safeActiveIndex + 1}
         totalQuestions={questions.length}
         selectedAnswer={answers[question.id] || null}
         onSelect={onAnswerChange}
@@ -67,8 +62,8 @@ export default function KnowledgeCheckSection({
           <button
             type="button"
             className="shared-btn shared-btn-ghost"
-            onClick={() => setActiveIndex((current) => Math.max(0, current - 1))}
-            disabled={activeIndex === 0}
+              onClick={() => setActiveIndex((current) => Math.max(0, current - 1))}
+              disabled={safeActiveIndex === 0}
           >
             Previous Question
           </button>

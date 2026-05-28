@@ -32,7 +32,7 @@ function Module3({ onBack, onContinue, onNavigate }) {
     const handleResize = () => setIsMobile(window.innerWidth < 900)
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  }, [refs])
 
   useEffect(() => {
     const ctx = gsap.context(() => {
