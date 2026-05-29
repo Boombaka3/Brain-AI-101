@@ -1,9 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
-export default function useScrollProgress(sectionCount) {
+export default function useScrollProgress(sectionCount, options = {}) {
+  const {
+    initialActiveIndex = 0,
+    initialVisitedIndices = [0],
+    onProgressChange,
+  } = options
   const refs = useRef([])
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [visitedIndices, setVisitedIndices] = useState(new Set([0]))
+  const [activeIndex, setActiveIndex] = useState(initialActiveIndex)
+  const [visitedIndices, setVisitedIndices] = useState(() => new Set(initialVisitedIndices))
 
   const setRef = useCallback((i) => (el) => {
     refs.current[i] = el
@@ -31,6 +36,13 @@ export default function useScrollProgress(sectionCount) {
     elements.forEach(el => observer.observe(el))
     return () => observer.disconnect()
   }, [sectionCount])
+
+  useEffect(() => {
+    onProgressChange?.({
+      activeIndex,
+      visitedIndices: Array.from(visitedIndices).sort((a, b) => a - b),
+    })
+  }, [activeIndex, onProgressChange, visitedIndices])
 
   const scrollTo = useCallback((i) => {
     refs.current[i]?.scrollIntoView({ behavior: 'smooth', block: 'start' })

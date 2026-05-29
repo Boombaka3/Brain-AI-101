@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ModuleNav from '../../components/ui/ModuleNav'
 import useScrollProgress from '../../hooks/useScrollProgress'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import { selectModuleSectionProgress, setModuleSectionProgress } from '../../store/progress'
 import BridgeToAnn from './sections/bridge/BridgeToAnn'
 import InteractionSection from './sections/interaction/InteractionSection'
 import Module1AnatomySection from './sections/anatomy/Module1AnatomySection'
@@ -20,13 +22,36 @@ const SECTIONS = [
 
 function Module1({ onBack, onContinue, onNavigate }) {
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 900 : false)
-  const { activeIndex, visitedIndices, setRef, scrollTo, refs } = useScrollProgress(SECTIONS.length)
+  const dispatch = useAppDispatch()
+  const savedProgress = useAppSelector(selectModuleSectionProgress('module1'))
+  const handleProgressChange = useCallback(({ activeIndex: nextActiveIndex, visitedIndices: nextVisitedIndices }) => {
+    dispatch(setModuleSectionProgress({
+      moduleKey: 'module1',
+      activeIndex: nextActiveIndex,
+      visitedIndices: nextVisitedIndices,
+    }))
+  }, [dispatch])
+  const { activeIndex, visitedIndices, setRef, scrollTo, refs } = useScrollProgress(SECTIONS.length, {
+    initialActiveIndex: savedProgress.activeIndex,
+    initialVisitedIndices: savedProgress.visitedIndices,
+    onProgressChange: handleProgressChange,
+  })
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 900)
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [refs])
+
+  useEffect(() => {
+    if (savedProgress.activeIndex <= 0) return
+
+    const timeoutId = window.setTimeout(() => {
+      scrollTo(savedProgress.activeIndex)
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [savedProgress.activeIndex, scrollTo])
 
   useEffect(() => {
     const ctx = gsap.context(() => {

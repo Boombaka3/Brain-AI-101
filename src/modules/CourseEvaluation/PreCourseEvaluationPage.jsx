@@ -9,6 +9,15 @@ import {
   markPreCourseEvaluationSkipped,
   savePreCourseEvaluationAttempt,
 } from './lib/courseEvaluationStorage'
+import {
+  completePreCourseEvaluation,
+  hydratePreCourseEvaluation,
+  selectPreCourseEvaluationState,
+  skipPreCourseEvaluation,
+  startPreCourseEvaluation,
+  updatePreCourseEvaluation,
+} from '../../store/preCourseEvaluation'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import './courseEvaluation.css'
 
 function hasSavedResponses(attempt) {
@@ -16,11 +25,37 @@ function hasSavedResponses(attempt) {
 }
 
 export default function PreCourseEvaluationPage({ onBack, onContinue }) {
-  const initialAttempt = loadPreCourseEvaluationAttempt() || createPreCourseEvaluationAttempt()
-  const [attempt, setAttempt] = useState(initialAttempt)
-  const [hasStarted, setHasStarted] = useState(!initialAttempt.completedAt && hasSavedResponses(initialAttempt))
+  const dispatch = useAppDispatch()
+  const preCourseState = useAppSelector(selectPreCourseEvaluationState)
+  const {
+    attemptId,
+    startedAt,
+    completedAt,
+    skipped,
+    likertResponses,
+    openResponse,
+    status,
+    hydrated,
+  } = preCourseState
   const [errorMessage, setErrorMessage] = useState('')
   const headingRef = useRef(null)
+  const attempt = {
+    attemptId,
+    startedAt,
+    completedAt,
+    skipped,
+    likertResponses,
+    openResponse,
+    source: 'pre-course',
+    version: 1,
+  }
+  const hasStarted = status === 'draft' || (!completedAt && hasSavedResponses(attempt))
+
+  useEffect(() => {
+    if (!hydrated) {
+      dispatch(hydratePreCourseEvaluation(loadPreCourseEvaluationAttempt()))
+    }
+  }, [dispatch, hydrated])
 
   useEffect(() => {
     if (hasStarted) {
@@ -28,37 +63,42 @@ export default function PreCourseEvaluationPage({ onBack, onContinue }) {
     }
   }, [hasStarted])
 
-  const updateAttempt = (updater) => {
-    setAttempt((current) => {
-      const nextAttempt = typeof updater === 'function' ? updater(current) : { ...current, ...updater }
-      return savePreCourseEvaluationAttempt(nextAttempt)
-    })
-  }
-
   const handleStart = () => {
-    setHasStarted(true)
+    const savedAttempt = savePreCourseEvaluationAttempt(
+      attemptId
+        ? attempt
+        : createPreCourseEvaluationAttempt({
+            likertResponses,
+            openResponse,
+          }),
+    )
+
+    dispatch(startPreCourseEvaluation(savedAttempt))
     setErrorMessage('')
   }
 
   const handleLikertChange = (questionId, value) => {
     setErrorMessage('')
-    updateAttempt((current) => ({
-      ...current,
+
+    const savedAttempt = savePreCourseEvaluationAttempt({
+      ...attempt,
       likertResponses: {
-        ...current.likertResponses,
+        ...likertResponses,
         [questionId]: value,
       },
-    }))
+    })
+
+    dispatch(updatePreCourseEvaluation(savedAttempt))
   }
 
   const handleSkip = () => {
     const skippedAttempt = markPreCourseEvaluationSkipped()
-    setAttempt(skippedAttempt)
+    dispatch(skipPreCourseEvaluation(skippedAttempt))
     onContinue?.()
   }
 
   const handleSubmit = () => {
-    if (!areLikertQuestionsComplete(preCourseLikertQuestions, attempt.likertResponses)) {
+    if (!areLikertQuestionsComplete(preCourseLikertQuestions, likertResponses)) {
       setErrorMessage('Please answer all rating questions or choose Skip for Now.')
       return
     }
@@ -71,7 +111,7 @@ export default function PreCourseEvaluationPage({ onBack, onContinue }) {
       version: 1,
     })
 
-    setAttempt(completedAttempt)
+    dispatch(completePreCourseEvaluation(completedAttempt))
     onContinue?.()
   }
 

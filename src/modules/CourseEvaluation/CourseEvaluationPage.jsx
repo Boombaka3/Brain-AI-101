@@ -7,6 +7,15 @@ import EvaluationResults from './components/results/EvaluationResults'
 import { likertQuestions, openEndedQuestions, knowledgeQuestions } from './data/courseEvaluationData'
 import { areKnowledgeQuestionsComplete, areLikertQuestionsComplete, calculateKnowledgeResults } from './lib/courseEvaluationLogic'
 import { createEvaluationAttempt, loadEvaluationAttempt, saveEvaluationAttempt, submitEvaluationAttempt } from './lib/courseEvaluationStorage'
+import {
+  hydrateEvaluationState,
+  selectEvaluationAttempt,
+  selectEvaluationCurrentStep,
+  selectEvaluationHydrated,
+  setEvaluationStep,
+  updateEvaluationAttempt,
+} from '../../store/courseEvaluation'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import './courseEvaluation.css'
 
 const SUBMISSION_SCHEMA_VERSION = 'brain-ai-101-course-evaluation.v1'
@@ -65,8 +74,10 @@ function completedStepsFor(currentStep) {
 }
 
 export default function CourseEvaluationPage({ onBack, onContinue }) {
-  const [attempt, setAttempt] = useState(null)
-  const [currentStep, setCurrentStep] = useState('feedback')
+  const dispatch = useAppDispatch()
+  const attempt = useAppSelector(selectEvaluationAttempt)
+  const currentStep = useAppSelector(selectEvaluationCurrentStep)
+  const hydrated = useAppSelector(selectEvaluationHydrated)
   const [feedbackError, setFeedbackError] = useState('')
   const [knowledgeError, setKnowledgeError] = useState('')
   const [isRetryingUpload, setIsRetryingUpload] = useState(false)
@@ -77,11 +88,19 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
   const resultsHeadingRef = useRef(null)
 
   useEffect(() => {
+    if (hydrated) {
+      return
+    }
+
     const existingAttempt = loadEvaluationAttempt()
     const nextAttempt = existingAttempt || createEvaluationAttempt()
-    setAttempt(nextAttempt)
-    setCurrentStep(inferStep(nextAttempt))
-  }, [])
+    dispatch(
+      hydrateEvaluationState({
+        attempt: nextAttempt,
+        currentStep: inferStep(nextAttempt),
+      }),
+    )
+  }, [dispatch, hydrated])
 
   useEffect(() => {
     const headingMap = {
@@ -103,21 +122,21 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
     : null
 
   const updateAttempt = (updater) => {
-    setAttempt((current) => {
-      const nextAttempt = typeof updater === 'function' ? updater(current) : { ...current, ...updater }
-      return saveEvaluationAttempt(nextAttempt)
-    })
+    const nextAttempt = typeof updater === 'function' ? updater(attempt) : { ...attempt, ...updater }
+    const savedAttempt = saveEvaluationAttempt(nextAttempt)
+    dispatch(updateEvaluationAttempt(savedAttempt))
+    return savedAttempt
   }
 
   const syncCompletedAttempt = async (completedAttempt) => {
     setIsRetryingUpload(true)
-    updateAttempt({
+    const syncingAttempt = updateAttempt({
       remoteSubmissionStatus: 'syncing',
       remoteSubmissionError: '',
     })
 
     try {
-      const files = await submitEvaluationToDropbox(buildSubmissionPayload(completedAttempt))
+      const files = await submitEvaluationToDropbox(buildSubmissionPayload(completedAttempt || syncingAttempt))
       updateAttempt({
         remoteSubmissionStatus: 'synced',
         remoteSubmissionError: '',
@@ -174,7 +193,7 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
       return
     }
 
-    setCurrentStep('reflection')
+    dispatch(setEvaluationStep('reflection'))
   }
 
   const handleKnowledgeSubmit = async () => {
@@ -195,8 +214,8 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
       remoteSubmissionFiles: [],
     })
 
-    setAttempt(submittedAttempt)
-    setCurrentStep('results')
+    dispatch(updateEvaluationAttempt(submittedAttempt))
+    dispatch(setEvaluationStep('results'))
     await syncCompletedAttempt(submittedAttempt)
   }
 
@@ -214,16 +233,16 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
       openResponses: attempt.openResponses,
     })
 
-    setAttempt(saveEvaluationAttempt(nextAttempt))
+    dispatch(updateEvaluationAttempt(saveEvaluationAttempt(nextAttempt)))
     setKnowledgeError('')
-    setCurrentStep('knowledge')
+    dispatch(setEvaluationStep('knowledge'))
   }
 
   return (
     <div className="ce-page">
       <div className="ce-shell">
         <div className="ce-topbar">
-          <button type="button" className="shared-btn shared-btn-ghost" onClick={currentStep === 'feedback' ? onBack : () => setCurrentStep('feedback')}>
+          <button type="button" className="shared-btn shared-btn-ghost" onClick={currentStep === 'feedback' ? onBack : () => dispatch(setEvaluationStep('feedback'))}>
             {currentStep === 'feedback' ? 'Back to Module 3' : 'Back to Feedback'}
           </button>
         </div>
@@ -250,8 +269,8 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
             questions={openEndedQuestions}
             responses={attempt.openResponses}
             onChange={handleOpenResponseChange}
-            onBack={() => setCurrentStep('feedback')}
-            onNext={() => setCurrentStep('knowledge')}
+            onBack={() => dispatch(setEvaluationStep('feedback'))}
+            onNext={() => dispatch(setEvaluationStep('knowledge'))}
           />
         )}
 
@@ -261,7 +280,7 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
             questions={knowledgeQuestions}
             answers={attempt.quizAnswers}
             onAnswerChange={handleQuizAnswerChange}
-            onBack={() => setCurrentStep('reflection')}
+            onBack={() => dispatch(setEvaluationStep('reflection'))}
             onSubmit={handleKnowledgeSubmit}
             errorMessage={knowledgeError}
           />

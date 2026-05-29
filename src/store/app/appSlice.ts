@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { AppState, AppView } from '../types/app'
+import type { AppState, AppView } from '../../types/app'
 
 const initialState: AppState = {
   currentView: 'landing',

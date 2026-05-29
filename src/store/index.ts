@@ -1,13 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit'
-import { appReducer } from './appSlice'
-import { evaluationReducer } from './evaluationSlice'
-import { progressReducer } from './progressSlice'
+import { appReducer } from './app'
+import { evaluationReducer } from './courseEvaluation'
+import { preCourseEvaluationReducer } from './preCourseEvaluation'
+import { progressReducer } from './progress'
 
 export const store = configureStore({
   reducer: {
     app: appReducer,
     progress: progressReducer,
     evaluation: evaluationReducer,
+    preCourseEvaluation: preCourseEvaluationReducer,
   },
 })
 

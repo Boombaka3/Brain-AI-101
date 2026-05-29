@@ -1,4 +1,4 @@
-import { Component, lazy, Suspense, type ErrorInfo, type ReactNode } from 'react'
+import { Component, lazy, Suspense, useEffect, type ErrorInfo, type ReactNode } from 'react'
 import useSmoothScroll from './hooks/useSmoothScroll'
 import Module1 from './modules/Module1'
 import Module2 from './modules/Module2'
@@ -8,7 +8,12 @@ import PreCourseEvaluationPage from './modules/CourseEvaluation/PreCourseEvaluat
 import CompletionScreen from './pages/CompletionScreen'
 import { loadPreCourseEvaluationAttempt } from './modules/CourseEvaluation/lib/courseEvaluationStorage'
 import { useAppDispatch, useAppSelector } from './store/hooks'
-import { setCurrentView } from './store/appSlice'
+import { selectCurrentView, setCurrentView } from './store/app'
+import {
+  hydratePreCourseEvaluation,
+  selectPreCourseCompletedAt,
+  selectPreCourseHydrated,
+} from './store/preCourseEvaluation'
 import type { AppView } from './types/app'
 
 const LandingPage = lazy(() => import('./modules/LandingPage'))
@@ -52,13 +57,27 @@ class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorBoundary
 }
 
 function App() {
-  const currentView = useAppSelector((state) => state.app.currentView)
+  const currentView = useAppSelector(selectCurrentView)
+  const preCourseCompletedAt = useAppSelector(selectPreCourseCompletedAt)
+  const preCourseHydrated = useAppSelector(selectPreCourseHydrated)
   const dispatch = useAppDispatch()
   useSmoothScroll()
 
+  useEffect(() => {
+    dispatch(hydratePreCourseEvaluation(loadPreCourseEvaluationAttempt()))
+  }, [dispatch])
+
   const startCourse = () => {
-    const preCourseAttempt = loadPreCourseEvaluationAttempt()
-    if (preCourseAttempt?.completedAt) {
+    if (!preCourseHydrated) {
+      const preCourseAttempt = loadPreCourseEvaluationAttempt()
+      dispatch(hydratePreCourseEvaluation(preCourseAttempt))
+      if (preCourseAttempt?.completedAt) {
+        goTo('module1')
+        return
+      }
+    }
+
+    if (preCourseCompletedAt) {
       goTo('module1')
       return
     }

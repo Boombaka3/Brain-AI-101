@@ -1,8 +1,10 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ModuleNav from '../../components/ui/ModuleNav'
 import useScrollProgress from '../../hooks/useScrollProgress'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import { selectModuleSectionProgress, setModuleSectionProgress } from '../../store/progress'
 import ANNSection from './sections/networks/ANNSection'
 import ActivationSection from './sections/activations/ActivationSection'
 import SpecialistsSection from './sections/selectivity/SpecialistsSection'
@@ -21,7 +23,30 @@ const SECTIONS = [
 ]
 
 function Module2({ onBack, onContinue, onNavigate }) {
-  const { activeIndex, visitedIndices, setRef, scrollTo, refs } = useScrollProgress(SECTIONS.length)
+  const dispatch = useAppDispatch()
+  const savedProgress = useAppSelector(selectModuleSectionProgress('module2'))
+  const handleProgressChange = useCallback(({ activeIndex: nextActiveIndex, visitedIndices: nextVisitedIndices }) => {
+    dispatch(setModuleSectionProgress({
+      moduleKey: 'module2',
+      activeIndex: nextActiveIndex,
+      visitedIndices: nextVisitedIndices,
+    }))
+  }, [dispatch])
+  const { activeIndex, visitedIndices, setRef, scrollTo, refs } = useScrollProgress(SECTIONS.length, {
+    initialActiveIndex: savedProgress.activeIndex,
+    initialVisitedIndices: savedProgress.visitedIndices,
+    onProgressChange: handleProgressChange,
+  })
+
+  useEffect(() => {
+    if (savedProgress.activeIndex <= 0) return
+
+    const timeoutId = window.setTimeout(() => {
+      scrollTo(savedProgress.activeIndex)
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [savedProgress.activeIndex, scrollTo])
 
   useEffect(() => {
     const ctx = gsap.context(() => {
