@@ -6,6 +6,7 @@ export type AppView =
   | 'module3'
   | 'courseEvaluation'
   | 'completion'
+  | 'admin'
 
 export interface AppState {
   currentView: AppView

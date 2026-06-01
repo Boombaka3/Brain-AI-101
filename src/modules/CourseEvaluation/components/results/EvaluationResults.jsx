@@ -15,17 +15,17 @@ export default function EvaluationResults({
   const uploadStatus = attempt.remoteSubmissionStatus || 'idle'
   const showRetry = attempt.completedAt && uploadStatus !== 'synced'
   const uploadStatusLabel = uploadStatus === 'synced'
-    ? 'Uploaded to Dropbox'
+    ? 'Stored in database'
     : uploadStatus === 'syncing'
-      ? 'Uploading to Dropbox...'
+      ? 'Saving to database...'
       : uploadStatus === 'failed'
-        ? 'Saved locally, upload needs retry'
+        ? 'Saved locally, sync needs retry'
         : 'Saved locally'
   const uploadStatusMessage = uploadStatus === 'synced'
-    ? 'Your feedback and quiz results are saved in this browser and uploaded to Dropbox.'
+    ? 'Your feedback and quiz results are saved in this browser and stored in the backend database.'
     : uploadStatus === 'syncing'
-      ? 'Your feedback and quiz results are saved in this browser while the Dropbox upload finishes.'
-      : 'Your feedback and quiz results are stored in this browser for the completion handoff.'
+      ? 'Your feedback and quiz results are saved in this browser while the backend storage finishes.'
+      : 'Your feedback and quiz results are stored in this browser while you finish the course.'
 
   return (
     <section className="ce-panel ce-results-panel" aria-labelledby="results-heading">
@@ -125,7 +125,7 @@ export default function EvaluationResults({
               onClick={onRetryUpload}
               disabled={isRetryingUpload || uploadStatus === 'syncing'}
             >
-              {isRetryingUpload || uploadStatus === 'syncing' ? 'Retrying Upload...' : 'Retry Dropbox Upload'}
+              {isRetryingUpload || uploadStatus === 'syncing' ? 'Retrying Sync...' : 'Retry Save'}
             </button>
           )}
         </div>

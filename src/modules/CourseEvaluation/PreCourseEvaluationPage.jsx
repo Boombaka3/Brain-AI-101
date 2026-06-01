@@ -18,6 +18,7 @@ import {
   updatePreCourseEvaluation,
 } from '../../store/preCourseEvaluation'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import { useSubmitEvaluation } from '../../hooks/useSubmitEvaluation'
 import './courseEvaluation.css'
 
 function hasSavedResponses(attempt) {
@@ -26,6 +27,7 @@ function hasSavedResponses(attempt) {
 
 export default function PreCourseEvaluationPage({ onBack, onContinue }) {
   const dispatch = useAppDispatch()
+  const { submit: submitEvaluation, isSubmitting } = useSubmitEvaluation()
   const preCourseState = useAppSelector(selectPreCourseEvaluationState)
   const {
     attemptId,
@@ -91,13 +93,26 @@ export default function PreCourseEvaluationPage({ onBack, onContinue }) {
     dispatch(updatePreCourseEvaluation(savedAttempt))
   }
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     const skippedAttempt = markPreCourseEvaluationSkipped()
     dispatch(skipPreCourseEvaluation(skippedAttempt))
+    try {
+      await submitEvaluation({
+        sessionId: skippedAttempt.attemptId,
+        source: 'pre-course',
+        startedAt: skippedAttempt.startedAt,
+        completedAt: skippedAttempt.completedAt,
+        skipped: true,
+        likertResponses: skippedAttempt.likertResponses,
+        openResponses: skippedAttempt.openResponse ? { 'pre-goal': skippedAttempt.openResponse } : {},
+      })
+    } catch (error) {
+      console.warn('Pre-course evaluation sync failed', error)
+    }
     onContinue?.()
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!areLikertQuestionsComplete(preCourseLikertQuestions, likertResponses)) {
       setErrorMessage('Please answer all rating questions or choose Skip for Now.')
       return
@@ -112,6 +127,19 @@ export default function PreCourseEvaluationPage({ onBack, onContinue }) {
     })
 
     dispatch(completePreCourseEvaluation(completedAttempt))
+    try {
+      await submitEvaluation({
+        sessionId: completedAttempt.attemptId,
+        source: 'pre-course',
+        startedAt: completedAttempt.startedAt,
+        completedAt: completedAttempt.completedAt,
+        skipped: false,
+        likertResponses: completedAttempt.likertResponses,
+        openResponses: completedAttempt.openResponse ? { 'pre-goal': completedAttempt.openResponse } : {},
+      })
+    } catch (error) {
+      console.warn('Pre-course evaluation sync failed', error)
+    }
     onContinue?.()
   }
 
@@ -139,10 +167,10 @@ export default function PreCourseEvaluationPage({ onBack, onContinue }) {
             </div>
 
             <div className="ce-actions">
-              <button type="button" className="shared-btn shared-btn-secondary" onClick={handleSkip}>
-                Skip for Now
+              <button type="button" className="shared-btn shared-btn-secondary" onClick={handleSkip} disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Skip for Now'}
               </button>
-              <button type="button" className="shared-btn shared-btn-primary" onClick={handleStart}>
+              <button type="button" className="shared-btn shared-btn-primary" onClick={handleStart} disabled={isSubmitting}>
                 Start Evaluation
               </button>
             </div>
@@ -158,9 +186,10 @@ export default function PreCourseEvaluationPage({ onBack, onContinue }) {
             onChange={handleLikertChange}
             errorMessage={errorMessage}
             onNext={handleSubmit}
-            primaryActionLabel="Submit and Start Module 1"
+            primaryActionLabel={isSubmitting ? 'Saving...' : 'Submit and Start Module 1'}
             secondaryActionLabel="Skip for Now"
             onSecondaryAction={handleSkip}
+            isBusy={isSubmitting}
           />
         )}
       </div>

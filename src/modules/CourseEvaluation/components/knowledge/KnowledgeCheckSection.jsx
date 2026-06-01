@@ -9,6 +9,7 @@ export default function KnowledgeCheckSection({
   onBack,
   onSubmit,
   errorMessage,
+  isSubmitting = false,
 }) {
   const firstUnansweredIndex = questions.findIndex((question) => !answers[question.id])
   const [activeIndex, setActiveIndex] = useState(firstUnansweredIndex >= 0 ? firstUnansweredIndex : 0)
@@ -80,9 +81,9 @@ export default function KnowledgeCheckSection({
               type="button"
               className="shared-btn shared-btn-primary"
               onClick={onSubmit}
-              disabled={!allQuestionsAnswered}
+              disabled={!allQuestionsAnswered || isSubmitting}
             >
-              Submit Evaluation
+              {isSubmitting ? 'Submitting...' : 'Submit Evaluation'}
             </button>
           )}
         </div>

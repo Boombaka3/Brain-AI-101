@@ -7,13 +7,22 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:seed": "node prisma/seed.mjs",
+    "vercel-build": "prisma generate && vite build",
+    "postinstall": "prisma generate",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "^2.10.1",
+    "@prisma/client": "^6.16.2",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.0",
+    "@reduxjs/toolkit": "^2.10.1",
     "d3-shape": "^3.2.0",
     "framer-motion": "^12.27.1",
     "gsap": "^3.14.2",
@@ -26,6 +35,10 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
@@ -34,8 +47,11 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "gh-pages": "^6.3.0",
     "globals": "^16.5.0",
+    "jsdom": "^29.1.1",
+    "prisma": "^6.16.2",
     "typescript": "^5.9.3",
     "vite": "^7.2.4",
-    "vite-plugin-static-copy": "^4.1.0"
+    "vite-plugin-static-copy": "^4.1.0",
+    "vitest": "^4.1.8"
   }
 }

@@ -16,49 +16,9 @@ import {
   updateEvaluationAttempt,
 } from '../../store/courseEvaluation'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import { useSubmitQuizAttempt } from '../../hooks/useSubmitQuizAttempt'
+import { useSubmitEvaluation } from '../../hooks/useSubmitEvaluation'
 import './courseEvaluation.css'
-
-const SUBMISSION_SCHEMA_VERSION = 'brain-ai-101-course-evaluation.v1'
-const SUBMISSION_SOURCE = 'course-evaluation'
-
-function buildSubmissionPayload(attempt) {
-  return {
-    schemaVersion: SUBMISSION_SCHEMA_VERSION,
-    sessionId: attempt.attemptId,
-    source: SUBMISSION_SOURCE,
-    submittedAt: attempt.completedAt || new Date().toISOString(),
-    quizAnswers: attempt.quizAnswers || {},
-    summary: {
-      attemptId: attempt.attemptId,
-      startedAt: attempt.startedAt || null,
-      completedAt: attempt.completedAt || null,
-      likertResponses: attempt.likertResponses || {},
-      openResponses: attempt.openResponses || {},
-      score: attempt.score,
-      maxScore: attempt.maxScore,
-      moduleBreakdown: attempt.moduleBreakdown || {},
-      passed: attempt.passed,
-    },
-  }
-}
-
-async function submitEvaluationToDropbox(payload) {
-  const response = await fetch('/api/submit-evaluation', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  })
-
-  const data = await response.json().catch(() => null)
-
-  if (!response.ok || !data?.ok) {
-    throw new Error('We saved your results in this browser, but Dropbox upload did not finish. Please try again.')
-  }
-
-  return Array.isArray(data.files) ? data.files : []
-}
 
 function inferStep(attempt) {
   if (attempt?.completedAt) return 'results'
@@ -78,6 +38,8 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
   const attempt = useAppSelector(selectEvaluationAttempt)
   const currentStep = useAppSelector(selectEvaluationCurrentStep)
   const hydrated = useAppSelector(selectEvaluationHydrated)
+  const { submit: submitQuizAttempt } = useSubmitQuizAttempt()
+  const { submit: submitEvaluation, isSubmitting: isSubmittingEvaluation } = useSubmitEvaluation()
   const [feedbackError, setFeedbackError] = useState('')
   const [knowledgeError, setKnowledgeError] = useState('')
   const [isRetryingUpload, setIsRetryingUpload] = useState(false)
@@ -136,18 +98,40 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
     })
 
     try {
-      const files = await submitEvaluationToDropbox(buildSubmissionPayload(completedAttempt || syncingAttempt))
+      const quizResponse = await submitQuizAttempt({
+        sessionId: (completedAttempt || syncingAttempt).attemptId,
+        startedAt: (completedAttempt || syncingAttempt).startedAt,
+        completedAt: (completedAttempt || syncingAttempt).completedAt,
+        selectedAnswers: (completedAttempt || syncingAttempt).quizAnswers || {},
+        source: 'course-evaluation',
+      })
+
+      const evaluationResponse = await submitEvaluation({
+        sessionId: (completedAttempt || syncingAttempt).attemptId,
+        source: 'course-evaluation',
+        startedAt: (completedAttempt || syncingAttempt).startedAt,
+        completedAt: (completedAttempt || syncingAttempt).completedAt,
+        skipped: false,
+        likertResponses: (completedAttempt || syncingAttempt).likertResponses || {},
+        openResponses: (completedAttempt || syncingAttempt).openResponses || {},
+        quizAttemptId: quizResponse.attempt.id,
+      })
+
       updateAttempt({
+        score: quizResponse.attempt.score,
+        maxScore: quizResponse.attempt.maxScore,
+        moduleBreakdown: quizResponse.attempt.moduleBreakdown,
+        passed: quizResponse.attempt.passed,
         remoteSubmissionStatus: 'synced',
         remoteSubmissionError: '',
-        remoteSubmissionFiles: files,
+        remoteSubmissionFiles: [quizResponse.attempt.id, evaluationResponse.submission.id],
       })
     } catch (error) {
       updateAttempt({
         remoteSubmissionStatus: 'failed',
         remoteSubmissionError: error instanceof Error && error.message
           ? error.message
-          : 'We saved your results in this browser, but Dropbox upload did not finish. Please try again.',
+          : 'We saved your results in this browser, but the server could not store them yet. Please try again.',
         remoteSubmissionFiles: [],
       })
     } finally {
@@ -283,6 +267,7 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
             onBack={() => dispatch(setEvaluationStep('reflection'))}
             onSubmit={handleKnowledgeSubmit}
             errorMessage={knowledgeError}
+            isSubmitting={isRetryingUpload || isSubmittingEvaluation}
           />
         )}
 

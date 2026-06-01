@@ -7,4 +7,9 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['onnxruntime-web'],
   },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    globals: true,
+  },
 })

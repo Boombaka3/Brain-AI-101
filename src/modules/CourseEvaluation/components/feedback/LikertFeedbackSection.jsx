@@ -19,6 +19,7 @@ export default function LikertFeedbackSection({
   primaryActionLabel = 'Next',
   secondaryActionLabel = '',
   onSecondaryAction,
+  isBusy = false,
 }) {
   return (
     <section className="ce-panel" aria-labelledby={sectionId}>
@@ -71,11 +72,11 @@ export default function LikertFeedbackSection({
 
       <div className="ce-actions">
         {secondaryActionLabel && onSecondaryAction ? (
-          <button type="button" className="shared-btn shared-btn-secondary" onClick={onSecondaryAction}>
+          <button type="button" className="shared-btn shared-btn-secondary" onClick={onSecondaryAction} disabled={isBusy}>
             {secondaryActionLabel}
           </button>
         ) : <span />}
-        <button type="button" className="shared-btn shared-btn-primary" onClick={onNext}>
+        <button type="button" className="shared-btn shared-btn-primary" onClick={onNext} disabled={isBusy}>
           {primaryActionLabel}
         </button>
       </div>

@@ -101,22 +101,27 @@ The prediction-and-error walkthroughs, clustering lab, reinforcement learning ac
 The current application flow is:
 
 1. Landing Page
-2. Module 1
-3. Module 2
-4. Module 3
-5. Course Evaluation
-6. Completion Screen
+2. Pre-Course Evaluation
+3. Module 1
+4. Module 2
+5. Module 3
+6. Course Evaluation
+7. Completion Screen
 
-The app uses local React state for navigation. It does not use React Router.
+The app uses Redux-backed app-level view state for navigation. It does not use React Router.
 
 ## Tech Stack
 
 - React 19
 - Vite
+- Redux Toolkit
 - Framer Motion
 - Three.js / React Three Fiber
 - GSAP
 - ONNX Runtime Web
+- Prisma
+- PostgreSQL
+- Vercel Functions
 
 ## Local Development
 
@@ -138,10 +143,40 @@ Create a production build:
 npm run build
 ```
 
+Generate the Prisma client:
+
+```bash
+npm run prisma:generate
+```
+
+Run database migrations locally:
+
+```bash
+npm run prisma:migrate:dev
+```
+
+Seed the module/question metadata:
+
+```bash
+npm run prisma:seed
+```
+
+Run the test suite:
+
+```bash
+npm run test:run
+```
+
 Deploy the `dist` folder to GitHub Pages:
 
 ```bash
 npm run deploy
+```
+
+Deploy to Vercel with backend support:
+
+```bash
+npm run vercel-build
 ```
 
 ## Project Structure
@@ -150,12 +185,16 @@ npm run deploy
 src/
   components/
     ui/
+  lib/
   modules/
     CourseEvaluation/
     Module1/
     Module2/
     Module3/
   pages/
+  hooks/
+api/
+prisma/
 public/
 scripts/
 ```
@@ -164,9 +203,10 @@ scripts/
 
 - Each module owns its own content and section composition.
 - Shared UI patterns live in `src/components/ui`.
-- The course flow is controlled from `src/App.jsx`.
+- The course flow is controlled from `src/App.tsx`.
 - Module 1 includes an embedded PhET neuron simulation as part of the lesson experience.
 - External simulations and visual labs are part of the product, not optional extras. They are central to how the course teaches.
+- Quiz attempts and evaluation submissions can be persisted through Vercel Functions + Prisma + PostgreSQL.
 
 ## Attribution
 

@@ -6,6 +6,7 @@ import Module3 from './modules/Module3'
 import CourseEvaluation from './modules/CourseEvaluation'
 import PreCourseEvaluationPage from './modules/CourseEvaluation/PreCourseEvaluationPage'
 import CompletionScreen from './pages/CompletionScreen'
+import AdminSubmissionsPage from './pages/AdminSubmissionsPage'
 import { loadPreCourseEvaluationAttempt } from './modules/CourseEvaluation/lib/courseEvaluationStorage'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import { selectCurrentView, setCurrentView } from './store/app'
@@ -110,6 +111,8 @@ function App() {
     content = <CourseEvaluation onBack={() => goTo('module3')} onContinue={() => goTo('completion')} />
   } else if (currentView === 'completion') {
     content = <CompletionScreen onGoToModule={(key) => goTo(key)} onBackToHome={() => goTo('landing')} />
+  } else if (currentView === 'admin') {
+    content = <AdminSubmissionsPage onBack={() => goTo('landing')} />
   }
 
   return <AppErrorBoundary>{content}</AppErrorBoundary>
