@@ -12,6 +12,15 @@ const HIDDEN_NODES = [
 ]
 
 const OUTPUT_NODE = { id: 'o1', x: 620, y: 180, label: 'y' }
+const NETWORK_FRAME = { x: 20, y: 20, width: 680, height: 320 }
+const ERROR_CHIP = {
+  width: 128,
+  height: 40,
+  radius: 20,
+  inset: 18,
+  gap: 20,
+  topInset: 26,
+}
 
 const CONNECTIONS = [
   {
@@ -196,6 +205,13 @@ function BackpropagationSection() {
 
   const connectionStroke = (value) => 2 + value * 4
   const phaseClassName = phase !== 'idle' ? `is-${phase}` : ''
+  const errorChipX = Math.min(
+    NETWORK_FRAME.x + NETWORK_FRAME.width - ERROR_CHIP.width - ERROR_CHIP.inset,
+    Math.max(NETWORK_FRAME.x + ERROR_CHIP.inset, OUTPUT_NODE.x - ERROR_CHIP.width - ERROR_CHIP.gap),
+  )
+  const errorChipY = Math.max(NETWORK_FRAME.y + ERROR_CHIP.topInset, OUTPUT_NODE.y - 96)
+  const errorChipPointerEndX = OUTPUT_NODE.x - 18
+  const errorChipPointerEndY = OUTPUT_NODE.y - 26
 
   return (
     <section className="m3-section">
@@ -364,9 +380,16 @@ function BackpropagationSection() {
               })}
 
               {errorShown ? (
-                <g className={`m3-backprop-error-chip${phase === 'error' || phase === 'backward' ? ' is-visible' : ''}`} transform="translate(570, 88)">
-                  <rect x="0" y="0" width="102" height="38" rx="19" />
-                  <text x="51" y="24" textAnchor="middle">Error {error}</text>
+                <g
+                  className={`m3-backprop-error-chip${phase === 'error' || phase === 'backward' || phase === 'update' ? ' is-visible' : ''}`}
+                  transform={`translate(${errorChipX}, ${errorChipY})`}
+                >
+                  <path
+                    className="m3-backprop-error-chip__pointer"
+                    d={`M ${ERROR_CHIP.width - 2} ${ERROR_CHIP.height * 0.58} C ${ERROR_CHIP.width + 12} ${ERROR_CHIP.height * 0.52}, ${errorChipPointerEndX - errorChipX - 28} ${errorChipPointerEndY - errorChipY + 6}, ${errorChipPointerEndX - errorChipX} ${errorChipPointerEndY - errorChipY}`}
+                  />
+                  <rect x="0" y="0" width={ERROR_CHIP.width} height={ERROR_CHIP.height} rx={ERROR_CHIP.radius} />
+                  <text x={ERROR_CHIP.width / 2} y="25" textAnchor="middle">Error {error}</text>
                 </g>
               ) : null}
 

@@ -553,17 +553,23 @@
 
 .m3-backprop-error-chip {
   opacity: 0;
-  transform: translateY(-6px);
-  transform-origin: center;
 }
 
 .m3-backprop-error-chip.is-visible {
-  animation: m3BackpropChipIn 260ms ease forwards;
+  animation: m3BackpropChipFadeIn 260ms ease forwards;
+}
+
+.m3-backprop-error-chip__pointer {
+  fill: none;
+  stroke: #fdba74;
+  stroke-linecap: round;
+  stroke-width: 3;
 }
 
 .m3-backprop-error-chip rect {
   fill: #fff7ed;
   stroke: #fdba74;
+  stroke-width: 1.4;
 }
 
 .m3-backprop-error-chip text {
@@ -2816,14 +2822,12 @@
   }
 }
 
-@keyframes m3BackpropChipIn {
+@keyframes m3BackpropChipFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-6px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
