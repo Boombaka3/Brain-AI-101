@@ -18,7 +18,7 @@ gsap.registerPlugin(ScrollTrigger)
 
 const SECTIONS = [
   { label: 'Learning Means Changing' },
-  { label: 'Feedback Changes Behavior' },
+  { label: 'Three Learning Types' },
   { label: 'Error Goes Down Over Time' },
   { label: 'Backpropagation' },
   { label: 'Brain × AI Feedback' },
