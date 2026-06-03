@@ -1,4 +1,3 @@
-import DeepLearningBridge from './DeepLearningBridge'
 
 function BigPicture() {
   return (

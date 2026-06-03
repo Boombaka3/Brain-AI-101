@@ -5,20 +5,6 @@ const NEUROCORRELATION_EMBED_URL = `${NEUROCORRELATION_ARTICLE_URL}#:~:text=Live
 const LOCAL_NEUROCORRELATION_MODULE_PATH = `${import.meta.env.BASE_URL}vendor/neurocorrelation/index.mjs`
 const NEUROCORRELATION_REPO_URL = 'https://github.com/Axelwickm/NeuroCorrelation'
 
-const FEEDBACK_POINTS = [
-  {
-    title: 'Brain-style feedback',
-    body: 'Instead of sending a global error backward, nearby neurons strengthen or weaken their link from local spike timing.',
-  },
-  {
-    title: 'Why it matters',
-    body: 'This makes learning feel more biological: the update comes from what two connected neurons just did together.',
-  },
-  {
-    title: 'AI connection',
-    body: 'Both systems still change weights from feedback. The main difference is where the teaching signal comes from.',
-  },
-]
 
 function NeuroCorrelationPreview() {
   const canvasRef = useRef(null)
@@ -33,31 +19,66 @@ function NeuroCorrelationPreview() {
 
     const checkLocalBuild = async () => {
       try {
-        const response = await fetch(LOCAL_NEUROCORRELATION_MODULE_PATH, {
+        // Step 1 — fetch index.mjs and verify it is a real JS module
+        const indexResponse = await fetch(LOCAL_NEUROCORRELATION_MODULE_PATH, {
           cache: 'no-store',
         })
-
         if (cancelled) return
 
-        if (!response.ok) {
+        if (!indexResponse.ok) {
           setAvailability('live')
           setState('embedded-live')
           return
         }
 
-        const contentType = response.headers.get('content-type') || ''
-        const body = await response.text()
-        const looksLikeModule = contentType.includes('javascript')
-          || contentType.includes('ecmascript')
-          || LOCAL_NEUROCORRELATION_MODULE_PATH.endsWith('.mjs')
+        const indexBody = await indexResponse.text()
+        if (cancelled) return
 
-        if (looksLikeModule && body.includes('mountNeuroCorrelation')) {
+        const isRealModule = indexBody.includes('mountNeuroCorrelation')
+          && indexBody.includes('neurocorrelation.mjs')
+          && indexBody.length > 100
+
+        if (!isRealModule) {
+          // Got a response but it's the SPA fallback HTML, not the real module
+          setAvailability('live')
+          setState('embedded-live')
+          return
+        }
+
+        // Step 2 — GET dist/neurocorrelation.mjs and verify it is real JS
+        // HEAD is not sufficient — Vite SPA fallback returns 200 for all paths
+        const distPath = LOCAL_NEUROCORRELATION_MODULE_PATH
+          .replace('index.mjs', 'dist/neurocorrelation.mjs')
+
+        const distResponse = await fetch(distPath, { cache: 'no-store' })
+        if (cancelled) return
+
+        if (!distResponse.ok) {
+          setAvailability('live')
+          setState('embedded-live')
+          return
+        }
+
+        const distBody = await distResponse.text()
+        if (cancelled) return
+
+        // SPA fallback returns HTML — real dist file is JS
+        // Check for JS content and minimum size (real wasm loader is >10KB)
+        const distIsReal = (
+          !distBody.trimStart().startsWith('<!') &&
+          !distBody.trimStart().startsWith('<html') &&
+          distBody.length > 10000
+        )
+
+        if (distIsReal) {
           setAvailability('local')
           return
         }
 
+        // dist file is missing or is SPA HTML fallback
         setAvailability('live')
         setState('embedded-live')
+
       } catch (error) {
         if (cancelled) return
         console.error('NeuroCorrelation local availability check failed:', error)
@@ -128,7 +149,7 @@ function NeuroCorrelationPreview() {
     } catch (error) {
       console.error('NeuroCorrelation local mount failed:', error)
       setAvailability('live')
-      setState('idle')
+      setState('embedded-live')
     }
   }
 
@@ -148,19 +169,28 @@ function NeuroCorrelationPreview() {
       />
 
       {showLiveFrame ? (
-        <div className="m3-brain-feedback__frame-shell">
-          <div className="m3-brain-feedback__frame-note">
-            <strong>Live article loaded in place</strong>
-            <span>Use the embedded NeuroCorrelation Start App button inside the frame to begin the 3D simulation.</span>
+        <div className="m3-brain-feedback__linkout">
+          <div className="m3-brain-feedback__linkout-body">
+            <p className="m3-brain-feedback__fallback-tag">Interactive simulation</p>
+            <h4>NeuroCorrelation runs in its own tab</h4>
+            <p>
+              The simulation uses WebGL and shared memory that require a dedicated
+              browser context. Click below to open it — it loads in about 5 seconds.
+            </p>
+            <ul className="m3-brain-feedback__fallback-list">
+              <li>Neurons that fire together strengthen their connection over time.</li>
+              <li>Uncorrelated activity weakens those links.</li>
+              <li>Watch the 3D network reorganize itself in real time.</li>
+            </ul>
           </div>
-          <iframe
-            className="m3-brain-feedback__frame"
-            src={NEUROCORRELATION_EMBED_URL}
-            title="Embedded NeuroCorrelation live article and simulation"
-            loading="lazy"
-            allow="autoplay; clipboard-write; fullscreen"
-            referrerPolicy="strict-origin-when-cross-origin"
-          />
+          <a
+            href={NEUROCORRELATION_ARTICLE_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="m3-brain-feedback__linkout-btn"
+          >
+            Open NeuroCorrelation simulation ↗
+          </a>
         </div>
       ) : null}
 
@@ -216,68 +246,42 @@ function BrainConnection() {
     <section className="m3-section">
       <div className="m3-section-heading">
         <p className="m3-eyebrow">E. BRAIN × AI FEEDBACK</p>
-        <h2>NeuroCorrelation: A More Brain-Like Feedback Loop</h2>
+        <h2>A More Brain-Like Way to Learn</h2>
         <p className="m3-section-subtitle">
-          Backprop uses error to update weights. Spiking brain models can also update weights, but from local timing between neurons.
+          In the brain, nearby neurons update their connection based on timing —
+          not a global error signal. This simulation shows what that looks like.
         </p>
       </div>
 
       <div className="m3-section-card m3-brain-feedback">
-        <div className="m3-brain-feedback__layout">
-          <div className="m3-brain-feedback__copy">
-            <div className="m3-brain-feedback__intro">
-              <p className="m3-brain-feedback__label">What to notice</p>
-              <h3>Same idea: feedback changes connections. Different rule: timing instead of loss.</h3>
-              <p>
-                This simulation adds a more biological flavor to Module 3. Watch how activity patterns and correlated firing can reshape
-                connections without using the classic backpropagation pipeline.
-              </p>
-            </div>
 
-            <div className="m3-brain-feedback__points">
-              {FEEDBACK_POINTS.map((point) => (
-                <article key={point.title} className="m3-brain-feedback__point">
-                  <h4>{point.title}</h4>
-                  <p>{point.body}</p>
-                </article>
-              ))}
-            </div>
-
-            <div className="m3-brain-feedback__compare">
-              <div className="m3-brain-feedback__compare-card">
-                <p className="m3-brain-feedback__mini-label">AI model</p>
-                <strong>Weights change from prediction error</strong>
-                <span>Useful when the model knows the target and can measure how wrong it was.</span>
-              </div>
-
-              <div className="m3-brain-feedback__compare-card">
-                <p className="m3-brain-feedback__mini-label">Brain-inspired model</p>
-                <strong>Weights change from correlated activity</strong>
-                <span>Useful for showing how local neuron interactions can teach the network on their own.</span>
-              </div>
-            </div>
+        <div className="m3-brain-feedback__compare">
+          <div className="m3-brain-feedback__compare-card">
+            <p className="m3-brain-feedback__mini-label">AI model (backprop)</p>
+            <strong>Error signal sent backward</strong>
+            <span>Global. Requires knowing the correct answer.</span>
           </div>
-
-          <div className="m3-brain-feedback__visual">
-            <div className="m3-brain-feedback__shell">
-              <div className="m3-brain-feedback__shell-bar">
-                <span />
-                <span />
-                <span />
-                <p>NeuroCorrelation 3D preview</p>
-              </div>
-
-              <NeuroCorrelationPreview />
-            </div>
-
-            <p className="m3-brain-feedback__note">
-              Source attribution restored: <a href={NEUROCORRELATION_REPO_URL} target="_blank" rel="noreferrer">Axelwickm/NeuroCorrelation</a> by Axel Wickman.
-            </p>
-            <p className="m3-source-note">
-              A local browser bundle is now hosted inside this app. The original live article remains available as a reference and attribution path.
-            </p>
+          <div className="m3-brain-feedback__compare-card">
+            <p className="m3-brain-feedback__mini-label">Brain-inspired model</p>
+            <strong>Local spike timing between neighbors</strong>
+            <span>No teacher. Neurons update from their own activity.</span>
           </div>
         </div>
+
+        <div className="m3-brain-feedback__visual">
+          <div className="m3-brain-feedback__shell">
+            <div className="m3-brain-feedback__shell-bar">
+              <span /><span /><span />
+              <p>NeuroCorrelation 3D simulation</p>
+            </div>
+            <NeuroCorrelationPreview />
+          </div>
+          <p className="m3-source-note">
+            Simulation by <a href={NEUROCORRELATION_REPO_URL} target="_blank" rel="noreferrer">Axel Wickman</a> —
+            <a href={NEUROCORRELATION_ARTICLE_URL} target="_blank" rel="noreferrer"> full article</a>
+          </p>
+        </div>
+
       </div>
     </section>
   )
