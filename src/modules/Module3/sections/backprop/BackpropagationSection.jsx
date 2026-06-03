@@ -141,6 +141,39 @@ const DETAIL_WEIGHTS = [
   { id: 'i3h1', label: 'Input 3 -> Hidden 1' },
 ]
 
+const STEPS = [
+  {
+    id: 'forward',
+    index: 0,
+    label: 'Predict',
+    sublabel: 'Model makes a guess',
+    handler: 'handleForward',
+  },
+  {
+    id: 'error',
+    index: 1,
+    label: 'Measure Error',
+    sublabel: 'Compare to correct answer',
+    handler: 'handleShowError',
+  },
+  {
+    id: 'backward',
+    index: 2,
+    label: 'Trace Back',
+    sublabel: 'Error moves backward',
+    handler: 'handleBackward',
+  },
+  {
+    id: 'update',
+    index: 3,
+    label: 'Adjust',
+    sublabel: 'Weights update',
+    handler: 'handleUpdateWeights',
+  },
+]
+
+const PHASE_ORDER = ['idle', 'forward', 'error', 'backward', 'update']
+
 function BackpropagationSection() {
   const [forwardRun, setForwardRun] = useState(0)
   const [errorShown, setErrorShown] = useState(false)
@@ -148,6 +181,7 @@ function BackpropagationSection() {
   const [weightsUpdated, setWeightsUpdated] = useState(false)
   const [phase, setPhase] = useState('idle')
   const [flowRun, setFlowRun] = useState(0)
+  const [visitedPhases, setVisitedPhases] = useState(new Set(['idle']))
 
   const weights = weightsUpdated ? UPDATED_WEIGHTS : START_WEIGHTS
   const prediction = weightsUpdated ? '0.9' : forwardRun > 0 ? '0.6' : '--'
@@ -169,29 +203,33 @@ function BackpropagationSection() {
   }, [phase, weightsUpdated])
 
   const handleForward = () => {
-    setForwardRun((value) => value + 1)
+    setForwardRun((v) => v + 1)
     setErrorShown(false)
     setBackwardRun(0)
     setWeightsUpdated(false)
     setPhase('forward')
-    setFlowRun((value) => value + 1)
+    setFlowRun((v) => v + 1)
+    setVisitedPhases(new Set(['idle', 'forward']))
   }
 
   const handleShowError = () => {
     setErrorShown(true)
     setPhase('error')
+    setVisitedPhases((prev) => new Set([...prev, 'error']))
   }
 
   const handleBackward = () => {
-    setBackwardRun((value) => value + 1)
+    setBackwardRun((v) => v + 1)
     setPhase('backward')
-    setFlowRun((value) => value + 1)
+    setFlowRun((v) => v + 1)
+    setVisitedPhases((prev) => new Set([...prev, 'backward']))
   }
 
   const handleUpdateWeights = () => {
     setWeightsUpdated(true)
     setPhase('update')
-    setFlowRun((value) => value + 1)
+    setFlowRun((v) => v + 1)
+    setVisitedPhases((prev) => new Set([...prev, 'update']))
   }
 
   const reset = () => {
@@ -201,10 +239,26 @@ function BackpropagationSection() {
     setWeightsUpdated(false)
     setPhase('idle')
     setFlowRun(0)
+    setVisitedPhases(new Set(['idle']))
   }
 
   const connectionStroke = (value) => 2 + value * 4
   const phaseClassName = phase !== 'idle' ? `is-${phase}` : ''
+
+  const currentPhaseIndex = PHASE_ORDER.indexOf(phase)
+
+  const HANDLER_MAP = {
+    handleForward,
+    handleShowError,
+    handleBackward,
+    handleUpdateWeights,
+  }
+
+  const nextStep = STEPS.find((s) => s.index === currentPhaseIndex)
+    || STEPS[STEPS.length - 1]
+
+  const isComplete = phase === 'update'
+
   const errorChipX = Math.min(
     NETWORK_FRAME.x + NETWORK_FRAME.width - ERROR_CHIP.width - ERROR_CHIP.inset,
     Math.max(NETWORK_FRAME.x + ERROR_CHIP.inset, OUTPUT_NODE.x - ERROR_CHIP.width - ERROR_CHIP.gap),
@@ -217,9 +271,10 @@ function BackpropagationSection() {
     <section className="m3-section">
       <div className="m3-section-heading">
         <p className="m3-eyebrow">D. BACKPROPAGATION</p>
-        <h2>Backpropagation: Using Error to Improve the Model</h2>
+        <h2>How the Model Learns from Mistakes</h2>
         <p className="m3-section-subtitle">
-          Backpropagation means using a mistake to decide what to change.
+          Each time the model is wrong, it traces that mistake backward and adjusts.
+          Step through the four phases to see how.
         </p>
       </div>
 
@@ -228,47 +283,36 @@ function BackpropagationSection() {
           <div className="m3-backprop-network">
             <div className="m3-backprop-phase-card">
               <p className="m3-backprop-label">Current step</p>
-              <h3>{phase === 'idle' ? 'Ready to start' : phase.charAt(0).toUpperCase() + phase.slice(1)}</h3>
+              <h3>
+                {phase === 'idle'
+                  ? 'Ready to start'
+                  : STEPS.find((s) => s.id === phase)?.label ?? phase}
+              </h3>
               <p>{PHASE_COPY[phase]}</p>
+              {phase !== 'idle' && (
+                <div className="m3-backprop-phase-history">
+                  {STEPS.filter((s) => visitedPhases.has(s.id) && s.id !== phase).map((s) => (
+                    <div key={s.id} className="m3-backprop-phase-history__item">
+                      <span className="m3-backprop-phase-history__check">✓</span>
+                      <span>{s.label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div className="m3-backprop-topline">
-              <div className={`m3-backprop-direction m3-backprop-direction--panel${phase === 'forward' ? ' is-active' : ''}`}>
-                <div className="m3-backprop-direction__header">
-                  <span className={`m3-backprop-badge${phase === 'forward' ? ' is-active' : ''}`}>Forward pass</span>
-                  <span>Input Features -&gt; Middle Layer -&gt; Prediction</span>
-                </div>
-                <svg viewBox="0 0 320 42" className="m3-backprop-direction__viz" aria-hidden="true">
-                  <path d="M 24 21 C 72 21, 88 21, 132 21" className="m3-passline m3-passline--base" />
-                  <path d="M 132 21 C 176 21, 196 21, 240 21" className="m3-passline m3-passline--base" />
-                  <path d="M 240 21 C 264 21, 278 21, 296 21" className="m3-passline m3-passline--base" />
-                  <path d="M 24 21 C 72 21, 88 21, 132 21" className={`m3-passline m3-passline--forward${phase === 'forward' ? ' is-active' : ''}`} />
-                  <path d="M 132 21 C 176 21, 196 21, 240 21" className={`m3-passline m3-passline--forward${phase === 'forward' ? ' is-active' : ''}`} />
-                  <path d="M 240 21 C 264 21, 278 21, 296 21" className={`m3-passline m3-passline--forward${phase === 'forward' ? ' is-active' : ''}`} />
-                  <circle cx="24" cy="21" r="5" className="m3-passnode m3-passnode--input" />
-                  <circle cx="132" cy="21" r="5" className="m3-passnode m3-passnode--hidden" />
-                  <circle cx="240" cy="21" r="5" className="m3-passnode m3-passnode--hidden" />
-                  <circle cx="296" cy="21" r="6" className="m3-passnode m3-passnode--output" />
-                </svg>
+            <div className="m3-backprop-stats">
+              <div className={`m3-backprop-stat${phase === 'forward' || weightsUpdated ? ' is-active' : ''}`}>
+                <span>Prediction</span>
+                <strong>{prediction}</strong>
               </div>
-
-              <div className={`m3-backprop-direction m3-backprop-direction--panel${phase === 'backward' || phase === 'error' || phase === 'update' ? ' is-active' : ''}`}>
-                <div className="m3-backprop-direction__header">
-                  <span className={`m3-backprop-badge m3-backprop-badge--error${phase === 'backward' || phase === 'error' || phase === 'update' ? ' is-active' : ''}`}>Backward pass</span>
-                  <span>Error -&gt; Prediction -&gt; Middle Layer -&gt; Weight update</span>
-                </div>
-                <svg viewBox="0 0 320 42" className="m3-backprop-direction__viz" aria-hidden="true">
-                  <path d="M 296 21 C 264 21, 278 21, 240 21" className="m3-passline m3-passline--base" />
-                  <path d="M 240 21 C 196 21, 176 21, 132 21" className="m3-passline m3-passline--base" />
-                  <path d="M 132 21 C 88 21, 72 21, 24 21" className="m3-passline m3-passline--base" />
-                  <path d="M 296 21 C 264 21, 278 21, 240 21" className={`m3-passline m3-passline--backward${phase === 'backward' ? ' is-active' : ''}`} />
-                  <path d="M 240 21 C 196 21, 176 21, 132 21" className={`m3-passline m3-passline--backward${phase === 'backward' ? ' is-active' : ''}`} />
-                  <path d="M 132 21 C 88 21, 72 21, 24 21" className={`m3-passline m3-passline--backward${phase === 'backward' ? ' is-active' : ''}`} />
-                  <circle cx="24" cy="21" r="5" className="m3-passnode m3-passnode--input" />
-                  <circle cx="132" cy="21" r="5" className="m3-passnode m3-passnode--hidden" />
-                  <circle cx="240" cy="21" r="5" className="m3-passnode m3-passnode--hidden" />
-                  <circle cx="296" cy="21" r="6" className="m3-passnode m3-passnode--output m3-passnode--error" />
-                </svg>
+              <div className={`m3-backprop-stat${phase === 'error' || phase === 'backward' || phase === 'update' ? ' is-active' : ''}`}>
+                <span>Target</span>
+                <strong>{target}</strong>
+              </div>
+              <div className={`m3-backprop-stat${phase === 'error' || phase === 'backward' || phase === 'update' ? ' is-active m3-backprop-stat--danger' : ''}`}>
+                <span>Error</span>
+                <strong>{error}</strong>
               </div>
             </div>
 
@@ -414,44 +458,38 @@ function BackpropagationSection() {
               ) : null}
             </svg>
 
-            <div className="m3-backprop-weight-panel m3-backprop-weight-panel--network">
-              <div className="m3-backprop-weight-panel__header">
-                <p className="m3-backprop-label">Connection updates</p>
-              </div>
-              <div className="m3-backprop-weight-panel__list">
-                {DETAIL_WEIGHTS.map((item) => {
-                  const before = START_WEIGHTS[item.id]
-                  const after = UPDATED_WEIGHTS[item.id]
-                  const changed = before !== after
+            {(phase === 'backward' || phase === 'update') && (
+              <div className="m3-backprop-weight-panel m3-backprop-weight-panel--network">
+                <div className="m3-backprop-weight-panel__header">
+                  <p className="m3-backprop-label">
+                    {phase === 'update' ? 'Weights updated' : 'Connections that will change'}
+                  </p>
+                </div>
+                <div className="m3-backprop-weight-panel__list">
+                  {DETAIL_WEIGHTS.map((item) => {
+                    const before = START_WEIGHTS[item.id]
+                    const after = UPDATED_WEIGHTS[item.id]
+                    const changed = before !== after
 
-                  return (
-                    <div key={item.id} className={`m3-backprop-weight-row${changed ? ' is-change' : ''}${weightsUpdated && changed ? ' is-updated' : ''}`}>
-                      <span>{item.label}</span>
-                      <strong>{before.toFixed(1)} -&gt; {after.toFixed(1)}</strong>
-                      {weightsUpdated && changed ? <em>+{(after - before).toFixed(1)}</em> : <em>{changed ? 'Will change' : 'No change'}</em>}
-                    </div>
-                  )
-                })}
+                    return (
+                      <div key={item.id} className={`m3-backprop-weight-row${changed ? ' is-change' : ''}${weightsUpdated && changed ? ' is-updated' : ''}`}>
+                        <span>{item.label}</span>
+                        <strong>{before.toFixed(1)} -&gt; {after.toFixed(1)}</strong>
+                        {weightsUpdated && changed
+                          ? <em className="is-updated-tag">↑ +{(after - before).toFixed(1)}</em>
+                          : changed
+                            ? <em className="is-change-tag">Will change</em>
+                            : <em className="is-nochange-tag">No change</em>
+                        }
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <div className="m3-backprop-sidebar">
-            <div className="m3-backprop-stats">
-              <div className={`m3-backprop-stat${phase === 'forward' || weightsUpdated ? ' is-active' : ''}`}>
-                <span>Prediction</span>
-                <strong>{prediction}</strong>
-              </div>
-              <div className={`m3-backprop-stat${phase === 'error' || phase === 'backward' || phase === 'update' ? ' is-active' : ''}`}>
-                <span>Target</span>
-                <strong>{target}</strong>
-              </div>
-              <div className={`m3-backprop-stat${phase === 'error' || phase === 'backward' || phase === 'update' ? ' is-active m3-backprop-stat--danger' : ''}`}>
-                <span>Error</span>
-                <strong>{error}</strong>
-              </div>
-            </div>
-
             <div className="m3-backprop-explainer">
               <p className="m3-backprop-label">Explanation</p>
               <p>
@@ -490,26 +528,69 @@ function BackpropagationSection() {
           </div>
         </div>
 
-        <div className="m3-controls">
-          <button className="m3-btn m3-btn--primary" onClick={handleForward}>
-            Run Forward Pass
-          </button>
-          <button className="m3-btn" onClick={handleShowError} disabled={forwardRun === 0}>
-            Show Error
-          </button>
-          <button className="m3-btn" onClick={handleBackward} disabled={!errorShown}>
-            Send Error Backward
-          </button>
-          <button className="m3-btn" onClick={handleUpdateWeights} disabled={backwardRun === 0}>
-            Update Weights
-          </button>
-          <button className="m3-btn" onClick={reset}>
-            Reset
-          </button>
+        <div className="m3-backprop-stepper">
+          <div className="m3-backprop-stepper__track">
+            {STEPS.map((step, i) => {
+              const isActive = phase === step.id
+              const isVisited = visitedPhases.has(step.id)
+              const isReachable = isVisited || (
+                step.id === 'forward' ||
+                (step.id === 'error' && forwardRun > 0) ||
+                (step.id === 'backward' && errorShown) ||
+                (step.id === 'update' && backwardRun > 0)
+              )
+              return (
+                <button
+                  key={step.id}
+                  className={[
+                    'm3-stepper-step',
+                    isActive ? 'is-active' : '',
+                    isVisited ? 'is-visited' : '',
+                    !isReachable ? 'is-locked' : '',
+                  ].filter(Boolean).join(' ')}
+                  onClick={() => isReachable && HANDLER_MAP[step.handler]()}
+                  disabled={!isReachable}
+                  aria-current={isActive ? 'step' : undefined}
+                >
+                  <span className="m3-stepper-step__num">
+                    {isVisited && !isActive ? '✓' : i + 1}
+                  </span>
+                  <span className="m3-stepper-step__label">{step.label}</span>
+                  <span className="m3-stepper-step__sub">{step.sublabel}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="m3-backprop-stepper__actions">
+            {!isComplete ? (
+              <button
+                className="m3-btn m3-btn--primary m3-stepper-advance"
+                onClick={() => HANDLER_MAP[nextStep.handler]()}
+                disabled={
+                  (nextStep.id === 'error' && forwardRun === 0) ||
+                  (nextStep.id === 'backward' && !errorShown) ||
+                  (nextStep.id === 'update' && backwardRun === 0)
+                }
+              >
+                {phase === 'idle'
+                  ? 'Start — Make a Prediction'
+                  : `Next — ${STEPS[(currentPhaseIndex)]?.label ?? 'Continue'}`
+                }
+              </button>
+            ) : (
+              <div className="m3-stepper-complete">
+                All four steps complete — the model improved.
+              </div>
+            )}
+            <button className="m3-btn m3-stepper-reset" onClick={reset}>
+              Reset
+            </button>
+          </div>
         </div>
 
         <p className="m3-takeaway">
-          The model predicts, checks the error, sends that error backward, and adjusts the weights so the next prediction is better.
+          Each round: predict → measure error → trace backward → adjust weights.
         </p>
       </div>
     </section>
