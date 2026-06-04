@@ -398,9 +398,7 @@ export default function LandingPage({ onStart, onNavigate }) {
             <button className="lp-btn-primary lp-btn-primary--xl" onClick={onStart}>
               Begin Module 1 <span className="lp-btn-arrow" aria-hidden="true">{'->'}</span>
             </button>
-            <button className="lp-btn-secondary" onClick={() => handleNavigate('admin')}>
-              Admin data access
-            </button>
+
           </div>
         </div>
       </section>
