@@ -5365,3 +5365,163 @@
     display: none;
   }
 }
+
+/* ════════════════════════════════
+   SECTION C — UNIFIED TRAINING LAB
+   ════════════════════════════════ */
+
+.m3-training-unified {
+  display: grid;
+  gap: 20px;
+}
+.m3-training-unified__top {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.m3-training-unified__curve {
+  display: grid;
+  gap: 6px;
+}
+.m3-training-unified__curve-hint {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0;
+}
+.m3-training-unified__weights {
+  display: grid;
+  gap: 14px;
+}
+.m3-training-unified__weight-feature {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: grid;
+  gap: 8px;
+}
+.m3-training-unified__weight-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.m3-training-unified__weight-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.m3-training-unified__weight-start {
+  font-size: 12px;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+.m3-training-unified__weight-arrow {
+  font-size: 14px;
+  color: #cbd5e1;
+}
+.m3-training-unified__weight-now {
+  font-size: 15px;
+  font-weight: 700;
+  color: #059669;
+  font-variant-numeric: tabular-nums;
+}
+.m3-training-unified__weight-bar-shell {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.m3-training-unified__weight-bar-fill {
+  height: 100%;
+  background: #059669;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+.m3-training-unified__weight-delta {
+  font-size: 11px;
+  color: #059669;
+  font-weight: 600;
+}
+.m3-training-unified__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.m3-training-unified__tile {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  display: grid;
+  gap: 4px;
+}
+.m3-training-unified__tile span {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.m3-training-unified__tile strong {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+.m3-training-unified__tile--error strong {
+  color: #dc2626;
+}
+.m3-training-unified__controls {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+.m3-training-unified__round-badge {
+  font-size: 13px;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 4px 16px;
+}
+.m3-training-unified__round-badge strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+.m3-training-unified__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.m3-training-unified__advance {
+  min-width: 180px;
+  font-size: 14px;
+  padding: 12px 24px;
+  border-radius: 12px;
+}
+.m3-training-unified__complete {
+  font-size: 14px;
+  font-weight: 600;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 12px;
+  padding: 10px 20px;
+}
+.m3-training-unified__note {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0;
+  text-align: center;
+}
+@media (max-width: 720px) {
+  .m3-training-unified__top {
+    grid-template-columns: 1fr;
+  }
+}

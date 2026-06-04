@@ -42,7 +42,6 @@
   gap: var(--module1-section-gap);
   margin: 0 auto;
   max-width: 1440px;
-  width: min(94vw, 1440px);
   padding: 24px 28px 36px;
 }
 
@@ -51,6 +50,7 @@
   border: 1px solid #e8edf5;
   border-radius: var(--module1-radius-lg);
   box-shadow: var(--module1-shadow);
+  overflow: clip;
   padding: var(--module1-section-padding);
 }
 
@@ -5404,7 +5404,7 @@
 
 .module1-phet-panel--compact .module1-phet-embed,
 .module1-phet-panel--compact .module1-phet-embed__frame {
-  min-height: 420px;
+  min-height: 320px;
 }
 
 @media (max-width: 960px) {

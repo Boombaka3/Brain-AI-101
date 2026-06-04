@@ -97,10 +97,10 @@
 
 .module1-sound-neuron__workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.9fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   gap: 18px;
   align-items: stretch;
-  min-height: 440px;
+  min-height: 520px;
 }
 
 .module1-sound-neuron__signal-overlay {
@@ -121,8 +121,8 @@
   z-index: 1;
   display: grid;
   gap: 12px;
-  min-height: 100%;
-  align-content: start;
+  min-height: 0;
+  height: 100%;
   padding: 18px;
   border: 1px solid rgba(192, 207, 233, 0.9);
   border-radius: 24px;
@@ -130,29 +130,48 @@
   box-shadow: 0 14px 30px rgba(43, 63, 100, 0.06);
 }
 
+.module1-sound-neuron__neuron-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .module1-sound-neuron__scene-panel {
-  align-content: space-between;
+  display: flex;
+  flex-direction: column;
+  align-content: unset;
 }
 
 .module1-sound-neuron__scene-art {
   position: relative;
-  min-height: 300px;
+  flex: 1;
+  min-height: 200px;
   border-radius: 22px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background:
     radial-gradient(circle at 20% 24%, rgba(255, 255, 255, 0.92), transparent 28%),
     linear-gradient(135deg, rgba(230, 242, 255, 0.95), rgba(213, 228, 255, 0.92));
 }
 
 .module1-sound-neuron__scene-art-body {
-  inset: 0;
-  position: absolute;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .module1-sound-neuron__scene-art-body svg {
-  width: 100%;
+  width: auto;
   height: 100%;
+  max-width: 100%;
+  max-height: 100%;
   display: block;
+  object-fit: contain;
 }
 
 .module1-sound-neuron__scene-art-body svg#freepik_stories-pay-attention .animable,
@@ -258,8 +277,8 @@
 
 .module1-sound-neuron__meter-threshold {
   position: absolute;
-  top: -34px;
-  bottom: -10px;
+  top: -24px;
+  bottom: -6px;
   width: 0;
   border-left: 3px solid #f08c39;
 }
@@ -461,6 +480,7 @@
     grid-template-columns: 1fr;
     min-height: 0;
   }
+
 
   .module1-sound-neuron__signal-overlay {
     --signal-start-left: 6%;

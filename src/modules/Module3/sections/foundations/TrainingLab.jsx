@@ -89,111 +89,95 @@ function TrainingLab() {
   const resetTraining = () => setRoundIndex(0)
 
   return (
-    <div className="m3-training-board">
-      <div className="m3-training-board__top">
-        <article className="m3-section-card m3-training-board__card">
-          <div className="m3-training-card-head">
-            <p className="m3-training-card-label">Model Status</p>
-            <h3>Prediction, target, and error</h3>
+    <div className="m3-training-unified">
+
+      {/* Top row: curve + weight tracker */}
+      <div className="m3-training-unified__top">
+
+        {/* Loss curve — dominant left panel */}
+        <div className="m3-training-unified__curve">
+          <p className="m3-training-card-label">Error by round</p>
+          <p className="m3-training-unified__curve-hint">
+            Each dot is one training round. Watch the line fall.
+          </p>
+          <LossChart trainingHistory={trainingRounds} roundIndex={roundIndex} />
+        </div>
+
+        {/* Weight tracker — right panel */}
+        <div className="m3-training-unified__weights">
+          <p className="m3-training-card-label">Weight changing most</p>
+          <div className="m3-training-unified__weight-feature">
+            <span className="m3-training-unified__weight-name">Closed loop</span>
+            <div className="m3-training-unified__weight-row">
+              <span className="m3-training-unified__weight-start">
+                Start: {trainingRounds[0].weights[1].value.toFixed(2)}
+              </span>
+              <span className="m3-training-unified__weight-arrow">→</span>
+              <span className="m3-training-unified__weight-now">
+                Now: {current.weights[1].value.toFixed(2)}
+              </span>
+            </div>
+            <div className="m3-training-unified__weight-bar-shell">
+              <div
+                className="m3-training-unified__weight-bar-fill"
+                style={{ width: `${(current.weights[1].value / 1.0) * 100}%` }}
+              />
+            </div>
+            <span className="m3-training-unified__weight-delta">
+              {current.round === 0
+                ? 'No change yet'
+                : `+${(current.weights[1].value - trainingRounds[0].weights[1].value).toFixed(2)} after ${current.round} round${current.round === 1 ? '' : 's'}`
+              }
+            </span>
           </div>
 
-          <div className="m3-training-status-grid">
-            <div className="m3-training-status-tile">
+          {/* Status tiles — compact */}
+          <div className="m3-training-unified__tiles">
+            <div className="m3-training-unified__tile">
               <span>Prediction</span>
               <strong>{current.prediction}</strong>
             </div>
-            <div className="m3-training-status-tile">
+            <div className="m3-training-unified__tile">
               <span>Target</span>
               <strong>{current.target}</strong>
             </div>
-            <div className="m3-training-status-tile m3-training-status-tile--error">
+            <div className="m3-training-unified__tile m3-training-unified__tile--error">
               <span>Error</span>
               <strong>{current.error.toFixed(2)}</strong>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div className="m3-training-confidence-grid">
-            <div className="m3-training-confidence-card">
-              <span>Target confidence</span>
-              <strong>{current.confidenceTarget}%</strong>
-              <div className="m3-training-confidence-track" aria-hidden="true">
-                <div className="m3-training-confidence-fill" style={{ width: `${current.confidenceTarget}%` }} />
-              </div>
-            </div>
-            <div className="m3-training-confidence-card m3-training-confidence-card--wrong">
-              <span>Wrong confidence</span>
-              <strong>{current.confidenceWrong}%</strong>
-              <div className="m3-training-confidence-track" aria-hidden="true">
-                <div className="m3-training-confidence-fill m3-training-confidence-fill--wrong" style={{ width: `${current.confidenceWrong}%` }} />
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <article className="m3-section-card m3-training-board__card m3-training-board__card--control">
-          <div className="m3-training-card-head">
-            <p className="m3-training-card-label">Training Control</p>
-            <h3>Current round</h3>
-          </div>
-
-          <div className="m3-training-round-display">
-            <span>Round</span>
-            <strong>{current.round}</strong>
-          </div>
-
-          <div className="m3-training-actions m3-training-actions--board">
+      {/* Bottom: controls */}
+      <div className="m3-training-unified__controls">
+        <div className="m3-training-unified__round-badge">
+          Round <strong>{current.round}</strong> of {trainingRounds.length - 1}
+        </div>
+        <div className="m3-training-unified__actions">
+          {!isComplete ? (
             <button
               type="button"
-              className="m3-btn m3-btn--primary"
+              className="m3-btn m3-btn--primary m3-training-unified__advance"
               onClick={trainOneRound}
-              disabled={isComplete}
             >
-              Train One Round
+              Train one round →
             </button>
-            <button type="button" className="m3-btn" onClick={resetTraining}>
-              Reset Training
-            </button>
-          </div>
-
-          <div className="m3-training-mini-note">
-            <span>Small note</span>
-            <p>In machine learning, one training round is often called an epoch.</p>
-          </div>
-
-          {isComplete ? <span className="m3-training-complete">Target reached</span> : null}
-        </article>
-
-        <article className="m3-section-card m3-training-board__card m3-training-chart-card">
-          <div className="m3-training-card-head">
-            <p className="m3-training-card-label">Error by Round</p>
-            <h3>Lower error means the toy model is improving</h3>
-          </div>
-          <LossChart trainingHistory={trainingRounds} roundIndex={roundIndex} />
-        </article>
+          ) : (
+            <div className="m3-training-unified__complete">
+              ✓ Model converged — error reached {current.error.toFixed(2)}
+            </div>
+          )}
+          <button type="button" className="m3-btn m3-stepper-reset" onClick={resetTraining}>
+            Reset
+          </button>
+        </div>
+        <p className="m3-training-unified__note">
+          One pass through the training data is called an epoch.
+          Most real models need hundreds.
+        </p>
       </div>
 
-      <div className="m3-training-board__bottom">
-        <article className="m3-section-card m3-training-board__card">
-          <div className="m3-training-card-head">
-            <p className="m3-training-card-label">Weights</p>
-            <h3>Feature weights shift a little each round</h3>
-          </div>
-
-          <div className="m3-training-weight-grid">
-            {current.weights.map((weight) => {
-              const isStrongest = weight.label === strongestWeight.label
-
-              return (
-                <div key={weight.label} className={`m3-training-weight-tile${isStrongest ? ' is-strongest' : ''}`}>
-                  <span className="m3-training-weight-label">{weight.label}</span>
-                  {isStrongest ? <span className="m3-training-weight-tag">Strongest</span> : null}
-                  <strong className="m3-training-weight-value">{weight.value.toFixed(2)}</strong>
-                </div>
-              )
-            })}
-          </div>
-        </article>
-      </div>
     </div>
   )
 }

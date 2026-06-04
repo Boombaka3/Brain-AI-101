@@ -12,8 +12,6 @@ import SectionCLab from './sections/foundations/SectionCLab'
 import AdvancedLearningLabs from './sections/labs/AdvancedLearningLabs'
 import BackpropagationSection from './sections/backprop/BackpropagationSection'
 import BrainConnection from './sections/backprop/BrainConnection'
-import BigPicture from './sections/backprop/BigPicture'
-import InferenceFeedbackSection from './sections/backprop/InferenceFeedbackSection'
 import './module3.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -24,7 +22,6 @@ const SECTIONS = [
   { label: 'Error Goes Down Over Time' },
   { label: 'Backpropagation' },
   { label: 'Brain × AI Feedback' },
-  { label: 'Feedback During Inference' },
   { label: 'Advanced Learning Labs' },
 ]
 
@@ -100,8 +97,7 @@ function Module3({ onBack, onContinue, onNavigate }) {
         <div ref={setRef(2)}><SectionCLab /></div>
         <div ref={setRef(3)}><BackpropagationSection /></div>
         <div ref={setRef(4)}><BrainConnection /></div>
-        <div ref={setRef(5)}><InferenceFeedbackSection /></div>
-        <div ref={setRef(6)}><AdvancedLearningLabs /></div>
+        <div ref={setRef(5)}><AdvancedLearningLabs /></div>
 
         <section className="m3-section m3-continue-section">
           <div className="m3-continue-card" onClick={onContinue} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onContinue?.()}>

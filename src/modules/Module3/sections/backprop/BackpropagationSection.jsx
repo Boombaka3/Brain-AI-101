@@ -112,11 +112,11 @@ const UPDATED_WEIGHTS = {
 }
 
 const PHASE_COPY = {
-  idle: 'The model is ready. Start with a forward pass to produce a prediction.',
-  forward: 'The input moves through the network and produces a prediction.',
-  error: 'The prediction is compared with the target. The difference becomes the error.',
-  backward: 'The error moves backward through the network to identify which connections need adjustment.',
-  update: 'The model changes the affected weights. The next prediction moves closer to the target.',
+  idle: 'The model has a set of weights. A new input arrives. Which weights will matter?',
+  forward: 'Signal flows forward through every connection. Each weight shapes the output. Prediction: 0.6.',
+  error: 'Target was 1.0. Prediction was 0.6. Error = 0.4. Now the question is: which weight caused this?',
+  backward: 'The error travels backward through every connection. Weights closer to the mistake receive more blame.',
+  update: 'Each blamed weight shifts by a small amount. Same input now produces 0.9. The blame was traced correctly.',
 }
 
 const PARTICLE_GROUPS = {
@@ -146,28 +146,28 @@ const STEPS = [
     id: 'forward',
     index: 0,
     label: 'Predict',
-    sublabel: 'Model makes a guess',
+    sublabel: 'Signal flows forward',
     handler: 'handleForward',
   },
   {
     id: 'error',
     index: 1,
     label: 'Measure Error',
-    sublabel: 'Compare to correct answer',
+    sublabel: 'Measure the mistake',
     handler: 'handleShowError',
   },
   {
     id: 'backward',
     index: 2,
     label: 'Trace Back',
-    sublabel: 'Error moves backward',
+    sublabel: 'Trace which weights caused it',
     handler: 'handleBackward',
   },
   {
     id: 'update',
     index: 3,
     label: 'Adjust',
-    sublabel: 'Weights update',
+    sublabel: 'Shift the blamed weights',
     handler: 'handleUpdateWeights',
   },
 ]
@@ -272,10 +272,11 @@ function BackpropagationSection() {
       <div className="m3-section-card m3-section-card--feature m3-backprop-card">
         <div className="m3-section-heading">
           <p className="m3-eyebrow">D. BACKPROPAGATION</p>
-          <h2>How the Model Learns from Mistakes</h2>
+          <h2>Which Weight Gets the Blame?</h2>
           <p className="m3-section-subtitle">
-            Each time the model is wrong, it traces that mistake backward and adjusts.
-            Step through the four phases to see how.
+            When the model is wrong, not every weight caused the mistake equally.
+            Backpropagation traces the error backward to find which connections
+            need to change — and by how much.
           </p>
         </div>
 
@@ -590,7 +591,8 @@ function BackpropagationSection() {
         </div>
 
         <p className="m3-takeaway">
-          Each round: predict → measure error → trace backward → adjust weights.
+          Backpropagation does not guess which weights to change.
+          It calculates exactly how much each weight contributed to the mistake.
         </p>
       </div>
     </section>

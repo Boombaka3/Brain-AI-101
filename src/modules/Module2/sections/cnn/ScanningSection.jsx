@@ -137,7 +137,7 @@ function ScanningSection() {
   const sourceX = 44
   const paddedX = 324
   const kernelX = 648
-  const outputX = 948
+  const outputX = 1060
 
   const sourceY = baselineY + (PADDED_SIZE * paddedCell - SOURCE_SIZE * sourceCell) / 2
   const paddedY = baselineY
@@ -315,11 +315,8 @@ function ScanningSection() {
             strokeWidth="2.5"
             markerEnd="url(#m2-cnn-arrowhead)"
           />
-          <text x={sourceToPaddedMidX} y={baselineY + 70} className="m2-cnn-svg-step" textAnchor="middle">
-            add
-          </text>
-          <text x={sourceToPaddedMidX} y={baselineY + 92} className="m2-cnn-svg-step" textAnchor="middle">
-            Padding
+          <text x={sourceToPaddedMidX} y={baselineY + 80} className="m2-cnn-svg-step" textAnchor="middle">
+            add Padding
           </text>
 
           <path
@@ -388,17 +385,19 @@ function ScanningSection() {
           </g>
 
           <path
-            d={`M ${kernelX + kernelCell * 3 + 8} ${baselineY + 108} L ${outputX - 48} ${baselineY + 108}`}
+            d={`M ${kernelX + kernelCell * 3 + 16} ${baselineY + 108} L ${outputX - 16} ${baselineY + 108}`}
             fill="none"
             stroke="#C4B5FD"
             strokeWidth="2.5"
             markerEnd="url(#m2-cnn-arrowhead)"
           />
-          <text x={kernelToOutputMidX} y={baselineY + 72} className="m2-cnn-svg-step" textAnchor="middle">
-            stride
-          </text>
-          <text x={kernelToOutputMidX} y={baselineY + 92} className="m2-cnn-svg-step" textAnchor="middle">
-            {STRIDE}
+          <text
+            x={kernelToOutputMidX}
+            y={baselineY + 86}
+            className="m2-cnn-svg-step"
+            textAnchor="middle"
+          >
+            {`stride ${STRIDE}`}
           </text>
 
           <g>
