@@ -1804,11 +1804,10 @@
 .m3-rl-layout {
   display: grid;
   gap: 18px;
-  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.9fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
 }
 
 .m3-rl-stage,
-.m3-rl-controls,
 .m3-rl-q-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -1819,23 +1818,16 @@
 .m3-rl-stage {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px;
+  gap: 14px;
+  padding: 22px;
 }
 
 .m3-rl-stage-header {
-  align-items: flex-start;
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  justify-content: space-between;
-}
-
-.m3-rl-stage-header h3 {
-  font-family: var(--font-display);
-  font-size: 1.3rem;
-  line-height: 1.1;
-  margin: 4px 0 0;
+  gap: 10px;
+  justify-content: flex-start;
 }
 
 .m3-rl-control-label {
@@ -2116,18 +2108,18 @@
 
 .m3-rl-status-row {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .m3-rl-stat-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 12px;
+  padding: 10px 12px;
 }
 
 .m3-rl-stat-card span {
@@ -2140,36 +2132,36 @@
 }
 
 .m3-rl-insight {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 14px;
+  background: rgba(239, 246, 255, 0.6);
+  border: 1px solid rgba(191, 219, 254, 0.8);
+  border-radius: 12px;
   color: #1e3a8a;
-  font-size: 13px;
-  line-height: 1.6;
-  padding: 12px 14px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  padding: 10px 12px;
 }
 
 .m3-rl-insight--soft {
-  background: #f8fafc;
-  border-color: #dbe5f0;
+  background: rgba(248, 250, 252, 0.7);
+  border-color: rgba(219, 229, 240, 0.9);
   color: #475569;
 }
 
 .m3-rl-controls {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 18px;
+  gap: 12px;
+  padding: 0;
 }
 
 .m3-rl-control-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(226, 232, 240, 0.86);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 14px;
+  gap: 10px;
+  padding: 14px 16px;
 }
 
 .m3-rl-pill-row {
@@ -2228,17 +2220,25 @@
 }
 
 .m3-rl-q-card {
-  padding: 18px;
-}
-
-.m3-rl-q-card--inline {
-  background: #f8fafc;
-  border-radius: 16px;
-  box-shadow: none;
   padding: 16px;
 }
 
+.m3-rl-q-card--inline {
+  background: rgba(248, 250, 252, 0.82);
+  border-color: rgba(226, 232, 240, 0.88);
+  border-radius: 16px;
+  box-shadow: none;
+  padding: 14px;
+}
+
 .m3-rl-q-card--bottom {
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(219, 229, 240, 0.9);
+  border-radius: 0;
+  box-shadow: none;
+  margin-top: 14px;
+  padding: 14px 4px 0;
   width: 100%;
 }
 
@@ -2271,9 +2271,9 @@
 
 .m3-rl-copy-list {
   color: #475569;
-  font-size: 14px;
-  line-height: 1.65;
-  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: 8px;
 }
 
 .m3-rl-copy-list p {
@@ -2281,14 +2281,14 @@
 }
 
 .m3-rl-copy-list p + p {
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .m3-rl-reward-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 10px;
 }
 
 .m3-rl-reward-chip,
@@ -2428,11 +2428,17 @@
 }
 
 .m3-kmeans-plot {
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-  border: 1px solid #dbe5f0;
-  border-radius: 22px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   cursor: crosshair;
   overflow: hidden;
+}
+
+.m3-kmeans-plot-surface {
+  fill: rgba(255, 255, 255, 0.4);
+  stroke: rgba(219, 229, 240, 0.6);
+  stroke-width: 1.2;
 }
 
 .m3-kmeans-plot-label,
@@ -3594,6 +3600,18 @@
   border-color: #a7f3d0;
 }
 
+.m3-learning-problem-card .m3-compare-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  gap: 12px;
+  padding: 0;
+}
+
+.m3-learning-problem-card .m3-compare-grid {
+  gap: 12px;
+}
+
 .m3-compare-card__label {
   color: #047857;
   font-size: 12px;
@@ -3617,6 +3635,23 @@
   gap: 6px;
   grid-template-columns: minmax(0, 1fr) auto;
   padding: 14px 16px;
+}
+
+.m3-learning-problem-card .m3-compare-metric {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0;
+  padding: 0 0 10px;
+}
+
+.m3-learning-problem-card .m3-compare-card__metrics {
+  gap: 10px;
+}
+
+.m3-learning-problem-card .m3-compare-card__metrics .m3-compare-metric:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .m3-compare-card--after .m3-compare-metric {
@@ -3645,9 +3680,21 @@
   border-color: #bfdbfe;
 }
 
+.m3-learning-problem-card .m3-compare-metric--error {
+  background: rgba(219, 234, 254, 0.4);
+  border: 1px solid rgba(147, 197, 253, 0.7);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
 .m3-compare-card--after .m3-compare-metric--error {
   background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
   border-color: #86efac;
+}
+
+.m3-learning-problem-card .m3-compare-card--after .m3-compare-metric--error {
+  background: rgba(220, 252, 231, 0.55);
+  border-color: rgba(134, 239, 172, 0.9);
 }
 
 .m3-weight-tile-grid {
@@ -4772,7 +4819,6 @@
 
 .m3-advanced-labs-header h3,
 .m3-advanced-learning-labs__intro h3,
-.m3-advanced-learning-labs__intro h2,
 .m3-advanced-lab-title,
 .m3-advanced-learning-labs__card-copy h4 {
   color: #0f172a;
@@ -4785,8 +4831,7 @@
 }
 
 .m3-advanced-labs-header h3,
-.m3-advanced-learning-labs__intro h3,
-.m3-advanced-learning-labs__intro h2 {
+.m3-advanced-learning-labs__intro h3 {
   font-size: clamp(1.1rem, 2vw, 1.4rem);
 }
 
@@ -4811,9 +4856,9 @@
   border: 1px solid #dbe5f0;
   border-radius: 20px;
   display: grid;
-  gap: 14px;
+  gap: 12px;
   min-width: 0;
-  padding: 18px;
+  padding: 16px;
 }
 
 .m3-advanced-lab-card {
@@ -4850,7 +4895,7 @@
 
 .m3-advanced-learning-labs__card-body {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .m3-advanced-learning-labs__card.unsupervised .m3-advanced-learning-labs__card-body,

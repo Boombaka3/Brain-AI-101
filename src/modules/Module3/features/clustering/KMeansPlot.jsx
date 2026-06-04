@@ -1,34 +1,47 @@
 const CLUSTER_COLORS = ['#ef4444', '#22c55e', '#3b82f6', '#a855f7', '#f59e0b']
+const PLOT_LEFT = 40
+const PLOT_TOP = 34
+const PLOT_WIDTH = 480
+const PLOT_HEIGHT = 280
 
 function plotX(value) {
-  return 40 + value * 480
+  return PLOT_LEFT + value * PLOT_WIDTH
 }
 
 function plotY(value) {
-  return 34 + value * 280
+  return PLOT_TOP + value * PLOT_HEIGHT
 }
 
 function KMeansPlot({ points, centroids, onAddPoint }) {
   const handleSvgClick = (event) => {
-    const bounds = event.currentTarget.getBoundingClientRect()
-    const x = (event.clientX - bounds.left - 40) / 480
-    const y = (event.clientY - bounds.top - 34) / 280
+    const svg = event.currentTarget
+    const point = svg.createSVGPoint()
+    point.x = event.clientX
+    point.y = event.clientY
+
+    const ctm = svg.getScreenCTM()
+    if (!ctm) return
+
+    const svgPoint = point.matrixTransform(ctm.inverse())
+    const x = (svgPoint.x - PLOT_LEFT) / PLOT_WIDTH
+    const y = (svgPoint.y - PLOT_TOP) / PLOT_HEIGHT
+
     if (x < 0 || x > 1 || y < 0 || y > 1) return
     onAddPoint(x, y)
   }
 
   return (
     <svg viewBox="0 0 560 360" className="m3-svg-block m3-kmeans-plot" onClick={handleSvgClick} role="img" aria-label="Interactive k-means clustering plot">
-      <rect x="40" y="34" width="480" height="280" rx="18" fill="#ffffff" stroke="#dbe5f0" />
+      <rect x={PLOT_LEFT} y={PLOT_TOP} width={PLOT_WIDTH} height={PLOT_HEIGHT} rx="18" className="m3-kmeans-plot-surface" />
 
       {[0.25, 0.5, 0.75].map((tick) => (
         <g key={`v-${tick}`}>
-          <line x1={plotX(tick)} y1="34" x2={plotX(tick)} y2="314" stroke="#edf2f7" strokeDasharray="4 6" />
-          <line x1="40" y1={plotY(tick)} x2="520" y2={plotY(tick)} stroke="#edf2f7" strokeDasharray="4 6" />
+          <line x1={plotX(tick)} y1={PLOT_TOP} x2={plotX(tick)} y2={PLOT_TOP + PLOT_HEIGHT} stroke="#edf2f7" strokeDasharray="4 6" />
+          <line x1={PLOT_LEFT} y1={plotY(tick)} x2={PLOT_LEFT + PLOT_WIDTH} y2={plotY(tick)} stroke="#edf2f7" strokeDasharray="4 6" />
         </g>
       ))}
 
-      <text x="40" y="26" className="m3-kmeans-plot-label">feature space</text>
+      <text x={PLOT_LEFT} y="26" className="m3-kmeans-plot-label">feature space</text>
       <text x="40" y="332" className="m3-kmeans-plot-caption">Add points to see clusters emerge.</text>
 
       {points.map((point) => {
