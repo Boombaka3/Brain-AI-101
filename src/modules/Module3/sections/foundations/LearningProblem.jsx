@@ -98,7 +98,6 @@ function LearningProblem() {
         <div className="m3-signal-activity__grid">
           <article className="m3-mechanism-panel">
             <div className="m3-mechanism-panel__header">
-              <p className="m3-learning-label">Column 1</p>
               <h3>Input</h3>
             </div>
 
@@ -122,7 +121,6 @@ function LearningProblem() {
 
           <article className="m3-mechanism-panel">
             <div className="m3-mechanism-panel__header">
-              <p className="m3-learning-label">Column 2</p>
               <h3>Prediction, Target, Error</h3>
             </div>
 
@@ -183,7 +181,6 @@ function LearningProblem() {
 
           <article className="m3-mechanism-panel">
             <div className="m3-mechanism-panel__header">
-              <p className="m3-learning-label">Column 3</p>
               <h3>Weights</h3>
             </div>
 

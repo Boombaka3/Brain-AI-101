@@ -11,6 +11,16 @@ const ACTION_LABELS = {
   left: 'Left',
 }
 
+function formatRewardValue(value, { forceSign = false } = {}) {
+  const rounded = Number.isInteger(value) ? `${value}` : value.toFixed(2).replace(/\.?0+$/, '')
+
+  if (!forceSign || rounded.startsWith('-')) {
+    return rounded
+  }
+
+  return `+${rounded}`
+}
+
 function formatOutcome(outcome) {
   if (outcome === 'goal') return 'reached the goal'
   if (outcome === 'hazard') return 'hit penalty'
@@ -67,15 +77,12 @@ function ReinforcementLab({ embedded = false }) {
       <div className="m3-rl-layout">
         <div className="m3-rl-stage">
           <div className="m3-rl-stage-header">
-            <div>
-              <p className="m3-rl-control-label">Reinforcement Learning: Learn From Rewards</p>
-            </div>
             <div className="m3-rl-legend">
               <span className="m3-rl-legend-chip m3-rl-legend-chip--start">Start</span>
-              <span className="m3-rl-legend-chip m3-rl-legend-chip--goal">Goal +10</span>
-              <span className="m3-rl-legend-chip m3-rl-legend-chip--hazard">Penalty -10</span>
+              <span className="m3-rl-legend-chip m3-rl-legend-chip--goal">Goal {formatRewardValue(environment.rewards.goal, { forceSign: true })}</span>
+              <span className="m3-rl-legend-chip m3-rl-legend-chip--hazard">Penalty {formatRewardValue(environment.rewards.hazard)}</span>
               <span className="m3-rl-legend-chip m3-rl-legend-chip--wall">Wall</span>
-              <span className="m3-rl-legend-chip m3-rl-legend-chip--step">Step cost -0.1</span>
+              <span className="m3-rl-legend-chip m3-rl-legend-chip--step">Step cost {formatRewardValue(environment.rewards.step)}</span>
             </div>
           </div>
 
