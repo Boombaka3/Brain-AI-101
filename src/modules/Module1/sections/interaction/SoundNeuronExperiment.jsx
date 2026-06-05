@@ -47,20 +47,20 @@ function SoundNeuronExperiment() {
               Send sound
             </button>
           </div>
-
-          <div className="module1-sound-neuron__examples" aria-label="Example phrases">
-            {EXAMPLE_SIGNALS.map((example) => (
-              <button
-                key={example.value}
-                type="button"
-                className="module1-sound-neuron__example-chip"
-                onClick={() => submitExamplePhrase(example.value)}
-              >
-                {example.label}
-              </button>
-            ))}
-          </div>
         </form>
+
+        <div className="module1-sound-neuron__examples" aria-label="Example phrases">
+          {EXAMPLE_SIGNALS.map((example) => (
+            <button
+              key={example.value}
+              type="button"
+              className="module1-sound-neuron__example-chip"
+              onClick={() => submitExamplePhrase(example.value)}
+            >
+              {example.label}
+            </button>
+          ))}
+        </div>
 
         <div className={`module1-sound-neuron__workspace ${isAnimating ? 'is-animating' : ''}`}>
           <div className="module1-sound-neuron__scene-panel">
@@ -95,6 +95,8 @@ function SoundNeuronExperiment() {
               </div>
             </div>
 
+            <NeuronResponsePanel lastResult={lastResult} />
+
             <div className="module1-sound-neuron__meter">
               <div className="module1-sound-neuron__meter-header">
                 <span className="module1-sound-neuron__meter-label">Soma input</span>
@@ -114,8 +116,6 @@ function SoundNeuronExperiment() {
                 </div>
               </div>
             </div>
-
-            <NeuronResponsePanel lastResult={lastResult} />
             <PhetNeuronPanel
               title="Watch the neuron"
               helperText="Send a sound to build input, or use the manual controls to test the neuron directly."
