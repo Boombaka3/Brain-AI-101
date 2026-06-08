@@ -49,12 +49,61 @@
   color: var(--shared-text-soft);
   font-size: 12px;
   line-height: 1.4;
+  margin-top: -2px;
 }
 
 .admin-submissions-summary {
   display: grid;
   gap: 14px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-filters {
+  align-items: end;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(180px, 0.8fr)) auto;
+}
+
+.admin-filter-field {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-filter-field span {
+  color: var(--shared-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-filter-field input,
+.admin-filter-field select {
+  background: #fbfdff;
+  border: 1px solid var(--shared-border);
+  border-radius: 16px;
+  color: var(--shared-text);
+  font-family: inherit;
+  font-size: 14px;
+  min-height: 46px;
+  padding: 12px 14px;
+}
+
+.admin-filter-field input:focus,
+.admin-filter-field select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.admin-filter-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.admin-filter-summary {
+  color: var(--shared-text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
 }
 
 .admin-summary-card {
@@ -134,11 +183,37 @@
   .admin-submissions-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .admin-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .admin-filter-field--search,
+  .admin-filter-actions {
+    grid-column: 1 / -1;
+  }
+
+  .admin-filter-actions {
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 640px) {
   .admin-submissions-summary {
     grid-template-columns: 1fr;
+  }
+
+  .admin-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-filter-field input,
+  .admin-filter-field select {
+    width: 100%;
+  }
+
+  .admin-filter-actions .shared-btn {
+    width: 100%;
   }
 
   .admin-table th,

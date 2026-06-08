@@ -1,5 +1,9 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
+import CertificatePreview from '../components/certificate/CertificatePreview'
+import '../styles/shared.css'
 import './completionScreen.css'
 
 const MODULES = [
@@ -53,10 +57,52 @@ const NEXT_STEPS = [
   },
 ]
 
+const CERTIFICATE_NAME_STORAGE_KEY = 'brainAi101.certificateName'
+
+function formatIssueDate() {
+  return new Date().toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+}
+
+function sanitizeName(value) {
+  return value.trim().replace(/\s+/g, ' ')
+}
+
 function CompletionScreen({ onGoToModule, onBackToHome }) {
   const heroRef = useRef(null)
   const cardsRef = useRef(null)
   const nextRef = useRef(null)
+  const certificateRef = useRef(null)
+  const [studentName, setStudentName] = useState('')
+  const [nameError, setNameError] = useState('')
+  const [isExportingCertificate, setIsExportingCertificate] = useState(false)
+  const issueDate = formatIssueDate()
+
+  useEffect(() => {
+    try {
+      const savedName = window.sessionStorage.getItem(CERTIFICATE_NAME_STORAGE_KEY) || ''
+      if (savedName) {
+        setStudentName(savedName)
+      }
+    } catch {
+      // sessionStorage unavailable — keep runtime-only state
+    }
+  }, [])
+
+  useEffect(() => {
+    try {
+      if (studentName) {
+        window.sessionStorage.setItem(CERTIFICATE_NAME_STORAGE_KEY, studentName)
+      } else {
+        window.sessionStorage.removeItem(CERTIFICATE_NAME_STORAGE_KEY)
+      }
+    } catch {
+      // sessionStorage unavailable — keep runtime-only state
+    }
+  }, [studentName])
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -79,6 +125,64 @@ function CompletionScreen({ onGoToModule, onBackToHome }) {
 
     return () => ctx.revert()
   }, [])
+
+  const handleCertificateNameChange = (event) => {
+    setStudentName(event.target.value)
+    if (nameError) {
+      setNameError('')
+    }
+  }
+
+  const handleDownloadCertificate = async () => {
+    const normalizedName = sanitizeName(studentName)
+
+    if (!normalizedName) {
+      setNameError('Enter your name to generate the certificate.')
+      return
+    }
+
+    if (!certificateRef.current) {
+      setNameError('Certificate preview is not ready yet.')
+      return
+    }
+
+    setNameError('')
+    setIsExportingCertificate(true)
+
+    try {
+      const canvas = await html2canvas(certificateRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+      })
+
+      const imageData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+      })
+
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      const imageWidth = canvas.width
+      const imageHeight = canvas.height
+      const ratio = Math.min(pageWidth / imageWidth, pageHeight / imageHeight)
+      const renderWidth = imageWidth * ratio
+      const renderHeight = imageHeight * ratio
+      const offsetX = (pageWidth - renderWidth) / 2
+      const offsetY = (pageHeight - renderHeight) / 2
+
+      pdf.addImage(imageData, 'PNG', offsetX, offsetY, renderWidth, renderHeight)
+      pdf.save(`BrainxAI_101_Certificate_${normalizedName.replace(/[^\w-]+/g, '_')}.pdf`)
+      setStudentName(normalizedName)
+    } catch (error) {
+      console.error('Certificate export failed', error)
+      setNameError('Unable to generate the certificate right now. Please try again.')
+    } finally {
+      setIsExportingCertificate(false)
+    }
+  }
 
   return (
     <div className="completion-page">
@@ -136,6 +240,50 @@ function CompletionScreen({ onGoToModule, onBackToHome }) {
                 </span>
               </a>
             ))}
+          </div>
+        </section>
+
+        <section className="completion-certificate">
+          <h2 className="completion-section-title">Certificate of Completion</h2>
+          <p className="completion-certificate-intro">
+            Enter your name to generate a completion certificate for this course.
+          </p>
+
+          <div className="completion-certificate-shell">
+            <div className="completion-certificate-controls">
+              <label className="completion-certificate-field">
+                <span>Name on certificate</span>
+                <input
+                  type="text"
+                  value={studentName}
+                  onChange={handleCertificateNameChange}
+                  placeholder="Enter your full name"
+                  autoComplete="name"
+                />
+              </label>
+              <p className="completion-certificate-note">
+                Your name is stored only for this browser session.
+              </p>
+              {nameError ? (
+                <p className="completion-certificate-error" role="alert">{nameError}</p>
+              ) : null}
+              <div className="completion-certificate-actions">
+                <button
+                  type="button"
+                  className="shared-btn shared-btn-primary"
+                  onClick={handleDownloadCertificate}
+                  disabled={isExportingCertificate}
+                >
+                  {isExportingCertificate ? 'Preparing PDF…' : 'Download Certificate PDF'}
+                </button>
+              </div>
+            </div>
+
+            <CertificatePreview
+              ref={certificateRef}
+              studentName={sanitizeName(studentName)}
+              issueDate={issueDate}
+            />
           </div>
         </section>
 
