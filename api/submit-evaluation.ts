@@ -1,8 +1,8 @@
-import { prisma } from './_lib/prisma'
-import { methodNotAllowed, readJsonBody, safeErrorMessage, sendJson, type VercelRequestLike, type VercelResponseLike } from './_lib/http'
-import { mapEvaluationSource, scoreQuizAnswers } from './_lib/submissions'
-import { validateEvaluationPayload, validateQuizAttemptPayload } from './_lib/validation'
-import { questionMap } from './_lib/courseData'
+import { prisma } from './_lib/prisma.js'
+import { methodNotAllowed, readJsonBody, safeErrorMessage, sendJson, type VercelRequestLike, type VercelResponseLike } from './_lib/http.js'
+import { mapEvaluationSource, scoreQuizAnswers } from './_lib/submissions.js'
+import { validateEvaluationPayload, validateQuizAttemptPayload } from './_lib/validation.js'
+import { questionMap } from './_lib/courseData.js'
 
 function toLegacyQuizPayload(payload: Record<string, unknown>) {
   return {

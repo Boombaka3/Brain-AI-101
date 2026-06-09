@@ -1,4 +1,4 @@
-import type { VercelRequestLike } from './http'
+import type { VercelRequestLike } from './http.js'
 
 function extractAuthorizationHeader(request: VercelRequestLike) {
   const value = request.headers?.authorization ?? request.headers?.Authorization

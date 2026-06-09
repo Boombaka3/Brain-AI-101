@@ -1,8 +1,8 @@
-import { prisma } from '../_lib/prisma'
-import { isAuthorizedAdminRequest } from '../_lib/auth'
-import { toCsv } from '../_lib/csv'
-import { methodNotAllowed, safeErrorMessage, sendJson, sendText, type VercelRequestLike, type VercelResponseLike } from '../_lib/http'
-import { serializeEvaluationSource } from '../_lib/submissions'
+import { prisma } from '../_lib/prisma.js'
+import { isAuthorizedAdminRequest } from '../_lib/auth.js'
+import { toCsv } from '../_lib/csv.js'
+import { methodNotAllowed, safeErrorMessage, sendJson, sendText, type VercelRequestLike, type VercelResponseLike } from '../_lib/http.js'
+import { serializeEvaluationSource } from '../_lib/submissions.js'
 
 export default async function handler(request: VercelRequestLike, response: VercelResponseLike) {
   if (request.method !== 'GET') {

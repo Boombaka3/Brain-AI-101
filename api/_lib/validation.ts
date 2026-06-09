@@ -1,6 +1,6 @@
 import type { EvaluationSource } from '../../src/types/submission'
 import type { EvaluationSubmissionPayload, QuizAttemptSubmission } from '../../src/types/submission'
-import { postCourseLikertIds, preCourseLikertIds, questionMap } from './courseData'
+import { postCourseLikertIds, preCourseLikertIds, questionMap } from './courseData.js'
 
 function isIsoDate(value: unknown) {
   return typeof value === 'string' && !Number.isNaN(Date.parse(value))

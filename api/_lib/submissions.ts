@@ -1,5 +1,5 @@
 import type { EvaluationSource } from '@prisma/client'
-import { questionMap } from './courseData'
+import { questionMap } from './courseData.js'
 
 const MODULE_LABELS: Record<string, string> = {
   module1: 'Module 1',

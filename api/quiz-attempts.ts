@@ -1,8 +1,8 @@
-import { prisma } from './_lib/prisma'
-import { methodNotAllowed, readJsonBody, safeErrorMessage, sendDbUnavailableIfNeeded, sendJson, type VercelRequestLike, type VercelResponseLike } from './_lib/http'
-import { scoreQuizAnswers } from './_lib/submissions'
-import { validateQuizAttemptPayload } from './_lib/validation'
-import { questionMap } from './_lib/courseData'
+import { prisma } from './_lib/prisma.js'
+import { methodNotAllowed, readJsonBody, safeErrorMessage, sendDbUnavailableIfNeeded, sendJson, type VercelRequestLike, type VercelResponseLike } from './_lib/http.js'
+import { scoreQuizAnswers } from './_lib/submissions.js'
+import { validateQuizAttemptPayload } from './_lib/validation.js'
+import { questionMap } from './_lib/courseData.js'
 
 export default async function handler(request: VercelRequestLike, response: VercelResponseLike) {
   if (request.method !== 'POST') {
