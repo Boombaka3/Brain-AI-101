@@ -3,8 +3,11 @@ import { methodNotAllowed, readJsonBody, safeErrorMessage, sendDbUnavailableIfNe
 import { scoreQuizAnswers } from './_lib/submissions.js'
 import { validateQuizAttemptPayload } from './_lib/validation.js'
 import { questionMap } from './_lib/courseData.js'
+import { checkRateLimit } from './_lib/rateLimit.js'
 
 export default async function handler(request: VercelRequestLike, response: VercelResponseLike) {
+  if (!checkRateLimit(request, response)) return
+
   if (request.method !== 'POST') {
     return methodNotAllowed(response, 'POST')
   }

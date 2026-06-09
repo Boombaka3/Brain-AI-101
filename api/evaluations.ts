@@ -2,8 +2,11 @@ import { prisma } from './_lib/prisma.js'
 import { methodNotAllowed, readJsonBody, safeErrorMessage, sendDbUnavailableIfNeeded, sendJson, type VercelRequestLike, type VercelResponseLike } from './_lib/http.js'
 import { mapEvaluationSource, serializeEvaluationSource } from './_lib/submissions.js'
 import { validateEvaluationPayload } from './_lib/validation.js'
+import { checkRateLimit } from './_lib/rateLimit.js'
 
 export default async function handler(request: VercelRequestLike, response: VercelResponseLike) {
+  if (!checkRateLimit(request, response)) return
+
   if (request.method !== 'POST') {
     return methodNotAllowed(response, 'POST')
   }
