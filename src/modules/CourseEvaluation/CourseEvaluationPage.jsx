@@ -92,27 +92,31 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
 
   const syncCompletedAttempt = async (completedAttempt) => {
     setIsRetryingUpload(true)
-    const syncingAttempt = updateAttempt({
+
+    // Use completedAttempt as base to avoid stale closure overwriting completedAt
+    const baseAttempt = completedAttempt || attempt
+    const syncingAttempt = saveEvaluationAttempt({
+      ...baseAttempt,
       remoteSubmissionStatus: 'syncing',
       remoteSubmissionError: '',
     })
+    dispatch(updateEvaluationAttempt(syncingAttempt))
 
-    const activeAttempt = completedAttempt || syncingAttempt
     const quizPayload = {
       sessionId: getOrCreateSessionId(),
-      startedAt: activeAttempt.startedAt,
-      completedAt: activeAttempt.completedAt,
-      selectedAnswers: activeAttempt.quizAnswers || {},
+      startedAt: baseAttempt.startedAt,
+      completedAt: baseAttempt.completedAt,
+      selectedAnswers: baseAttempt.quizAnswers || {},
       source: 'course-evaluation',
     }
     const evaluationPayload = {
       sessionId: getOrCreateSessionId(),
       source: 'course-evaluation',
-      startedAt: activeAttempt.startedAt,
-      completedAt: activeAttempt.completedAt,
+      startedAt: baseAttempt.startedAt,
+      completedAt: baseAttempt.completedAt,
       skipped: false,
-      likertResponses: activeAttempt.likertResponses || {},
-      openResponses: activeAttempt.openResponses || {},
+      likertResponses: baseAttempt.likertResponses || {},
+      openResponses: baseAttempt.openResponses || {},
     }
 
     try {
@@ -123,7 +127,8 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
         quizAttemptId: quizResponse.attempt.id,
       })
 
-      updateAttempt({
+      const syncedAttempt = saveEvaluationAttempt({
+        ...baseAttempt,
         score: quizResponse.attempt.score,
         maxScore: quizResponse.attempt.maxScore,
         moduleBreakdown: quizResponse.attempt.moduleBreakdown,
@@ -132,16 +137,19 @@ export default function CourseEvaluationPage({ onBack, onContinue }) {
         remoteSubmissionError: '',
         remoteSubmissionFiles: [quizResponse.attempt.id, evaluationResponse.submission.id],
       })
+      dispatch(updateEvaluationAttempt(syncedAttempt))
     } catch (error) {
       saveSubmissionToLocalStorage('quiz', quizPayload)
       saveSubmissionToLocalStorage('evaluation', evaluationPayload)
-      updateAttempt({
+      const failedAttempt = saveEvaluationAttempt({
+        ...baseAttempt,
         remoteSubmissionStatus: 'failed',
         remoteSubmissionError: error instanceof Error && error.message
           ? error.message
           : 'We saved your results in this browser, but the server could not store them yet. Please try again.',
         remoteSubmissionFiles: [],
       })
+      dispatch(updateEvaluationAttempt(failedAttempt))
     } finally {
       setIsRetryingUpload(false)
     }
