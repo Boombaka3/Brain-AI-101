@@ -109,3 +109,5 @@ vendor/phetsims/
 attribute.txt
 Speech/
 /certificate/
+.vercel
+.env*
