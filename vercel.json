@@ -3,6 +3,11 @@
   "framework": "vite",
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist",
+  "functions": {
+    "api/certificate/generate.ts": {
+      "includeFiles": "certificate/BrainxAI_101_Certificate_of_Completion.pdf"
+    }
+  },
   "headers": [
     {
       "source": "/api/(.*)",

@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
-import html2canvas from 'html2canvas'
-import jsPDF from 'jspdf'
-import CertificatePreview from '../components/certificate/CertificatePreview'
+import { generateCertificateDocument } from '../lib/api/certificate'
+import { selectCourseCompletionStatus } from '../lib/courseCompletion'
+import { useAppSelector } from '../store/hooks'
 import '../styles/shared.css'
 import './completionScreen.css'
 
@@ -59,27 +59,18 @@ const NEXT_STEPS = [
 
 const CERTIFICATE_NAME_STORAGE_KEY = 'brainAi101.certificateName'
 
-function formatIssueDate() {
-  return new Date().toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
 function sanitizeName(value) {
   return value.trim().replace(/\s+/g, ' ')
 }
 
 function CompletionScreen({ onGoToModule, onBackToHome }) {
+  const completionStatus = useAppSelector(selectCourseCompletionStatus)
   const heroRef = useRef(null)
   const cardsRef = useRef(null)
   const nextRef = useRef(null)
-  const certificateRef = useRef(null)
   const [studentName, setStudentName] = useState('')
   const [nameError, setNameError] = useState('')
-  const [isExportingCertificate, setIsExportingCertificate] = useState(false)
-  const issueDate = formatIssueDate()
+  const [isGeneratingCertificate, setIsGeneratingCertificate] = useState(false)
 
   useEffect(() => {
     try {
@@ -133,7 +124,12 @@ function CompletionScreen({ onGoToModule, onBackToHome }) {
     }
   }
 
-  const handleDownloadCertificate = async () => {
+  const handleGenerateCertificate = async () => {
+    if (!completionStatus.isUnlocked) {
+      setNameError('Complete the required course flow to unlock the certificate.')
+      return
+    }
+
     const normalizedName = sanitizeName(studentName)
 
     if (!normalizedName) {
@@ -141,46 +137,27 @@ function CompletionScreen({ onGoToModule, onBackToHome }) {
       return
     }
 
-    if (!certificateRef.current) {
-      setNameError('Certificate preview is not ready yet.')
-      return
-    }
-
     setNameError('')
-    setIsExportingCertificate(true)
+    setIsGeneratingCertificate(true)
 
     try {
-      const canvas = await html2canvas(certificateRef.current, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-        useCORS: true,
-      })
-
-      const imageData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4',
-      })
-
-      const pageWidth = pdf.internal.pageSize.getWidth()
-      const pageHeight = pdf.internal.pageSize.getHeight()
-      const imageWidth = canvas.width
-      const imageHeight = canvas.height
-      const ratio = Math.min(pageWidth / imageWidth, pageHeight / imageHeight)
-      const renderWidth = imageWidth * ratio
-      const renderHeight = imageHeight * ratio
-      const offsetX = (pageWidth - renderWidth) / 2
-      const offsetY = (pageHeight - renderHeight) / 2
-
-      pdf.addImage(imageData, 'PNG', offsetX, offsetY, renderWidth, renderHeight)
-      pdf.save(`BrainxAI_101_Certificate_${normalizedName.replace(/[^\w-]+/g, '_')}.pdf`)
+      const { blob, filename } = await generateCertificateDocument(normalizedName)
+      const objectUrl = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = objectUrl
+      link.download = filename
+      link.click()
+      window.URL.revokeObjectURL(objectUrl)
       setStudentName(normalizedName)
     } catch (error) {
-      console.error('Certificate export failed', error)
-      setNameError('Unable to generate the certificate right now. Please try again.')
+      console.error('Certificate generation failed', error)
+      setNameError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to generate the certificate right now. Please try again.',
+      )
     } finally {
-      setIsExportingCertificate(false)
+      setIsGeneratingCertificate(false)
     }
   }
 
@@ -246,44 +223,99 @@ function CompletionScreen({ onGoToModule, onBackToHome }) {
         <section className="completion-certificate">
           <h2 className="completion-section-title">Certificate of Completion</h2>
           <p className="completion-certificate-intro">
-            Enter your name to generate a completion certificate for this course.
+            {completionStatus.isUnlocked
+              ? 'Enter your name to generate a completion certificate for this course.'
+              : 'The certificate unlocks after you finish every required course step.'}
           </p>
 
           <div className="completion-certificate-shell">
-            <div className="completion-certificate-controls">
-              <label className="completion-certificate-field">
-                <span>Name on certificate</span>
-                <input
-                  type="text"
-                  value={studentName}
-                  onChange={handleCertificateNameChange}
-                  placeholder="Enter your full name"
-                  autoComplete="name"
-                />
-              </label>
-              <p className="completion-certificate-note">
-                Your name is stored only for this browser session.
-              </p>
-              {nameError ? (
-                <p className="completion-certificate-error" role="alert">{nameError}</p>
-              ) : null}
-              <div className="completion-certificate-actions">
-                <button
-                  type="button"
-                  className="shared-btn shared-btn-primary"
-                  onClick={handleDownloadCertificate}
-                  disabled={isExportingCertificate}
+            <div className="completion-certificate-status">
+              <div className="completion-certificate-status-header">
+                <div>
+                  <p className="completion-certificate-status-label">Completion Progress</p>
+                  <h3 className="completion-certificate-status-title">
+                    Completed {completionStatus.completedCount} of {completionStatus.totalCount} required course items
+                  </h3>
+                </div>
+                <span
+                  className={`completion-certificate-status-badge ${
+                    completionStatus.isUnlocked
+                      ? 'completion-certificate-status-badge--unlocked'
+                      : 'completion-certificate-status-badge--locked'
+                  }`}
                 >
-                  {isExportingCertificate ? 'Preparing PDF…' : 'Download Certificate PDF'}
-                </button>
+                  {completionStatus.isUnlocked ? 'Certificate unlocked' : 'Certificate locked'}
+                </span>
               </div>
+
+              {completionStatus.missingItems.length > 0 ? (
+                <div className="completion-certificate-status-list">
+                  <p className="completion-certificate-status-note">
+                    Finish the remaining required items to unlock certificate generation.
+                  </p>
+                  <ul className="completion-certificate-checklist">
+                    {completionStatus.items.map((item) => (
+                      <li
+                        key={item.id}
+                        className={`completion-certificate-checklist-item ${
+                          item.completed
+                            ? 'completion-certificate-checklist-item--done'
+                            : 'completion-certificate-checklist-item--pending'
+                        }`}
+                      >
+                        <span className="completion-certificate-checklist-mark" aria-hidden="true">
+                          {item.completed ? '✓' : '•'}
+                        </span>
+                        <span>
+                          <strong>{item.label}</strong>
+                          {!item.completed ? ` — ${item.detail}` : ''}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <p className="completion-certificate-status-note">
+                  All required course steps are complete. Your certificate is ready.
+                </p>
+              )}
             </div>
 
-            <CertificatePreview
-              ref={certificateRef}
-              studentName={sanitizeName(studentName)}
-              issueDate={issueDate}
-            />
+            {completionStatus.isUnlocked ? (
+              <>
+                <div className="completion-certificate-controls">
+                  <label className="completion-certificate-field">
+                    <span>Name on certificate</span>
+                    <input
+                      type="text"
+                      value={studentName}
+                      onChange={handleCertificateNameChange}
+                      placeholder="Enter your full name"
+                      autoComplete="name"
+                    />
+                  </label>
+                  <p className="completion-certificate-note">
+                    Your name is stored only for this browser session.
+                  </p>
+                  <p className="completion-certificate-note">
+                    The certificate is generated on the backend from the official award template and downloads as a PDF. Use the Vercel deployment, or run <code>npm run dev:full</code> locally.
+                  </p>
+                  {nameError ? (
+                    <p className="completion-certificate-error" role="alert">{nameError}</p>
+                  ) : null}
+                  <div className="completion-certificate-actions">
+                    <button
+                      type="button"
+                      className="shared-btn shared-btn-primary"
+                      onClick={handleGenerateCertificate}
+                      disabled={isGeneratingCertificate}
+                    >
+                      {isGeneratingCertificate ? 'Generating PDF…' : 'Generate Certificate PDF'}
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : null}
           </div>
         </section>
 

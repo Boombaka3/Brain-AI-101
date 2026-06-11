@@ -11,7 +11,7 @@ export interface VercelRequestLike extends AsyncIterable<Uint8Array | Buffer | s
 export interface VercelResponseLike {
   statusCode: number
   setHeader(name: string, value: string | string[]): void
-  end(body?: string): void
+  end(body?: string | Buffer): void
 }
 
 export function sendJson(response: VercelResponseLike, statusCode: number, payload: unknown) {
@@ -28,6 +28,27 @@ export function sendText(
 ) {
   response.statusCode = statusCode
   response.setHeader('Content-Type', contentType)
+  response.end(body)
+}
+
+export function sendBuffer(
+  response: VercelResponseLike,
+  statusCode: number,
+  body: Buffer,
+  contentType: string,
+  filename?: string,
+) {
+  response.statusCode = statusCode
+  response.setHeader('Content-Type', contentType)
+  response.setHeader('Content-Length', String(body.byteLength))
+
+  if (filename) {
+    response.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${filename.replace(/"/g, '')}"`,
+    )
+  }
+
   response.end(body)
 }
 

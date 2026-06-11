@@ -137,6 +137,14 @@ Start the development server:
 npm run dev
 ```
 
+Start the full local app with Vercel Functions:
+
+```bash
+npm run dev:full
+```
+
+Use `npm run dev:full` when you need backend-powered features locally, including certificate generation and admin API routes. `npm run dev` runs the Vite frontend only.
+
 Create a production build:
 
 ```bash
@@ -173,11 +181,19 @@ Deploy the `dist` folder to GitHub Pages:
 npm run deploy
 ```
 
+GitHub Pages is a static deploy target. Frontend pages render there, but backend-powered features such as certificate generation and admin/server APIs will not work.
+
 Deploy to Vercel with backend support:
 
 ```bash
 npm run vercel-build
 ```
+
+For production, use Vercel when you need:
+
+- certificate generation from the Word template
+- admin data access
+- quiz/evaluation submission APIs
 
 ## Project Structure
 
