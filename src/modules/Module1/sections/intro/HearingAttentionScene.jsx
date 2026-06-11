@@ -91,7 +91,7 @@ function HearingAttentionScene() {
       </figcaption>
       <p className="module1-attention-attribution">
         <a href="https://storyset.com/people" target="_blank" rel="noreferrer">
-          People illustrations by Storyset
+          Scene illustrations by Storyset
         </a>
       </p>
     </figure>

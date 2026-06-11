@@ -206,8 +206,8 @@ export default function GuidedAnatomyOverlay({ onComplete, finishLabel = "Got it
           <div className="ga-attribution" aria-label="Image attribution">
             <p className="ga-attribution-line">
               Overview image:{' '}
-              <a href="https://www.vecteezy.com/free-vector/neuron" target="_blank" rel="noreferrer">
-                Neuron Vectors by Vecteezy
+              <a href="https://commons.wikimedia.org/wiki/File:Complete_neuron_cell_diagram_en.svg" target="_blank" rel="noreferrer">
+                Complete neuron cell diagram by LadyofHats via Wikimedia Commons
               </a>
             </p>
           </div>

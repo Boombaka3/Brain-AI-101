@@ -21,6 +21,10 @@ export default function HubelWieselStory() {
         />
         <figcaption>
           One visual cortex neuron can respond strongly to one edge direction and weakly to others.
+          {' '}Source:{' '}
+          <a href="https://doi.org/10.3390/brainsci12040470" target="_blank" rel="noreferrer">
+            Li, Todo, and Tang (Brain Sciences, 2022)
+          </a>
         </figcaption>
       </figure>
     </article>

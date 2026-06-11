@@ -160,6 +160,12 @@
   padding: 10px 14px;
 }
 
+.m2-hw-figure figcaption a {
+  color: #4c1d95;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
 .m2-selectivity-bridge {
   background: #f5f3ff;
   border: 1px solid #ddd6fe;

@@ -121,7 +121,7 @@ function SoundNeuronExperiment() {
               helperText="Send a sound to build input, or use the manual controls to test the neuron directly."
               showStatus={false}
               showPlayback={false}
-              showAttribution={false}
+              showAttribution
               autoStimulateToken={autoStimulateToken}
               compact
               showIntro={false}

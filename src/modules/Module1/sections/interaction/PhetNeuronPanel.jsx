@@ -153,7 +153,10 @@ function PhetNeuronPanel({
       {showAttribution && (
         <p className="module1-phet-panel__attribution">
           {isLoaded ? 'Animation loaded. ' : ''}
-          Neuron simulation
+          Neuron simulation by{' '}
+          <a href="https://github.com/phetsims/neuron" target="_blank" rel="noreferrer">
+            PhET Interactive Simulations
+          </a>
         </p>
       )}
     </div>
