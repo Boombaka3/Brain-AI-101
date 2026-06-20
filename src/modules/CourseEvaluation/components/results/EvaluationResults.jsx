@@ -32,9 +32,9 @@ export default function EvaluationResults({
 
       <div className="ce-results-summary">
         <div className="ce-score-card">
-          <span className="ce-score-label">Knowledge check score</span>
+          <span className="ce-score-label">Concept check score</span>
           <strong>{results.score} / {results.maxScore}</strong>
-          <p>{results.passed ? 'Nice work. You cleared the current passing mark.' : 'You can review the explanations below and retake the knowledge check if you want another try.'}</p>
+          <p>{results.passed ? 'Nice work. You cleared the current passing mark.' : 'You can review the explanations below and retake the concept check if you want another try.'}</p>
         </div>
 
         <div className="ce-save-card">
@@ -127,7 +127,7 @@ export default function EvaluationResults({
       <div className="ce-actions">
         <div className="ce-actions-group">
           <button type="button" className="shared-btn shared-btn-secondary" onClick={onRetake}>
-            Retake Knowledge Check
+            Retake Concept Check
           </button>
           {showRetry && (
             <button

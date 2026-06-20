@@ -16,4 +16,4 @@ export interface AdminSubmissionsResponse {
   evaluations: EvaluationSubmissionRecord[]
 }
 
-export type AdminExportType = 'quiz' | 'evaluations'
+export type AdminExportType = 'quiz' | 'evaluations' | 'quiz-detailed' | 'evaluations-detailed'

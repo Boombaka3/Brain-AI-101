@@ -1,6 +1,6 @@
 function escapeCsvCell(value: unknown) {
   const normalized = value === null || value === undefined ? '' : String(value)
-  if (/[",\n]/.test(normalized)) {
+  if (/[",\r\n]/.test(normalized)) {
     return `"${normalized.replace(/"/g, '""')}"`
   }
   return normalized
@@ -12,5 +12,5 @@ export function toCsv(headers: string[], rows: Array<Array<unknown>>) {
     ...rows.map((row) => row.map(escapeCsvCell).join(',')),
   ]
 
-  return `${lines.join('\n')}\n`
+  return `\uFEFF${lines.join('\r\n')}\r\n`
 }

@@ -9,7 +9,7 @@ const SCALE_OPTIONS = [
 export default function LikertFeedbackSection({
   sectionId = 'course-feedback-heading',
   headingRef,
-  title = 'Course Feedback',
+  title = 'Self-Reflection',
   helperText = 'Rate how strongly you agree with each statement.',
   questions,
   responses,

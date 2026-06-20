@@ -1,7 +1,7 @@
 const STEP_LABELS = {
   feedback: 'Feedback',
   reflection: 'Reflection',
-  knowledge: 'Knowledge Check',
+  knowledge: 'Concept Check',
   results: 'Results',
 }
 
@@ -10,9 +10,9 @@ export default function CourseEvaluationIntro({ currentStep, completedSteps = ne
     <header className="ce-hero">
       <div className="ce-hero-copy">
         <span className="ce-eyebrow">Course Evaluation</span>
-        <h1>Course Evaluation</h1>
+        <h1>Post-Course Reflection</h1>
         <p>
-          Show what you learned and share feedback about the course. Review the course, share feedback, and complete a short knowledge check.
+          Share your feedback and check what you took away from the course.
         </p>
       </div>
 

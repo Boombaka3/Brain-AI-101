@@ -1,6 +1,7 @@
 import type { FormEvent } from 'react'
 import { useMemo, useState } from 'react'
 import { useAdminSubmissions } from '../hooks/useAdminSubmissions'
+import type { AdminExportType } from '../types/admin'
 import '../modules/CourseEvaluation/courseEvaluation.css'
 import './adminSubmissions.css'
 
@@ -69,7 +70,7 @@ export default function AdminSubmissionsPage({ onBack }: { onBack: () => void })
     setInputValue('')
   }
 
-  const handleExport = async (type: 'quiz' | 'evaluations') => {
+  const handleExport = async (type: AdminExportType) => {
     try {
       await exportCsv(type, inputValue)
     } catch {
@@ -276,8 +277,27 @@ export default function AdminSubmissionsPage({ onBack }: { onBack: () => void })
                   >
                     {exporting === 'evaluations' ? 'Exporting…' : 'Export evaluations CSV'}
                   </button>
+                  <button
+                    type="button"
+                    className="shared-btn shared-btn-secondary"
+                    onClick={() => handleExport('quiz-detailed')}
+                    disabled={!canExport}
+                  >
+                    {exporting === 'quiz-detailed' ? 'Exporting…' : 'Export detailed quiz CSV'}
+                  </button>
+                  <button
+                    type="button"
+                    className="shared-btn shared-btn-secondary"
+                    onClick={() => handleExport('evaluations-detailed')}
+                    disabled={!canExport}
+                  >
+                    {exporting === 'evaluations-detailed' ? 'Exporting…' : 'Export detailed evaluations CSV'}
+                  </button>
                 </div>
               </div>
+              <p className="admin-export-note">
+                Detailed exports expand each answer and Likert response into individual columns — ready to open directly in Google Sheets.
+              </p>
             </section>
 
             <section className="ce-panel admin-submissions-panel">

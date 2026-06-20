@@ -22,11 +22,11 @@ export default function KnowledgeCheckSection({
   return (
     <section className="ce-panel" aria-labelledby="knowledge-check-heading">
       <div className="ce-panel-head">
-        <h2 id="knowledge-check-heading" ref={headingRef} tabIndex={-1}>Knowledge Check</h2>
-        <p>Answer each question based on the three modules.</p>
+        <h2 id="knowledge-check-heading" ref={headingRef} tabIndex={-1}>Concept Check</h2>
+        <p>Check what you remember from the modules.</p>
       </div>
 
-      <div className="ce-question-nav" aria-label="Knowledge check question navigation">
+      <div className="ce-question-nav" aria-label="Concept check question navigation">
         {questions.map((item, index) => {
           const isActive = index === safeActiveIndex
           const isAnswered = Boolean(answers[item.id])

@@ -1,6 +1,20 @@
 import type { AdminExportType, AdminSubmissionsResponse, AdminSubmissionsSummary } from '../../types/admin'
 import { requestText } from './client'
 
+const ADMIN_EXPORT_PATHS: Record<AdminExportType, string> = {
+  quiz: '/api/admin/export-quiz.csv',
+  evaluations: '/api/admin/export-evaluations.csv',
+  'quiz-detailed': '/api/admin/export-quiz-detailed.csv',
+  'evaluations-detailed': '/api/admin/export-evaluations-detailed.csv',
+}
+
+const ADMIN_EXPORT_FILENAMES: Record<AdminExportType, string> = {
+  quiz: 'brain-ai-101-quiz-attempts.csv',
+  evaluations: 'brain-ai-101-evaluations.csv',
+  'quiz-detailed': 'brain-ai-101-quiz-detailed.csv',
+  'evaluations-detailed': 'brain-ai-101-evaluations-detailed.csv',
+}
+
 class AdminApiError extends Error {
   kind: 'unauthorized' | 'network' | 'invalid-response' | 'server'
 
@@ -99,15 +113,11 @@ export async function getAdminSubmissions(token: string) {
 }
 
 export function getAdminExportFilename(type: AdminExportType) {
-  return type === 'quiz'
-    ? 'brain-ai-101-quiz-attempts.csv'
-    : 'brain-ai-101-evaluations.csv'
+  return ADMIN_EXPORT_FILENAMES[type]
 }
 
 export async function downloadAdminExport(type: AdminExportType, token: string) {
-  const path = type === 'quiz'
-    ? '/api/admin/export-quiz.csv'
-    : '/api/admin/export-evaluations.csv'
+  const path = ADMIN_EXPORT_PATHS[type]
 
   let csv = ''
 
