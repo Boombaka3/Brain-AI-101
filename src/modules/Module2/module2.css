@@ -1166,12 +1166,56 @@
   gap: 14px;
 }
 
+.m2-explainer-row {
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.m2-explainer-row .m2-explainer-linkout {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.m2-explainer-row .m2-explainer-intro {
+  flex: 0 0 220px;
+}
+
+@media (max-width: 600px) {
+  .m2-explainer-row {
+    flex-direction: column;
+  }
+
+  .m2-explainer-row .m2-explainer-intro {
+    flex: none;
+  }
+}
+
 .m2-explainer-intro {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-left: 3px solid var(--module2-accent);
   border-radius: 12px;
   overflow: hidden;
+}
+
+.m2-explainer-intro__label {
+  margin: 0 0 8px;
+  padding: 11px 20px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.m2-explainer-intro__list {
+  margin: 0;
+  padding: 0 20px 16px 36px;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.65;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .m2-explainer-intro__toggle {

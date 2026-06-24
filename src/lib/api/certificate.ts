@@ -1,10 +1,11 @@
-function extractFilename(contentDisposition: string | null) {
-  if (!contentDisposition) {
-    return 'BrainxAI_101_Certificate.pdf'
-  }
+function extractFilename(contentDisposition: string | null, contentType: string | null) {
+  const ext = contentType?.includes('wordprocessing') ? 'docx' : 'pdf'
+  const fallback = `BrainxAI_101_Certificate.${ext}`
+
+  if (!contentDisposition) return fallback
 
   const match = contentDisposition.match(/filename="([^"]+)"/i)
-  return match?.[1] || 'BrainxAI_101_Certificate.pdf'
+  return match?.[1] || fallback
 }
 
 export async function generateCertificateDocument(recipientName: string) {
@@ -43,6 +44,9 @@ export async function generateCertificateDocument(recipientName: string) {
 
   return {
     blob: await response.blob(),
-    filename: extractFilename(response.headers.get('Content-Disposition')),
+    filename: extractFilename(
+      response.headers.get('Content-Disposition'),
+      response.headers.get('Content-Type'),
+    ),
   }
 }

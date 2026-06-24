@@ -23,7 +23,7 @@ function normalizeOptionalDate(value: unknown) {
     throw new Error('Dates must be valid ISO strings.')
   }
 
-  return new Date(value).toISOString()
+  return new Date(value as string).toISOString()
 }
 
 function normalizeLikertResponses(

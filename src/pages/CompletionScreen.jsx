@@ -298,7 +298,7 @@ function CompletionScreen({ onGoToModule, onBackToHome }) {
                     Your name is stored only for this browser session.
                   </p>
                   <p className="completion-certificate-note">
-                    The certificate is generated on the backend from the official award template and downloads as a PDF. Use the Vercel deployment, or run <code>npm run dev:full</code> locally.
+                    The certificate is generated on the backend from the official award template. Use the Vercel deployment, or run <code>npm run dev:full</code> locally.
                   </p>
                   {nameError ? (
                     <p className="completion-certificate-error" role="alert">{nameError}</p>
@@ -310,7 +310,7 @@ function CompletionScreen({ onGoToModule, onBackToHome }) {
                       onClick={handleGenerateCertificate}
                       disabled={isGeneratingCertificate}
                     >
-                      {isGeneratingCertificate ? 'Generating PDF…' : 'Generate Certificate PDF'}
+                      {isGeneratingCertificate ? 'Generating…' : 'Download Certificate'}
                     </button>
                   </div>
                 </div>

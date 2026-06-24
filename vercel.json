@@ -5,7 +5,8 @@
   "outputDirectory": "dist",
   "functions": {
     "api/certificate/generate.ts": {
-      "includeFiles": "certificate/BrainxAI_101_Certificate_of_Completion.pdf"
+      "includeFiles": "certificate/BrainxAI_101_Certificate_Template.*",
+      "maxDuration": 30
     }
   },
   "headers": [

@@ -7,10 +7,12 @@ const MAX_REQUESTS = 20
 const ipMap = new Map<string, { count: number; resetAt: number }>()
 
 function getIp(req: VercelRequestLike): string {
+  // Prefer the platform-set header (not attacker-controlled) over x-forwarded-for.
+  const realIp = req.headers?.['x-real-ip']
+  if (realIp && !Array.isArray(realIp)) return realIp.trim()
+
   const forwarded = req.headers?.['x-forwarded-for']
-  const ip = Array.isArray(forwarded)
-    ? forwarded[0]
-    : forwarded?.split(',')[0]
+  const ip = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]
   return (ip ?? 'unknown').trim()
 }
 

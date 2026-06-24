@@ -1,4 +1,4 @@
-import { buildCertificateFilename, generateCertificatePdf, normalizeRecipientName } from '../_lib/certificate.js'
+import { buildCertificateFilename, generateCertificateDocument, normalizeRecipientName } from '../_lib/certificate.js'
 import {
   methodNotAllowed,
   readJsonBody,
@@ -10,16 +10,13 @@ import {
 } from '../_lib/http.js'
 import { checkRateLimit } from '../_lib/rateLimit.js'
 
+const MONTHS = [
+  'JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
+  'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER',
+]
+
 interface CertificateRequestPayload {
   recipientName?: string
-}
-
-function currentIssueMonth() {
-  return new Date().toLocaleString('en-US', { month: 'long' }).toUpperCase()
-}
-
-function currentIssueYear() {
-  return String(new Date().getFullYear())
 }
 
 export default async function handler(request: VercelRequestLike, response: VercelResponseLike) {
@@ -40,19 +37,18 @@ export default async function handler(request: VercelRequestLike, response: Verc
       })
     }
 
-    const fileBuffer = await generateCertificatePdf({
-      recipientName,
-      issueMonth: currentIssueMonth(),
-      issueYear: currentIssueYear(),
-      signerName: 'Professor Ruogu Fang, Ph.D.',
-    })
+    const now = new Date()
+    const issueMonth = MONTHS[now.getMonth()]
+    const issueYear = String(now.getFullYear())
+
+    const result = await generateCertificateDocument({ recipientName, issueMonth, issueYear })
 
     return sendBuffer(
       response,
       200,
-      fileBuffer,
-      'application/pdf',
-      buildCertificateFilename(recipientName, 'pdf'),
+      result.buffer,
+      result.mimeType,
+      buildCertificateFilename(recipientName, result.extension),
     )
   } catch (error) {
     return sendJson(response, 500, {
