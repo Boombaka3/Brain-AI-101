@@ -36,16 +36,22 @@ const PDF_LAYOUT = {
     fontSize: 26,
     minFontSize: 16,
     maxWidthRatio: 0.52,
+    clearWidthRatio: 0.68,
+    clearHeight: 40,
   },
   month: {
     xRatio: 0.128,
     yRatio: 0.15,
     fontSize: 16,
+    clearWidth: 120,
+    clearHeight: 24,
   },
   year: {
     xRatio: 0.122,
     yRatio: 0.11,
     fontSize: 18,
+    clearWidth: 72,
+    clearHeight: 24,
   },
 } as const
 
@@ -112,6 +118,29 @@ function fitCenteredText({
   }
 }
 
+function clearTextArea({
+  page,
+  centerX,
+  centerY,
+  width,
+  height,
+}: {
+  page: PDFPage
+  centerX: number
+  centerY: number
+  width: number
+  height: number
+}) {
+  page.drawRectangle({
+    x: centerX - width / 2,
+    y: centerY - height / 2,
+    width,
+    height,
+    color: rgb(1, 1, 1),
+    borderWidth: 0,
+  })
+}
+
 export async function generateCertificatePdf(values: CertificateTemplateValues) {
   const templateBuffer = await readFile(CERTIFICATE_PDF_PATH)
   const pdf = await PDFDocument.load(templateBuffer)
@@ -130,6 +159,14 @@ export async function generateCertificatePdf(values: CertificateTemplateValues) 
     maxWidth: width * PDF_LAYOUT.name.maxWidthRatio,
   })
 
+  clearTextArea({
+    page,
+    centerX: width * PDF_LAYOUT.name.xRatio,
+    centerY: height * PDF_LAYOUT.name.yRatio + namePlacement.fontSize * 0.2,
+    width: width * PDF_LAYOUT.name.clearWidthRatio,
+    height: PDF_LAYOUT.name.clearHeight,
+  })
+
   page.drawText(values.recipientName, {
     x: namePlacement.x,
     y: height * PDF_LAYOUT.name.yRatio,
@@ -138,12 +175,28 @@ export async function generateCertificatePdf(values: CertificateTemplateValues) 
     color: rgb(0.2, 0.14, 0.07),
   })
 
+  clearTextArea({
+    page,
+    centerX: width * PDF_LAYOUT.month.xRatio + PDF_LAYOUT.month.clearWidth / 2,
+    centerY: height * PDF_LAYOUT.month.yRatio + PDF_LAYOUT.month.clearHeight / 2 - 2,
+    width: PDF_LAYOUT.month.clearWidth,
+    height: PDF_LAYOUT.month.clearHeight,
+  })
+
   page.drawText(values.issueMonth, {
     x: width * PDF_LAYOUT.month.xRatio,
     y: height * PDF_LAYOUT.month.yRatio,
     size: PDF_LAYOUT.month.fontSize,
     font: timesRoman,
     color: rgb(0.17, 0.1, 0.05),
+  })
+
+  clearTextArea({
+    page,
+    centerX: width * PDF_LAYOUT.year.xRatio + PDF_LAYOUT.year.clearWidth / 2,
+    centerY: height * PDF_LAYOUT.year.yRatio + PDF_LAYOUT.year.clearHeight / 2 - 2,
+    width: PDF_LAYOUT.year.clearWidth,
+    height: PDF_LAYOUT.year.clearHeight,
   })
 
   page.drawText(values.issueYear, {

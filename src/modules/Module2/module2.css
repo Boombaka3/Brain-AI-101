@@ -1171,17 +1171,52 @@
   border: 1px solid #e2e8f0;
   border-left: 3px solid var(--module2-accent);
   border-radius: 12px;
+  overflow: hidden;
+}
+
+.m2-explainer-intro__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.m2-explainer-intro__toggle:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.m2-explainer-intro__chevron {
+  font-size: 11px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.m2-explainer-intro__chevron--open {
+  transform: rotate(180deg);
+}
+
+.m2-explainer-intro__body {
+  padding: 0 20px 16px;
   color: #475569;
   font-size: 15px;
   line-height: 1.65;
-  padding: 16px 20px;
 }
 
-.m2-explainer-intro p {
+.m2-explainer-intro__body p {
   margin: 0;
 }
 
-.m2-explainer-intro p + p {
+.m2-explainer-intro__body p + p {
   margin-top: 8px;
 }
 
@@ -1458,28 +1493,7 @@
   line-height: 1.6;
   margin: 0;
 }
-.m2-explainer-linkout__list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 6px;
-  text-align: left;
-}
-.m2-explainer-linkout__list li {
-  font-size: 13px;
-  color: #5b21b6;
-  padding-left: 18px;
-  position: relative;
-  line-height: 1.45;
-}
-.m2-explainer-linkout__list li::before {
-  content: '→';
-  position: absolute;
-  left: 0;
-  color: #7c3aed;
-  font-weight: 700;
-}
+
 .m2-explainer-linkout__btn {
   background: linear-gradient(180deg, #7c3aed 0%, #6d28d9 100%);
   border: none;

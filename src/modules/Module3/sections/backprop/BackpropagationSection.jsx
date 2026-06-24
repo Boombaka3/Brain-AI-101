@@ -273,11 +273,68 @@ function BackpropagationSection() {
         <div className="m3-section-heading">
           <p className="m3-eyebrow">D. BACKPROPAGATION</p>
           <h2>Which Weight Gets the Blame?</h2>
-          <p className="m3-section-subtitle">
-            When the model is wrong, not every weight caused the mistake equally.
-            Backpropagation traces the error backward to find which connections
-            need to change — and by how much.
-          </p>
+          <p className="m3-section-intro">The model made a mistake. Which weight was responsible?</p>
+        </div>
+
+        <div className="m3-backprop-stepper">
+          <div className="m3-backprop-stepper__track">
+            {STEPS.map((step, i) => {
+              const isActive = phase === step.id
+              const isVisited = visitedPhases.has(step.id)
+              const isReachable = isVisited || (
+                step.id === 'forward' ||
+                (step.id === 'error' && forwardRun > 0) ||
+                (step.id === 'backward' && errorShown) ||
+                (step.id === 'update' && backwardRun > 0)
+              )
+              return (
+                <button
+                  key={step.id}
+                  className={[
+                    'm3-stepper-step',
+                    isActive ? 'is-active' : '',
+                    isVisited ? 'is-visited' : '',
+                    !isReachable ? 'is-locked' : '',
+                  ].filter(Boolean).join(' ')}
+                  onClick={() => isReachable && HANDLER_MAP[step.handler]()}
+                  disabled={!isReachable}
+                  aria-current={isActive ? 'step' : undefined}
+                >
+                  <span className="m3-stepper-step__num">
+                    {isVisited && !isActive ? '✓' : i + 1}
+                  </span>
+                  <span className="m3-stepper-step__label">{step.label}</span>
+                  <span className="m3-stepper-step__sub">{step.sublabel}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="m3-backprop-stepper__actions">
+            {!isComplete ? (
+              <button
+                className="m3-btn m3-btn--primary m3-stepper-advance"
+                onClick={() => HANDLER_MAP[nextStep.handler]()}
+                disabled={
+                  (nextStep.id === 'error' && forwardRun === 0) ||
+                  (nextStep.id === 'backward' && !errorShown) ||
+                  (nextStep.id === 'update' && backwardRun === 0)
+                }
+              >
+                {phase === 'idle'
+                  ? 'Start — Make a Prediction'
+                  : `Next — ${STEPS[(currentPhaseIndex)]?.label ?? 'Continue'}`
+                }
+              </button>
+            ) : (
+              <div className="m3-stepper-complete">
+                All four steps complete — the model improved.
+              </div>
+            )}
+            <button className="m3-btn m3-stepper-reset" onClick={reset}>
+              Reset
+            </button>
+          </div>
         </div>
 
         <div className="m3-backprop-layout">
@@ -491,102 +548,11 @@ function BackpropagationSection() {
           </div>
 
           <div className="m3-backprop-sidebar">
-            <div className="m3-backprop-explainer">
-              <p className="m3-backprop-label">Explanation</p>
-              <p>
-                Backpropagation means using a mistake to decide what to change.
-              </p>
-              <p>
-                The model makes a prediction, compares it with the target, sends the error backward through the network, and updates the connections that influenced the mistake.
-              </p>
-              <p>
-                The goal is simple: change the model so the next prediction is better.
-              </p>
-            </div>
-
-            <div className="m3-backprop-analogy">
-              <p className="m3-backprop-label">Student analogy</p>
-              <p>
-                Imagine solving a multi-step math problem and getting the final answer wrong.
-              </p>
-              <p>
-                You do not restart blindly. You look back through the steps, find where the reasoning went off track, and fix the parts that caused the mistake.
-              </p>
-              <p>
-                Backpropagation works the same way: it traces the error backward and uses it to adjust the model.
-              </p>
-            </div>
-
-            <div className="m3-backprop-note">
-              <p className="m3-backprop-label">Accuracy note</p>
-              <p>
-                This diagram shows the core idea, not the full mathematics.
-              </p>
-              <p>
-                Real systems use precise calculations to decide the size of each update, but the central idea stays the same: error tells the model what to change.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="m3-backprop-stepper">
-          <div className="m3-backprop-stepper__track">
-            {STEPS.map((step, i) => {
-              const isActive = phase === step.id
-              const isVisited = visitedPhases.has(step.id)
-              const isReachable = isVisited || (
-                step.id === 'forward' ||
-                (step.id === 'error' && forwardRun > 0) ||
-                (step.id === 'backward' && errorShown) ||
-                (step.id === 'update' && backwardRun > 0)
-              )
-              return (
-                <button
-                  key={step.id}
-                  className={[
-                    'm3-stepper-step',
-                    isActive ? 'is-active' : '',
-                    isVisited ? 'is-visited' : '',
-                    !isReachable ? 'is-locked' : '',
-                  ].filter(Boolean).join(' ')}
-                  onClick={() => isReachable && HANDLER_MAP[step.handler]()}
-                  disabled={!isReachable}
-                  aria-current={isActive ? 'step' : undefined}
-                >
-                  <span className="m3-stepper-step__num">
-                    {isVisited && !isActive ? '✓' : i + 1}
-                  </span>
-                  <span className="m3-stepper-step__label">{step.label}</span>
-                  <span className="m3-stepper-step__sub">{step.sublabel}</span>
-                </button>
-              )
-            })}
-          </div>
-
-          <div className="m3-backprop-stepper__actions">
-            {!isComplete ? (
-              <button
-                className="m3-btn m3-btn--primary m3-stepper-advance"
-                onClick={() => HANDLER_MAP[nextStep.handler]()}
-                disabled={
-                  (nextStep.id === 'error' && forwardRun === 0) ||
-                  (nextStep.id === 'backward' && !errorShown) ||
-                  (nextStep.id === 'update' && backwardRun === 0)
-                }
-              >
-                {phase === 'idle'
-                  ? 'Start — Make a Prediction'
-                  : `Next — ${STEPS[(currentPhaseIndex)]?.label ?? 'Continue'}`
-                }
-              </button>
-            ) : (
-              <div className="m3-stepper-complete">
-                All four steps complete — the model improved.
-              </div>
-            )}
-            <button className="m3-btn m3-stepper-reset" onClick={reset}>
-              Reset
-            </button>
+            <p>
+              When the model is wrong, backpropagation traces the error backward through
+              the network to find which connections caused the mistake — and adjusts them.
+              Not every weight is equally responsible. The steps below show how that works.
+            </p>
           </div>
         </div>
 

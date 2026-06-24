@@ -6,10 +6,20 @@ export default function HubelWieselStory() {
       <div className="m2-hw-copy">
         <h3>Hubel & Wiesel's Cat Experiment</h3>
         <p>
-          Hubel and Wiesel recorded from neurons in a cat's visual cortex while showing simple bars of light at different angles. They found that one neuron did not respond equally to every line. It fired most strongly when the line appeared at a preferred angle.
+          David Hubel and Torsten Wiesel recorded from individual neurons in a cat's visual cortex while showing simple patterns of light, including lines or bars at different angles. They found that some neurons did not respond equally to every line. A neuron could fire most strongly when the line appeared at a preferred angle.
         </p>
         <p>
           That is selectivity: a neuron can respond more strongly to one kind of visual feature than another.
+        </p>
+        <p className="m2-source-note">
+          Reference:{' '}
+          <a
+            href="https://doi.org/10.1113/jphysiol.1959.sp006308"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Hubel & Wiesel, 1959
+          </a>
         </p>
       </div>
 

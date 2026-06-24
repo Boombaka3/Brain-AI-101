@@ -53,6 +53,7 @@ function LearningProblem() {
 
   return (
     <section className="m3-section m3-section--centered">
+      <p className="m3-feature-card-label">What the model notices when it sees a &#39;3&#39;:</p>
       <div className="m3-section-card m3-section-card--feature m3-signal-activity m3-learning-problem-card">
         <div className="m3-section-heading">
           <p className="m3-eyebrow">A. LEARNING MEANS CHANGING</p>
@@ -97,10 +98,6 @@ function LearningProblem() {
 
         <div className="m3-signal-activity__grid">
           <article className="m3-mechanism-panel">
-            <div className="m3-mechanism-panel__header">
-              <h3>Input</h3>
-            </div>
-
             <div
               className="m3-digit-card"
             >
@@ -112,6 +109,10 @@ function LearningProblem() {
                   3
                 </div>
               ) : null}
+            </div>
+
+            <div className="m3-mechanism-panel__header">
+              <h3>Input</h3>
             </div>
 
             <p className="m3-section-subtitle m3-learning-copy">
@@ -187,6 +188,7 @@ function LearningProblem() {
             <div className="m3-weight-tile-grid">
               {learningExample.before.weights.map((weight) => {
                 const isStrongest = weight.label === strongestWeight.label
+                const delta = (weight.after - weight.before).toFixed(2)
 
                 return (
                   <div
@@ -197,11 +199,13 @@ function LearningProblem() {
                       <span className="m3-weight-tile__label">{weight.label}</span>
                       {isStrongest ? <span className="m3-weight-tile__tag">Strongest</span> : null}
                     </div>
-                    <strong className="m3-weight-tile__value">
-                      {showWeightUpdate
-                        ? `${weight.before.toFixed(2)} \u2192 ${weight.after.toFixed(2)}`
-                        : weight.before.toFixed(2)}
-                    </strong>
+                    {showWeightUpdate ? (
+                      <span style={{color: delta > 0 ? '#16a34a' : '#dc2626', marginLeft: 8}}>
+                        {delta > 0 ? '+' : ''}{delta}
+                      </span>
+                    ) : (
+                      <span className="m3-weight-val">{weight.before.toFixed(2)}</span>
+                    )}
                   </div>
                 )
               })}

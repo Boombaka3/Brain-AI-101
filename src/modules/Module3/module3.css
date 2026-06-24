@@ -547,7 +547,7 @@
 }
 
 .m3-backprop-connection.is-update {
-  animation: m3BackpropWeightFlash 0.9s ease-in-out infinite alternate;
+  animation: m3BackpropWeightFlash 0.9s ease-in-out infinite normal;
   opacity: 1;
   stroke: #22c55e;
 }
@@ -3638,6 +3638,12 @@
   border-color: #a7f3d0;
 }
 
+.m3-feature-card-label {
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
 .m3-learning-problem-card .m3-compare-card {
   background: transparent;
   border: none;
@@ -3794,6 +3800,13 @@
 
 .m3-weight-tile.is-updated .m3-weight-tile__value {
   color: #047857;
+}
+
+.m3-weight-val {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: #374151;
+  font-weight: 500;
 }
 
 .m3-signal-activity__input-grid {

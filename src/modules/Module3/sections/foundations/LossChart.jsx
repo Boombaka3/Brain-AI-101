@@ -1,8 +1,8 @@
 import React from 'react'
 
-const CHART_W = 320
-const CHART_H = 120
-const PAD = { top: 16, right: 16, bottom: 28, left: 36 }
+const CHART_W = 480
+const CHART_H = 300
+const PAD = { top: 24, right: 20, bottom: 44, left: 48 }
 
 function LossChart({ trainingHistory, roundIndex }) {
   const visibleSteps = trainingHistory.filter((s) => s.round <= roundIndex)
