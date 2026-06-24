@@ -742,9 +742,6 @@
   gap: 10px;
 }
 
-.m3-backprop-weight-panel--network {
-  margin-top: 2px;
-}
 
 .m3-backprop-weight-panel__header {
   display: grid;

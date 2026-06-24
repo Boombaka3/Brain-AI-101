@@ -516,35 +516,6 @@ function BackpropagationSection() {
               ) : null}
             </svg>
 
-            {(phase === 'backward' || phase === 'update') && (
-              <div className="m3-backprop-weight-panel m3-backprop-weight-panel--network">
-                <div className="m3-backprop-weight-panel__header">
-                  <p className="m3-backprop-label">
-                    {phase === 'update' ? 'Weights updated' : 'Connections that will change'}
-                  </p>
-                </div>
-                <div className="m3-backprop-weight-panel__list">
-                  {DETAIL_WEIGHTS.map((item) => {
-                    const before = START_WEIGHTS[item.id]
-                    const after = UPDATED_WEIGHTS[item.id]
-                    const changed = before !== after
-
-                    return (
-                      <div key={item.id} className={`m3-backprop-weight-row${changed ? ' is-change' : ''}${weightsUpdated && changed ? ' is-updated' : ''}`}>
-                        <span>{item.label}</span>
-                        <strong>{before.toFixed(1)} -&gt; {after.toFixed(1)}</strong>
-                        {weightsUpdated && changed
-                          ? <em className="is-updated-tag">↑ +{(after - before).toFixed(1)}</em>
-                          : changed
-                            ? <em className="is-change-tag">Will change</em>
-                            : <em className="is-nochange-tag">No change</em>
-                        }
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="m3-backprop-sidebar">
@@ -553,6 +524,41 @@ function BackpropagationSection() {
               the network to find which connections caused the mistake — and adjusts them.
               Not every weight is equally responsible. The steps below show how that works.
             </p>
+
+            <div className="m3-backprop-weight-panel">
+              <div className="m3-backprop-weight-panel__header">
+                <p className="m3-backprop-label">
+                  {weightsUpdated
+                    ? 'Weights updated'
+                    : phase === 'backward'
+                      ? 'Connections that will change'
+                      : 'Weight changes'}
+                </p>
+              </div>
+              <div className="m3-backprop-weight-panel__list">
+                {DETAIL_WEIGHTS.map((item) => {
+                  const before = START_WEIGHTS[item.id]
+                  const after = UPDATED_WEIGHTS[item.id]
+                  const changed = before !== after
+                  const showChange = phase === 'backward' || phase === 'update' || weightsUpdated
+
+                  return (
+                    <div key={item.id} className={`m3-backprop-weight-row${changed && showChange ? ' is-change' : ''}${weightsUpdated && changed ? ' is-updated' : ''}`}>
+                      <span>{item.label}</span>
+                      <strong>{before.toFixed(1)} → {after.toFixed(1)}</strong>
+                      {weightsUpdated && changed
+                        ? <em className="is-updated-tag">↑ +{(after - before).toFixed(1)}</em>
+                        : changed && showChange
+                          ? <em className="is-change-tag">Will change</em>
+                          : changed
+                            ? <em className="is-nochange-tag">—</em>
+                            : <em className="is-nochange-tag">No change</em>
+                      }
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           </div>
         </div>
 
