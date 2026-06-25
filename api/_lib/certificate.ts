@@ -67,25 +67,38 @@ async function fillDocxTemplate(values: CertificateTemplateValues): Promise<Buff
   // Remove those markers first so the adjacent runs become contiguous.
   xml = xml.replace(/<w:proofErr[^>]*\/>/g, '')
 
-  // Try single-run replacement first (future-proof if template is ever fixed).
-  // If not found, match the known three-run split pattern and collapse it into
-  // one run, keeping the middle run's rPr (48pt bold) for the name.
+  // rPr safe-content pattern: matches everything inside <w:rPr>...</w:rPr>
+  // without crossing element boundaries. [\s\S]*? (lazy any-char) is unsafe here
+  // because it backtracks across </w:rPr> closing tags and ends up matching whole
+  // swathes of unrelated XML. The pattern below stops at the first </w:rPr>.
+  const RPC = '(?:[^<]|<(?!\\/w:rPr>))*' // rPr content — no [\s\S]*?
+
+  // {{recipient_name}} is split by Word's spell-checker across three adjacent runs:
+  //   run("{{")  run("recipient_name")  run("}}")
+  // After proofErr removal they are contiguous. Collapse all three into one run
+  // at the Name paragraph style size (sz=74 = 37pt, bold).
   if (xml.includes('{{recipient_name}}')) {
     xml = xml.split('{{recipient_name}}').join(escapeXml(values.recipientName))
   } else {
-    xml = xml.replace(
-      /<w:r\b[^>]*>(?:<w:rPr>[\s\S]*?<\/w:rPr>)?<w:t(?:\s[^>]*)?>{{<\/w:t><\/w:r><w:r\b[^>]*>(<w:rPr>[\s\S]*?<\/w:rPr>)?<w:t(?:\s[^>]*)?>recipient_name<\/w:t><\/w:r><w:r\b[^>]*>(?:<w:rPr>[\s\S]*?<\/w:rPr>)?<w:t(?:\s[^>]*)?>}}<\/w:t><\/w:r>/,
-      (_match, rPr?: string) =>
-        `<w:r>${rPr ?? ''}<w:t xml:space="preserve">${escapeXml(values.recipientName)}</w:t></w:r>`,
+    const nameRe = new RegExp(
+      `<w:r\\b[^>]*>(?:<w:rPr>${RPC}<\\/w:rPr>)?<w:t[^>]*>\\{\\{<\\/w:t><\\/w:r>` +
+      `<w:r\\b[^>]*>(?:<w:rPr>${RPC}<\\/w:rPr>)?<w:t[^>]*>recipient_name<\\/w:t><\\/w:r>` +
+      `<w:r\\b[^>]*>(?:<w:rPr>${RPC}<\\/w:rPr>)?<w:t[^>]*>\\}\\}<\\/w:t><\\/w:r>`,
+    )
+    xml = xml.replace(nameRe,
+      `<w:r><w:rPr><w:b/><w:bCs/><w:sz w:val="74"/><w:szCs w:val="74"/></w:rPr>` +
+      `<w:t xml:space="preserve">${escapeXml(values.recipientName)}</w:t></w:r>`,
     )
   }
 
-  // Month: inject 24pt (sz=48) explicitly — the run uses the "Date" paragraph
-  // style which is too small. Add/merge the font size into the run's rPr.
-  xml = xml.replace(
-    /(<w:r[^>]*>)(<w:rPr>[\s\S]*?<\/w:rPr>)?(<w:t[^>]*>)\{\{issue_month\}\}(<\/w:t><\/w:r>)/,
+  // Month: the Date paragraph style defines only 13pt (sz=26). Override with 20pt
+  // by injecting an explicit sz on the replacement run.
+  const monthRe = new RegExp(
+    `(<w:r[^>]*>)(<w:rPr>${RPC}<\\/w:rPr>)?(<w:t[^>]*>)\\{\\{issue_month\\}\\}(<\\/w:t><\\/w:r>)`,
+  )
+  xml = xml.replace(monthRe,
     (_m, runOpen: string, rPr: string | undefined, tOpen: string, tClose: string) => {
-      const fontProps = '<w:sz w:val="48"/><w:szCs w:val="48"/>'
+      const fontProps = '<w:sz w:val="40"/><w:szCs w:val="40"/>'
       const newRPr = rPr
         ? rPr.replace('</w:rPr>', `${fontProps}</w:rPr>`)
         : `<w:rPr>${fontProps}</w:rPr>`
@@ -93,14 +106,16 @@ async function fillDocxTemplate(values: CertificateTemplateValues): Promise<Buff
     },
   )
 
-  // Year: bump explicit font size from 14pt (sz=28) to 24pt (sz=48) before
-  // replacing the placeholder so the substituted text inherits the larger size.
-  xml = xml.replace(
-    /(<w:r[^>]*>)(<w:rPr>)([\s\S]*?)(<\/w:rPr>)(<w:t[^>]*>)\{\{issue_year\}\}/,
+  // Year: the run carries an inline sz=28 (14pt) that overrides the Year paragraph
+  // style's sz=64 (32pt). Replace sz=28 → sz=64 so the style size is honoured.
+  const yearRe = new RegExp(
+    `(<w:r[^>]*>)(<w:rPr>)(${RPC})(<\\/w:rPr>)(<w:t[^>]*>)\\{\\{issue_year\\}\\}`,
+  )
+  xml = xml.replace(yearRe,
     (_m, runOpen: string, rPrOpen: string, rPrContent: string, rPrClose: string, tOpen: string) => {
       const fixed = rPrContent
-        .replace(/(<w:sz w:val=")28(")/g, '$148$2')
-        .replace(/(<w:szCs w:val=")28(")/g, '$148$2')
+        .replace(/<w:sz w:val="28"\/>/, '<w:sz w:val="64"/>')
+        .replace(/<w:szCs w:val="28"\/>/, '<w:szCs w:val="64"/>')
       return `${runOpen}${rPrOpen}${fixed}${rPrClose}${tOpen}{{issue_year}}`
     },
   )
