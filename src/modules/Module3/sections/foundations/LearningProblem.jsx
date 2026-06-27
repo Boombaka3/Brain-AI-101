@@ -1,5 +1,12 @@
 import { useState } from 'react'
 
+const weights = [
+  { label: 'Top arc',         desc: 'curve at the top',        color: '#534AB7', before: 0.32, after: 0.47 },
+  { label: 'Middle point',    desc: 'where the strokes meet',  color: '#1D9E75', before: 0.51, after: 0.34 },
+  { label: 'Open right side', desc: 'gap on the right',        color: '#D85A30', before: 0.21, after: 0.39 },
+  { label: 'Bottom arc',      desc: 'curve at the bottom',     color: '#BA7517', before: 0.44, after: 0.52 },
+]
+
 const learningExample = {
   inputLabel: 'Handwritten digit',
   target: '3',
@@ -47,22 +54,16 @@ function LearningProblem() {
     setStep((currentStep) => Math.min(currentStep + 1, 4))
   }
 
-  const strongestWeight = learningExample.before.weights.reduce((strongest, weight) => (
-    weight.before > strongest.before ? weight : strongest
-  ), learningExample.before.weights[0])
-
   return (
     <section className="m3-section m3-section--centered">
-      <p className="m3-feature-card-label">What the model notices when it sees a &#39;3&#39;:</p>
+      <p className="m3-feature-card-label">What the model checks when it sees a &#39;3&#39;:</p>
       <div className="m3-section-card m3-section-card--feature m3-signal-activity m3-learning-problem-card">
         <div className="m3-section-heading">
           <p className="m3-eyebrow">A. LEARNING MEANS CHANGING</p>
           <h2>Can the model correct itself?</h2>
           <p className="m3-section-subtitle">
-            A model improves when it compares its prediction with the correct answer.
-          </p>
-          <p className="m3-section-subtitle">
-            First, it makes a prediction. Then it checks the target. The difference is the error. The model uses that error to adjust its weights, so the next prediction can improve.
+            Each round, the model makes a guess, checks how wrong it was,
+            and nudges its weights in the right direction.
           </p>
         </div>
 
@@ -98,23 +99,14 @@ function LearningProblem() {
 
         <div className="m3-signal-activity__grid">
           <article className="m3-mechanism-panel">
-            <div
-              className="m3-digit-card"
-            >
-              {step >= 0 ? (
-                <div
-                  aria-label="Handwritten digit 3"
-                  className="m3-digit-mark"
-                >
-                  3
-                </div>
-              ) : null}
-            </div>
-
+            <img
+              src="/assets/module3/digit3_feature_boxes.svg"
+              alt="Digit 3 with four labeled feature boxes: top arc, middle point, open right side, and bottom arc"
+              className="m3-digit-asset"
+            />
             <div className="m3-mechanism-panel__header">
               <h3>Input</h3>
             </div>
-
             <p className="m3-section-subtitle m3-learning-copy">
               {step >= 0 ? `The model receives an input: a ${learningExample.inputLabel.toLowerCase()}.` : ''}
             </p>
@@ -142,11 +134,11 @@ function LearningProblem() {
                     <strong>{showError ? learningExample.before.error.toFixed(2) : '...'}</strong>
                   </div>
                   <div className="m3-compare-metric">
-                    <span>Target confidence</span>
+                    <span>Correct answer score</span>
                     <strong>{showError ? `${learningExample.before.confidenceTarget}%` : '...'}</strong>
                   </div>
                   <div className="m3-compare-metric">
-                    <span>Wrong-answer confidence</span>
+                    <span>Wrong answer score</span>
                     <strong>{showError ? `${learningExample.before.confidenceWrong}%` : '...'}</strong>
                   </div>
                 </div>
@@ -168,11 +160,11 @@ function LearningProblem() {
                     <strong>{showImprovedPrediction ? learningExample.after.error.toFixed(2) : '...'}</strong>
                   </div>
                   <div className="m3-compare-metric">
-                    <span>Target confidence</span>
+                    <span>Correct answer score</span>
                     <strong>{showImprovedPrediction ? `${learningExample.after.confidenceTarget}%` : '...'}</strong>
                   </div>
                   <div className="m3-compare-metric">
-                    <span>Wrong-answer confidence</span>
+                    <span>Wrong answer score</span>
                     <strong>{showImprovedPrediction ? `${learningExample.after.confidenceWrong}%` : '...'}</strong>
                   </div>
                 </div>
@@ -181,35 +173,7 @@ function LearningProblem() {
           </article>
 
           <article className="m3-mechanism-panel">
-            <div className="m3-mechanism-panel__header">
-              <h3>Weights</h3>
-            </div>
-
-            <div className="m3-weight-tile-grid">
-              {learningExample.before.weights.map((weight) => {
-                const isStrongest = weight.label === strongestWeight.label
-                const delta = (weight.after - weight.before).toFixed(2)
-
-                return (
-                  <div
-                    key={weight.label}
-                    className={`m3-weight-tile${isStrongest ? ' is-strongest' : ''}${showWeightUpdate ? ' is-updated' : ''}`}
-                  >
-                    <div className="m3-weight-tile__head">
-                      <span className="m3-weight-tile__label">{weight.label}</span>
-                      {isStrongest ? <span className="m3-weight-tile__tag">Strongest</span> : null}
-                    </div>
-                    {showWeightUpdate ? (
-                      <span style={{color: delta > 0 ? '#16a34a' : '#dc2626', marginLeft: 8}}>
-                        {delta > 0 ? '+' : ''}{delta}
-                      </span>
-                    ) : (
-                      <span className="m3-weight-val">{weight.before.toFixed(2)}</span>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+            <h3 className="m3-mechanism-panel__header">What the model checks</h3>
           </article>
         </div>
 

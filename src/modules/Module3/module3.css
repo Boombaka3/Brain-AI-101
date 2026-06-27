@@ -3744,66 +3744,100 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.m3-weight-tile {
-  aspect-ratio: 1 / 1;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-  border: 1px solid #dbe7e2;
-  border-radius: 22px;
-  display: grid;
-  gap: 14px;
-  align-content: space-between;
-  min-height: 150px;
-  padding: 18px;
-}
-
-.m3-weight-tile.is-strongest {
-  background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
-  border-color: #34d399;
-  box-shadow: 0 10px 22px rgba(5, 150, 105, 0.1);
-}
-
-.m3-weight-tile__head {
-  display: grid;
-  gap: 8px;
-  justify-items: start;
-}
-
-.m3-weight-tile__label {
-  color: #334155;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.m3-weight-tile__tag {
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  border-radius: 999px;
-  color: #047857;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  padding: 5px 8px;
-  text-transform: uppercase;
-}
-
-.m3-weight-tile__value {
-  color: #0f172a;
-  font-size: 1.3rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.m3-weight-tile.is-updated .m3-weight-tile__value {
-  color: #047857;
-}
 
 .m3-weight-val {
   margin-left: auto;
   font-size: 0.85rem;
   color: #374151;
   font-weight: 500;
+}
+
+.m3-digit-asset {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.m3-digit-annotation {
+  display: grid;
+  grid-template-columns: 140px 1fr 140px;
+  grid-template-rows: auto;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+.m3-digit-svg {
+  grid-column: 2;
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
+  display: block;
+}
+.m3-digit-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: center;
+}
+.m3-digit-labels--left { grid-column: 1; align-items: flex-end; }
+.m3-digit-labels--right { grid-column: 3; align-items: flex-start; }
+.m3-feat-card {
+  border: 1px solid;
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  min-width: 110px;
+  max-width: 140px;
+}
+.m3-feat-card__label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.m3-feat-card__desc {
+  font-size: 0.72rem;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+.m3-weight-bars-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0 4px;
+}
+.m3-wbar-row {
+  display: grid;
+  grid-template-columns: 10px 120px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+}
+.m3-wbar-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.m3-wbar-name {
+  font-size: 0.8rem;
+  color: var(--color-text-primary);
+}
+.m3-wbar-track {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.m3-wbar-fill {
+  height: 6px;
+  border-radius: 3px;
+  min-width: 4px;
+  transition: width 0.4s ease;
+}
+.m3-wbar-fill--before { background: #d1d5db; }
+.m3-wbar-val {
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-align: right;
+  transition: color 0.3s;
 }
 
 .m3-signal-activity__input-grid {
