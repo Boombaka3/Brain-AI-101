@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react'
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import Chart from 'chart.js/auto'
 import { useAdminSubmissions } from '../hooks/useAdminSubmissions'
 import type { AdminExportType } from '../types/admin'
 import type { EvaluationSubmissionRecord, QuizAttemptRecord } from '../types/submission'
@@ -7,15 +8,16 @@ import '../modules/CourseEvaluation/courseEvaluation.css'
 import './adminSubmissions.css'
 
 const LIKERT_ITEMS = [
-  { id: 'likert-1', label: 'Neuron parts' },
-  { id: 'likert-2', label: 'Signal flow' },
-  { id: 'likert-3', label: 'Bio vs artificial neuron' },
-  { id: 'likert-4', label: 'Inputs, weights, activation' },
-  { id: 'likert-5', label: 'Learning from feedback' },
-  { id: 'likert-6', label: 'Interest in AI/neuro' },
+  { id: 'likert-1', code: 'L1', label: 'Neuron parts', detailLabel: 'Explain neuron parts' },
+  { id: 'likert-2', code: 'L2', label: 'Signal flow', detailLabel: 'Signal flow' },
+  { id: 'likert-3', code: 'L3', label: 'Bio vs artificial neuron', detailLabel: 'ANN vs bio neuron' },
+  { id: 'likert-4', code: 'L4', label: 'Inputs, weights, activation', detailLabel: 'ANN inputs/weights' },
+  { id: 'likert-5', code: 'L5', label: 'Learning from feedback', detailLabel: 'AI learning feedback' },
+  { id: 'likert-6', code: 'L6', label: 'Interest in AI/neuro', detailLabel: 'Interest in neuro+AI' },
 ]
 
 const SCORE_BUCKETS = Array.from({ length: 11 }, (_, score) => score)
+const SCORE_LABELS = Array.from({ length: 11 }, (_, i) => String(i))
 
 type AdminSessionFilter = 'all' | 'paired' | 'passed' | 'failed'
 
@@ -125,6 +127,7 @@ export default function AdminSubmissionsPage({ onBack }: { onBack: () => void })
     hasStoredToken,
     isLoading,
   } = useAdminSubmissions()
+  const scoreChartRef = useRef<HTMLCanvasElement | null>(null)
   const [inputValue, setInputValue] = useState(token)
   const [searchText, setSearchText] = useState('')
   const [submissionFilter, setSubmissionFilter] = useState<'all' | 'quiz' | 'evaluations' | 'pre-course' | 'post-course'>('all')
@@ -132,6 +135,7 @@ export default function AdminSubmissionsPage({ onBack }: { onBack: () => void })
   const [sessionSearchText, setSessionSearchText] = useState('')
   const [sessionFilter, setSessionFilter] = useState<AdminSessionFilter>('all')
   const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null)
+  const [expandedQuizSessionId, setExpandedQuizSessionId] = useState<string | null>(null)
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -285,6 +289,82 @@ export default function AdminSubmissionsPage({ onBack }: { onBack: () => void })
         return true
       })
   }, [analyticsData, sessionFilter, sessionSearchText])
+
+  const scoreDistributionCounts = useMemo(
+    () => analyticsData?.scoreDistribution.map((bucket) => bucket.count) ?? SCORE_BUCKETS.map(() => 0),
+    [analyticsData],
+  )
+  const hasQuizAttempts = Boolean(data?.quizAttempts.length)
+
+  useEffect(() => {
+    const canvas = scoreChartRef.current
+    if (!canvas || !hasQuizAttempts) {
+      return
+    }
+
+    const chart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: SCORE_LABELS,
+        datasets: [
+          {
+            data: scoreDistributionCounts,
+            backgroundColor: SCORE_BUCKETS.map((score) => (score >= 7 ? '#1D9E75' : '#E24B4A')),
+            borderRadius: {
+              topLeft: 4,
+              topRight: 4,
+            },
+            borderSkipped: 'bottom',
+            barThickness: 32,
+          },
+        ],
+      },
+      options: {
+        maintainAspectRatio: false,
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false,
+          },
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Score',
+            },
+            grid: {
+              display: false,
+            },
+            ticks: {
+              autoSkip: false,
+              maxRotation: 0,
+              minRotation: 0,
+            },
+          },
+          y: {
+            beginAtZero: true,
+            min: 0,
+            title: {
+              display: true,
+              text: 'Students',
+            },
+            grid: {
+              color: '#e5e7eb',
+            },
+            ticks: {
+              precision: 0,
+              stepSize: 1,
+            },
+          },
+        },
+      },
+    })
+
+    return () => {
+      chart.destroy()
+    }
+  }, [hasQuizAttempts, scoreDistributionCounts])
 
   const filteredData = useMemo(() => {
     if (!data) {
@@ -608,18 +688,22 @@ export default function AdminSubmissionsPage({ onBack }: { onBack: () => void })
                     <tbody>
                       {filteredSessionRows.map((row) => {
                         const isExpanded = expandedSessionId === row.sessionId
-                        const passTone = row.quiz ? (row.quiz.passed ? 'passed' : 'failed') : 'missing'
+                        const isQuizExpanded = expandedQuizSessionId === row.sessionId
 
                         return (
                           <Fragment key={row.sessionId}>
                             <tr
                               className={`admin-session-row${isExpanded ? ' admin-session-row--expanded' : ''}`}
                               tabIndex={0}
-                              onClick={() => setExpandedSessionId(isExpanded ? null : row.sessionId)}
+                              onClick={() => {
+                                setExpandedSessionId(isExpanded ? null : row.sessionId)
+                                setExpandedQuizSessionId(null)
+                              }}
                               onKeyDown={(event) => {
                                 if (event.key === 'Enter' || event.key === ' ') {
                                   event.preventDefault()
                                   setExpandedSessionId(isExpanded ? null : row.sessionId)
+                                  setExpandedQuizSessionId(null)
                                 }
                               }}
                             >
@@ -627,12 +711,17 @@ export default function AdminSubmissionsPage({ onBack }: { onBack: () => void })
                                 {truncateSessionId(row.sessionId)}
                               </td>
                               <td>
-                                <span className="admin-score-cell">
+                                <button
+                                  type="button"
+                                  className="admin-score-cell-button"
+                                  onClick={(event) => {
+                                    event.stopPropagation()
+                                    setExpandedQuizSessionId(isQuizExpanded ? null : row.sessionId)
+                                    setExpandedSessionId(null)
+                                  }}
+                                >
                                   {row.quiz ? `${row.quiz.score}/${row.quiz.maxScore}` : '—'}
-                                  <span className={`admin-pass-badge admin-pass-badge--${passTone}`}>
-                                    {row.quiz ? (row.quiz.passed ? 'Pass' : 'Fail') : 'No quiz'}
-                                  </span>
-                                </span>
+                                </button>
                               </td>
                               <td>{formatMetric(row.preAvg)}</td>
                               <td>{formatMetric(row.postAvg)}</td>
@@ -646,29 +735,46 @@ export default function AdminSubmissionsPage({ onBack }: { onBack: () => void })
                               <tr className="admin-session-detail-row">
                                 <td colSpan={5}>
                                   <div className="admin-session-detail">
-                                    {LIKERT_ITEMS.map((item) => {
-                                      const preValue = getLikertValue(row.pre?.likertResponses, item.id)
-                                      const postValue = getLikertValue(row.post?.likertResponses, item.id)
-                                      const preWidth = `${Math.max(0, Math.min(100, ((preValue ?? 0) / 5) * 100))}%`
-                                      const postWidth = `${Math.max(0, Math.min(100, ((postValue ?? 0) / 5) * 100))}%`
+                                    <table className="admin-session-detail-table">
+                                      <thead>
+                                        <tr>
+                                          <th>Item</th>
+                                          <th>Question (short label)</th>
+                                          <th>Pre</th>
+                                          <th>Post</th>
+                                          <th>Δ</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {LIKERT_ITEMS.map((item) => {
+                                          const preValue = getLikertValue(row.pre?.likertResponses, item.id)
+                                          const postValue = getLikertValue(row.post?.likertResponses, item.id)
+                                          const itemDelta = preValue !== null && postValue !== null ? postValue - preValue : null
 
-                                      return (
-                                        <div className="admin-session-mini-row" key={item.id}>
-                                          <span className="admin-session-mini-label">{item.label}</span>
-                                          <div className="admin-session-mini-bars">
-                                            <span className="admin-session-mini-track" aria-label={`Pre ${item.label}: ${preValue ?? 'missing'}`}>
-                                              <span className="admin-session-mini-fill admin-session-mini-fill--pre" style={{ width: preWidth }} />
-                                            </span>
-                                            <span className="admin-session-mini-track" aria-label={`Post ${item.label}: ${postValue ?? 'missing'}`}>
-                                              <span className="admin-session-mini-fill admin-session-mini-fill--post" style={{ width: postWidth }} />
-                                            </span>
-                                          </div>
-                                          <span className="admin-session-mini-values">
-                                            {preValue ?? '—'} / {postValue ?? '—'}
-                                          </span>
-                                        </div>
-                                      )
-                                    })}
+                                          return (
+                                            <tr key={item.id}>
+                                              <td>{item.code}</td>
+                                              <td>{item.detailLabel}</td>
+                                              <td>{preValue ?? '—'}</td>
+                                              <td>{postValue ?? '—'}</td>
+                                              <td className={`admin-session-detail-delta admin-session-detail-delta--${deltaTone(itemDelta)}`}>
+                                                {itemDelta === null ? '—' : `${itemDelta > 0 ? '+' : ''}${itemDelta}`}
+                                              </td>
+                                            </tr>
+                                          )
+                                        })}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </td>
+                              </tr>
+                            ) : null}
+                            {isQuizExpanded ? (
+                              <tr className="admin-session-detail-row">
+                                <td colSpan={5}>
+                                  <div className="admin-quiz-detail">
+                                    <strong>Quiz score: {row.quiz ? `${row.quiz.score}/${row.quiz.maxScore}` : '—'}</strong>
+                                    <p>Per-question breakdown not available.</p>
                                   </div>
                                 </td>
                               </tr>
@@ -689,26 +795,8 @@ export default function AdminSubmissionsPage({ onBack }: { onBack: () => void })
               </div>
 
               {analyticsData && data.quizAttempts.length > 0 ? (
-                <div className="admin-score-distribution" aria-label="Quiz score distribution chart">
-                  {analyticsData.scoreDistribution.map((bucket) => {
-                    const barHeight = bucket.count === 0
-                      ? '0%'
-                      : `${Math.max(8, (bucket.count / analyticsData.maxScoreCount) * 100)}%`
-                    const tone = bucket.score >= 7 ? 'pass' : 'fail'
-
-                    return (
-                      <div className="admin-score-column" key={bucket.score}>
-                        <span className="admin-score-count">{bucket.count}</span>
-                        <span className="admin-score-bar-track">
-                          <span
-                            className={`admin-score-bar-fill admin-score-bar-fill--${tone}`}
-                            style={{ height: barHeight }}
-                          />
-                        </span>
-                        <span className="admin-score-label">{bucket.score}</span>
-                      </div>
-                    )
-                  })}
+                <div className="admin-score-chart-wrap" aria-label="Quiz score distribution chart">
+                  <canvas ref={scoreChartRef} />
                 </div>
               ) : (
                 <p className="admin-empty-note">No quiz attempts are available for score distribution yet.</p>
