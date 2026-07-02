@@ -1,9 +1,34 @@
 import type { FormEvent } from 'react'
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { useAdminSubmissions } from '../hooks/useAdminSubmissions'
 import type { AdminExportType } from '../types/admin'
+import type { EvaluationSubmissionRecord, QuizAttemptRecord } from '../types/submission'
 import '../modules/CourseEvaluation/courseEvaluation.css'
 import './adminSubmissions.css'
+
+const LIKERT_ITEMS = [
+  { id: 'likert-1', label: 'Neuron parts' },
+  { id: 'likert-2', label: 'Signal flow' },
+  { id: 'likert-3', label: 'Bio vs artificial neuron' },
+  { id: 'likert-4', label: 'Inputs, weights, activation' },
+  { id: 'likert-5', label: 'Learning from feedback' },
+  { id: 'likert-6', label: 'Interest in AI/neuro' },
+]
+
+const SCORE_BUCKETS = Array.from({ length: 11 }, (_, score) => score)
+
+type AdminSessionFilter = 'all' | 'paired' | 'passed' | 'failed'
+
+interface AdminSessionAnalyticsRow {
+  sessionId: string
+  pre: EvaluationSubmissionRecord | null
+  post: EvaluationSubmissionRecord | null
+  quiz: QuizAttemptRecord | null
+  preAvg: number | null
+  postAvg: number | null
+  delta: number | null
+  paired: boolean
+}
 
 function formatDate(value: string | null) {
   if (!value) {
@@ -36,6 +61,56 @@ function matchesSearch(haystack: Array<string | number | null | undefined>, quer
   return haystack.some((value) => String(value || '').toLowerCase().includes(normalizedQuery))
 }
 
+function getLikertValue(responses: Record<string, number> | undefined, id: string) {
+  const value = responses?.[id]
+  return Number.isFinite(value) ? value : null
+}
+
+function averageLikert(responses: Record<string, number> | undefined) {
+  const values = LIKERT_ITEMS
+    .map((item) => getLikertValue(responses, item.id))
+    .filter((value): value is number => value !== null)
+
+  if (values.length === 0) {
+    return null
+  }
+
+  return values.reduce((sum, value) => sum + value, 0) / values.length
+}
+
+function latestBySubmittedAt<T extends { submittedAt: string }>(items: T[]) {
+  return [...items].sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())[0] ?? null
+}
+
+function formatMetric(value: number | null | undefined, digits = 2) {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return '—'
+  }
+
+  return value.toFixed(digits)
+}
+
+function formatDelta(value: number | null | undefined) {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return '—'
+  }
+
+  const prefix = value > 0 ? '+' : ''
+  return `${prefix}${value.toFixed(2)}`
+}
+
+function deltaTone(value: number | null | undefined) {
+  if (value === null || value === undefined || Math.abs(value) < 0.005) {
+    return 'neutral'
+  }
+
+  return value > 0 ? 'positive' : 'negative'
+}
+
+function truncateSessionId(sessionId: string) {
+  return sessionId.length > 8 ? sessionId.slice(0, 8) : sessionId
+}
+
 export default function AdminSubmissionsPage({ onBack }: { onBack: () => void }) {
   const {
     token,
@@ -54,6 +129,9 @@ export default function AdminSubmissionsPage({ onBack }: { onBack: () => void })
   const [searchText, setSearchText] = useState('')
   const [submissionFilter, setSubmissionFilter] = useState<'all' | 'quiz' | 'evaluations' | 'pre-course' | 'post-course'>('all')
   const [sortMode, setSortMode] = useState<'newest' | 'oldest'>('newest')
+  const [sessionSearchText, setSessionSearchText] = useState('')
+  const [sessionFilter, setSessionFilter] = useState<AdminSessionFilter>('all')
+  const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null)
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -80,6 +158,133 @@ export default function AdminSubmissionsPage({ onBack }: { onBack: () => void })
 
   const isEmpty = data && data.quizAttempts.length === 0 && data.evaluations.length === 0
   const canExport = Boolean(inputValue.trim()) && status === 'success' && Boolean(data) && !isLoading && exporting === null
+
+  const analyticsData = useMemo(() => {
+    if (!data) {
+      return null
+    }
+
+    const groupedSessions = new Map<string, {
+      pre: EvaluationSubmissionRecord[]
+      post: EvaluationSubmissionRecord[]
+      quiz: QuizAttemptRecord[]
+    }>()
+
+    const ensureSession = (sessionId: string) => {
+      const existing = groupedSessions.get(sessionId)
+      if (existing) {
+        return existing
+      }
+
+      const next = { pre: [], post: [], quiz: [] }
+      groupedSessions.set(sessionId, next)
+      return next
+    }
+
+    data.evaluations.forEach((submission) => {
+      const session = ensureSession(submission.sessionId)
+      if (submission.source === 'pre-course') {
+        session.pre.push(submission)
+      }
+
+      if (submission.source === 'course-evaluation') {
+        session.post.push(submission)
+      }
+    })
+
+    data.quizAttempts.forEach((attempt) => {
+      ensureSession(attempt.sessionId).quiz.push(attempt)
+    })
+
+    const sessionRows: AdminSessionAnalyticsRow[] = Array.from(groupedSessions.entries())
+      .map(([sessionId, records]) => {
+        const pre = latestBySubmittedAt(records.pre)
+        const post = latestBySubmittedAt(records.post)
+        const quiz = latestBySubmittedAt(records.quiz)
+        const preAvg = averageLikert(pre?.likertResponses)
+        const postAvg = averageLikert(post?.likertResponses)
+        const delta = preAvg !== null && postAvg !== null ? postAvg - preAvg : null
+
+        return {
+          sessionId,
+          pre,
+          post,
+          quiz,
+          preAvg,
+          postAvg,
+          delta,
+          paired: Boolean(pre && post),
+        }
+      })
+      .sort((a, b) => a.sessionId.localeCompare(b.sessionId))
+
+    const pairedRows = sessionRows.filter((row) => row.paired)
+
+    const likertComparisons = LIKERT_ITEMS.map((item) => {
+      const pairs = pairedRows
+        .map((row) => ({
+          pre: getLikertValue(row.pre?.likertResponses, item.id),
+          post: getLikertValue(row.post?.likertResponses, item.id),
+        }))
+        .filter((pair): pair is { pre: number; post: number } => pair.pre !== null && pair.post !== null)
+
+      const preMean = pairs.length
+        ? pairs.reduce((sum, pair) => sum + pair.pre, 0) / pairs.length
+        : null
+      const postMean = pairs.length
+        ? pairs.reduce((sum, pair) => sum + pair.post, 0) / pairs.length
+        : null
+
+      return {
+        ...item,
+        preMean,
+        postMean,
+        delta: preMean !== null && postMean !== null ? postMean - preMean : null,
+        count: pairs.length,
+      }
+    })
+
+    const scoreDistribution = SCORE_BUCKETS.map((score) => ({
+      score,
+      count: data.quizAttempts.filter((attempt) => attempt.score === score).length,
+    }))
+    const maxScoreCount = Math.max(1, ...scoreDistribution.map((bucket) => bucket.count))
+
+    return {
+      sessionRows,
+      pairedRows,
+      pairedCount: pairedRows.length,
+      likertComparisons,
+      scoreDistribution,
+      maxScoreCount,
+    }
+  }, [data])
+
+  const filteredSessionRows = useMemo(() => {
+    if (!analyticsData) {
+      return []
+    }
+
+    const searchQuery = sessionSearchText.trim().toLowerCase()
+
+    return analyticsData.sessionRows
+      .filter((row) => !searchQuery || row.sessionId.toLowerCase().includes(searchQuery))
+      .filter((row) => {
+        if (sessionFilter === 'paired') {
+          return row.paired
+        }
+
+        if (sessionFilter === 'passed') {
+          return row.quiz?.passed === true
+        }
+
+        if (sessionFilter === 'failed') {
+          return row.quiz?.passed === false
+        }
+
+        return true
+      })
+  }, [analyticsData, sessionFilter, sessionSearchText])
 
   const filteredData = useMemo(() => {
     if (!data) {
@@ -298,6 +503,216 @@ export default function AdminSubmissionsPage({ onBack }: { onBack: () => void })
               <p className="admin-export-note">
                 Detailed exports expand each answer and Likert response into individual columns — ready to open directly in Google Sheets.
               </p>
+            </section>
+
+            <section className="ce-panel admin-submissions-panel admin-analytics-panel">
+              <div className="ce-panel-head">
+                <h2>Likert pre/post comparison</h2>
+                <p>Paired analysis uses only sessions that submitted both pre-course and post-course evaluations.</p>
+              </div>
+
+              <div className="admin-analytics-meta">
+                <span>
+                  Paired sessions: <strong>{analyticsData?.pairedCount ?? 0}</strong>
+                </span>
+                <span className="admin-chart-legend">
+                  <span className="admin-legend-dot admin-legend-dot--pre" /> Pre-course mean
+                </span>
+                <span className="admin-chart-legend">
+                  <span className="admin-legend-dot admin-legend-dot--post" /> Post-course mean
+                </span>
+              </div>
+
+              {analyticsData && analyticsData.pairedCount > 0 ? (
+                <div className="admin-likert-chart" aria-label="Likert pre and post comparison chart">
+                  {analyticsData.likertComparisons.map((item) => {
+                    const preWidth = `${Math.max(0, Math.min(100, ((item.preMean ?? 0) / 5) * 100))}%`
+                    const postWidth = `${Math.max(0, Math.min(100, ((item.postMean ?? 0) / 5) * 100))}%`
+
+                    return (
+                      <article className="admin-likert-row" key={item.id}>
+                        <div className="admin-likert-label">
+                          <strong>{item.label}</strong>
+                          <span>{item.count} paired responses</span>
+                        </div>
+                        <div className="admin-likert-bars">
+                          <div className="admin-likert-bar-line">
+                            <span className="admin-likert-bar-title">Pre</span>
+                            <span className="admin-likert-bar-track">
+                              <span className="admin-likert-bar-fill admin-likert-bar-fill--pre" style={{ width: preWidth }} />
+                            </span>
+                            <span className="admin-likert-value">{formatMetric(item.preMean)}</span>
+                          </div>
+                          <div className="admin-likert-bar-line">
+                            <span className="admin-likert-bar-title">Post</span>
+                            <span className="admin-likert-bar-track">
+                              <span className="admin-likert-bar-fill admin-likert-bar-fill--post" style={{ width: postWidth }} />
+                            </span>
+                            <span className="admin-likert-value">{formatMetric(item.postMean)}</span>
+                          </div>
+                        </div>
+                        <span className={`admin-delta-pill admin-delta-pill--${deltaTone(item.delta)}`}>
+                          {formatDelta(item.delta)}
+                        </span>
+                      </article>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className="admin-empty-note">No paired pre/post evaluation sessions are available yet.</p>
+              )}
+            </section>
+
+            <section className="ce-panel admin-submissions-panel admin-analytics-panel">
+              <div className="ce-panel-head">
+                <h2>Individual session comparison</h2>
+                <p>Filter sessions, then open a row to compare each Likert item before and after the course.</p>
+              </div>
+
+              <div className="admin-session-controls">
+                <label className="admin-filter-field admin-filter-field--search">
+                  <span>Search session</span>
+                  <input
+                    type="search"
+                    value={sessionSearchText}
+                    onChange={(event) => setSessionSearchText(event.target.value)}
+                    placeholder="Search by session ID"
+                  />
+                </label>
+
+                <label className="admin-filter-field">
+                  <span>Session filter</span>
+                  <select value={sessionFilter} onChange={(event) => setSessionFilter(event.target.value as AdminSessionFilter)}>
+                    <option value="all">All</option>
+                    <option value="paired">Paired only</option>
+                    <option value="passed">Quiz passed</option>
+                    <option value="failed">Quiz failed</option>
+                  </select>
+                </label>
+              </div>
+
+              {filteredSessionRows.length === 0 ? (
+                <p className="admin-empty-note">No sessions match the current analytics filters.</p>
+              ) : (
+                <div className="admin-table-wrap">
+                  <table className="admin-table admin-session-table">
+                    <thead>
+                      <tr>
+                        <th>Session</th>
+                        <th>Quiz score</th>
+                        <th>Pre avg</th>
+                        <th>Post avg</th>
+                        <th>Delta</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredSessionRows.map((row) => {
+                        const isExpanded = expandedSessionId === row.sessionId
+                        const passTone = row.quiz ? (row.quiz.passed ? 'passed' : 'failed') : 'missing'
+
+                        return (
+                          <Fragment key={row.sessionId}>
+                            <tr
+                              className={`admin-session-row${isExpanded ? ' admin-session-row--expanded' : ''}`}
+                              tabIndex={0}
+                              onClick={() => setExpandedSessionId(isExpanded ? null : row.sessionId)}
+                              onKeyDown={(event) => {
+                                if (event.key === 'Enter' || event.key === ' ') {
+                                  event.preventDefault()
+                                  setExpandedSessionId(isExpanded ? null : row.sessionId)
+                                }
+                              }}
+                            >
+                              <td className="admin-mono-cell" title={row.sessionId}>
+                                {truncateSessionId(row.sessionId)}
+                              </td>
+                              <td>
+                                <span className="admin-score-cell">
+                                  {row.quiz ? `${row.quiz.score}/${row.quiz.maxScore}` : '—'}
+                                  <span className={`admin-pass-badge admin-pass-badge--${passTone}`}>
+                                    {row.quiz ? (row.quiz.passed ? 'Pass' : 'Fail') : 'No quiz'}
+                                  </span>
+                                </span>
+                              </td>
+                              <td>{formatMetric(row.preAvg)}</td>
+                              <td>{formatMetric(row.postAvg)}</td>
+                              <td>
+                                <span className={`admin-delta-pill admin-delta-pill--${deltaTone(row.delta)}`}>
+                                  {formatDelta(row.delta)}
+                                </span>
+                              </td>
+                            </tr>
+                            {isExpanded ? (
+                              <tr className="admin-session-detail-row">
+                                <td colSpan={5}>
+                                  <div className="admin-session-detail">
+                                    {LIKERT_ITEMS.map((item) => {
+                                      const preValue = getLikertValue(row.pre?.likertResponses, item.id)
+                                      const postValue = getLikertValue(row.post?.likertResponses, item.id)
+                                      const preWidth = `${Math.max(0, Math.min(100, ((preValue ?? 0) / 5) * 100))}%`
+                                      const postWidth = `${Math.max(0, Math.min(100, ((postValue ?? 0) / 5) * 100))}%`
+
+                                      return (
+                                        <div className="admin-session-mini-row" key={item.id}>
+                                          <span className="admin-session-mini-label">{item.label}</span>
+                                          <div className="admin-session-mini-bars">
+                                            <span className="admin-session-mini-track" aria-label={`Pre ${item.label}: ${preValue ?? 'missing'}`}>
+                                              <span className="admin-session-mini-fill admin-session-mini-fill--pre" style={{ width: preWidth }} />
+                                            </span>
+                                            <span className="admin-session-mini-track" aria-label={`Post ${item.label}: ${postValue ?? 'missing'}`}>
+                                              <span className="admin-session-mini-fill admin-session-mini-fill--post" style={{ width: postWidth }} />
+                                            </span>
+                                          </div>
+                                          <span className="admin-session-mini-values">
+                                            {preValue ?? '—'} / {postValue ?? '—'}
+                                          </span>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                </td>
+                              </tr>
+                            ) : null}
+                          </Fragment>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+
+            <section className="ce-panel admin-submissions-panel admin-analytics-panel">
+              <div className="ce-panel-head">
+                <h2>Quiz score distribution</h2>
+                <p>Scores are grouped from 0 to 10, with passing scores shown in green.</p>
+              </div>
+
+              {analyticsData && data.quizAttempts.length > 0 ? (
+                <div className="admin-score-distribution" aria-label="Quiz score distribution chart">
+                  {analyticsData.scoreDistribution.map((bucket) => {
+                    const barHeight = bucket.count === 0
+                      ? '0%'
+                      : `${Math.max(8, (bucket.count / analyticsData.maxScoreCount) * 100)}%`
+                    const tone = bucket.score >= 7 ? 'pass' : 'fail'
+
+                    return (
+                      <div className="admin-score-column" key={bucket.score}>
+                        <span className="admin-score-count">{bucket.count}</span>
+                        <span className="admin-score-bar-track">
+                          <span
+                            className={`admin-score-bar-fill admin-score-bar-fill--${tone}`}
+                            style={{ height: barHeight }}
+                          />
+                        </span>
+                        <span className="admin-score-label">{bucket.score}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className="admin-empty-note">No quiz attempts are available for score distribution yet.</p>
+              )}
             </section>
 
             <section className="ce-panel admin-submissions-panel">
